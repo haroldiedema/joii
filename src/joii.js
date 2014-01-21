@@ -10,13 +10,13 @@ function Class(params, body)
         body   = params;
         params = {};
     }
-    
+
     // Public API.
     return function() {
-        
+
         // Construct our object.
         var obj_class = function(){ this.parent = {} };
-        
+
         // Class inheritance
         if (typeof(params.extends) === 'function') {
             // If we're extending another 'Class', use this strange little "hack"
@@ -31,7 +31,7 @@ function Class(params, body)
                 obj_class = obj;
             }
         }
-        
+
         // Trait support
         var traits = {};
         if (params.uses !== undefined) {
@@ -46,23 +46,36 @@ function Class(params, body)
                 }
             }
         }
-        
+
         // Interface support
+        var interface_inheritance_blacklist = ['implements', '__interfaces__'];
         var interfaces = [];
         if (params.implements !== undefined) {
             var implements = typeof(params.implements) === 'object' ? params.implements : [params.implements];
             for (var x in implements) {
-                // For simplicity sake, we only allow objects to be implemented as interfaces.
-                if (typeof(implements[x]) !== 'object') {
-                    throw 'Interfaces should be of type Object, ' + typeof(implements[x]) + ' given.';
+                if (typeof(implements[x]) === 'object') {
+                    interfaces.push(implements[x]);
+                } else if(typeof(implements[x]) === 'function') {
+                    var obj = Object.create(implements[x].prototype);
+                    obj_class  = implements[x].apply(obj, arguments);
+                    var imp = {};
+                    for (var i in obj_class) {
+                        // Blacklist
+                        if (interface_inheritance_blacklist.indexOf(i) !== -1) {
+                            continue;
+                        }
+                        imp[i] = obj_class[i];
+                    }
+                    interfaces.push(imp);
+                } else {
+                    throw 'Unknown interface type: ' + typeof(implements[x]);
                 }
-                interfaces.push(implements[x]);
             }
         }
-        
+
         // Instantiate/construct the current scope.
         var o = Object.create(body.prototype);
-        
+
         // Apply "traits"
         for (var i in traits) {
             // Don't overwrite a method if it already exists.
@@ -70,10 +83,10 @@ function Class(params, body)
                 o[i] = traits[i];
             }
         }
-        
+
         // Invoke construct.
         var construct_result = body.apply(o, arguments);
-    
+
         // Apply elements from current scope to our class.
         for (var i in o) {
             // If a method already exists in this scope, move it to the parent.
@@ -83,23 +96,22 @@ function Class(params, body)
             }
             obj_class[i] = o[i];
         }
-        
+
         // Apply interfaces
         var i, name;
         obj_class.__interfaces__ = obj_class.__interfaces__ || [];
         for (var i in interfaces) {
             obj_class.__interfaces__.push(interfaces[i]);
         }
-        
+
         for (i in interfaces) {
             for (name in interfaces[i]) {
-                var type = typeof(interfaces[i][name]);
-                if (typeof(obj_class[name]) !== type) {
-                    throw 'Missing ' + type + ' implementation: ' + name;
+                if (typeof(obj_class[name]) !== interfaces[i][name]) {
+                    throw 'Missing ' + interfaces[i][name] + ' implementation: ' + name;
                 }
             }
         }
-        
+
         /**
          * Returns true if this class contains an implementation of {i}.
          *
@@ -124,13 +136,57 @@ function Class(params, body)
             }
             return false;
         }
-        
+
         // If a __construct class exists, execute it just for the heck of it.
         if (typeof(o.__construct) === 'function') {
             o.__construct.apply(obj_class, arguments);
         }
-            
+
         // Return the finalized product.
         return obj_class;
     }
 }
+/**
+ * Interface implementation for creation of class 'rules'.
+ *
+ * Example:
+ *     var iTest = new Interface({ extends: iAnotherInterface }, {
+ *         myMethod: 'function',
+ *         my_property: 'string'
+ *     });
+ */
+Interface = function(params, body) {
+
+    // Support only one argument if params are not required.
+    if (body === undefined && typeof params === 'function') {
+        body   = params;
+        params = {};
+    }
+
+    var implementation = {}, obj, ret, i;
+
+    if (typeof(params.extends) === 'function') {
+        obj = Object.create(params.extends.prototype);
+        ret = params.extends.apply(obj);
+        console.log('test');
+        for (i in obj) {
+            implementation[i] = obj[i];
+        }
+    }
+    if (typeof(params.extends) === 'object') {
+        implementation = params.extends;
+    }
+    if (typeof(body) === 'function') {
+        obj = Object.create(body.prototype);
+        ret = body.apply(obj);
+
+        for (i in obj) {
+            implementation[i] = obj[i];
+        }
+    } else {
+        for (var i in body) {
+            implementation[i] = body[i];
+        }
+    }
+    return implementation;
+};
