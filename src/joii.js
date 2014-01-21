@@ -168,7 +168,6 @@ Interface = function(params, body) {
     if (typeof(params.extends) === 'function') {
         obj = Object.create(params.extends.prototype);
         ret = params.extends.apply(obj);
-        console.log('test');
         for (i in obj) {
             implementation[i] = obj[i];
         }
