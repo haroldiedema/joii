@@ -150,7 +150,7 @@ var tMath = {
     sub : function(a, b) { return a - b; }
 }
 
-var MyClass = new Class({ using: [tLogger, tMath] }, function()
+var MyClass = new Class({ uses: [tLogger, tMath] }, function()
 {
     this.__construct = function()
     {
@@ -213,7 +213,7 @@ Note that once binding the interface `iLoggable` to this class, the definition r
 
 
 ```javascript
-var User = new Class({extends: ObjectStorage, implements: [iUser, iLoggable], using: [tLogger]}, function() {
+var User = new Class({extends: ObjectStorage, implements: [iUser, iLoggable], uses: [tLogger]}, function() {
 
     this.__construct = function(username, displayname)
     {
