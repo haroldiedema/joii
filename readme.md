@@ -12,6 +12,7 @@ I've seen lots of attempts from people trying to create a way of implementing ob
 * Overrides & parent inheritance
 * Using interfaces, making sure a class contains the functionality you need.
 * Using traits, get rid of horizontal code duplication.
+* Constructors & Destructors
 
 Check out the examples below for the possibilities.
 
@@ -288,6 +289,11 @@ var User = new Class({extends: ObjectStorage, implements: [iUser, iLoggable], us
     {
         this.set('username', username);
         this.set('displayname', displayname);
+        this.log('User class constructed for ' + username);
+    }
+    
+    this.__destruct = function() {
+        this.log('User object ' + username + ' destructed.');
     }
 
    this.getUsername = function()
