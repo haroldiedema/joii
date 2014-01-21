@@ -254,14 +254,14 @@ var ObjectStorage = function()
 Moving on to some interfaces. Afterall, we want to make sure we're dealing with an actual "user" object that contains the functionality we eventually need...
 
 ```javascript
-var iUser = {
+var iUser = new Interface({
     getUsername    : function(){},
     getDisplayname : function(){}
-};
+});
 
-var iLoggable = {
+var iLoggable = new Interface({
     log : function(msg){}
-};
+});
 ```
 
 And a simple logger trait that lets us...erm... log things.
@@ -276,7 +276,7 @@ var tLogger = {
 And the final product.
 
 * We ***extend*** on `ObjectStorage`.
-* We ***implement*** the functionality definition of `iUser` and `iLoggable`.
+* We ***implement*** the interface definition of `iUser` and `iLoggable`.
 * We ***use*** the functionality of the trait `tLogger`.
 
 Note that once binding the interface `iLoggable` to this class, the definition rule is directly solved because we're injecting the required functionality using the trait `tLogger`.
