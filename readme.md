@@ -175,8 +175,8 @@ var ObjectStorage = function()
         this.storage[key] = value;
     }
     
-    this.get = function(key, default) {
-        return this.storage[key] || default;
+    this.get = function(key, _default) {
+        return this.storage[key] || _default;
     }
 }
 ```
