@@ -137,7 +137,25 @@ function Class(params, body)
             return false;
         }
 
-        // If a __construct class exists, execute it just for the heck of it.
+        // If we have a destructor method, bind it to the window unload event.
+        // Some browsers might freak out on this, so don't rely on it if you
+        // wish to support older browsers.
+        if (typeof(o.__destruct) === 'function') {
+            window.addEventListener('beforeunload', function(event) {
+                return o.__destruct.call(obj_class, event);
+            });
+        }
+
+        // Since __destruct binds to 'beforeunload', we also might want to
+        // implement something that binds to 'unload'.
+        if (typeof(o.__unload) === 'function') {
+            window.addEventListener('unload', function(event) {
+                return o.__unload.call(obj_class, event);
+            });
+        }
+
+        // If a __construct class exists, execute to support constructors in
+        // classes declared as objects instead of functions.
         if (typeof(o.__construct) === 'function') {
             o.__construct.apply(obj_class, arguments);
         }
