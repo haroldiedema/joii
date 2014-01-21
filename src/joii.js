@@ -3,7 +3,7 @@
  *
  * @author Harold Iedema <harold@iedema.me>
  */
-window.Class = function(params, body)
+function Class(params, body)
 {
     // Support only one argument if params are not required.
     if (body === undefined && typeof params === 'function') {
