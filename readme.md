@@ -104,17 +104,45 @@ new MyClass();
 ## Interfaces ##
 Ever wanted to make sure a certain object contains functionality that you need? JOII gives you the possibility to implement so-called "interfaces". An interface in this way is only an object containing a set of properties that the class **must** implement. If it does not, an exception is thrown. Once an object implements a certain object, simply use the `implements()` method to check if it has the functionality you seek.
 
-### Example: A simple interface usecase ###
+Declaring an interface is remarkably similar to declaring classes with a few exceptions.
+
+* An interface can NOT implement other interfaces
+* An interface can NOT use traits
+* An interface CAN extend on other interfaces
+
+Since an interface must never contain any functional code but only a definition of methods which a class must implement, its prefered to use an object-syntax for declaring interfaces. This way the *key* is the *method* and the *value* is the *type*.
+```javascript
+var iTest = new Interface({
+    myMethod: 'function'
+});
+
+var iAnotherTest = new Interface({ extends: iTest }, {
+    anotherMethod: 'function'
+})
+```
+
+If you prefer to use an object-syntax for interface decarations or if your company specifies this in their code-style rules, you may also do that:
+```javascript
+var iTest = new Interface(function() {
+    this.myMethod = 'function';
+});
+
+var iAnotherTest = new Interface({ extends: iTest }, function(){
+    this.anotherMethod = 'function';
+})
+```
+
+
+### Example 1: A simple interface usecase ###
 
 ```javascript
-var iUser = {
-    // Note that types are checked, but functionality isn't used. Simply use empty function body.
-    getUsername: function() {}
-}
+var iUser = new Interface({
+    getUsername: 'function'
+});
 
-var iLoggable = {
+var iLoggable = new Interface({
     log: function(msg) {}
-}
+});
 
 var MyClass = new Class({ implements: [iUser]}, function()
 {
@@ -132,6 +160,47 @@ example.implements(iLoggable); // false
 if (example.implements(iUser)) {
     console.log( example.getUsername() ); // prints: user
 }
+```
+
+### Example 2: Interfaces extending interfaces ###
+
+In some cases, you wish to check if a certain class implements a specific interface. However, this interface you want to check is the parent if the interface your class is using... No problemo!
+
+```javascript
+/**
+ * Our base interface.
+ */
+var iBase = new Interface({
+    baseMethod: 'function'
+});
+
+/**
+ * Our interface we're going to implement, extending on iBase.
+ */
+var iAnother = new Interface({ extends: iBase}, {
+    anotherMethod: 'function'
+})
+
+/**
+ * Our class. Note that we're only implementing iAnother.
+ */
+var MyClass = new Class({ implements: [iAnother] }, function(){
+    
+    this.baseMethod = function() {
+        return 'This is a base method.';
+    }
+    
+    this.anotherMethod = function() {
+        return 'This is another method.';
+    }
+})
+
+// Instantiate our class.
+var my = new MyClass();
+
+// Check for implementations.
+my.implements(iAnother); // true
+my.implements(iBase); // true
 ```
 
 ## Traits ##
