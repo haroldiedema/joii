@@ -34,14 +34,14 @@ window.Class = function(params, body)
         
         // Trait support
         var traits = {};
-        if (params.using !== undefined) {
-            var using = typeof(params.using) === 'object' ? params.using : [params.using];
+        if (params.uses !== undefined) {
+            var uses = typeof(params.uses) === 'object' ? params.uses : [params.uses];
             // Iterate over "traits".
-            for (var e in using) {
+            for (var e in uses) {
                 // ... And their functions...
-                for (var i in using[e]) {
-                    if (typeof(using[e][i]) === 'function') {
-                        traits[i] = using[e][i];
+                for (var i in uses[e]) {
+                    if (typeof(uses[e][i]) === 'function') {
+                        traits[i] = uses[e][i];
                     }
                 }
             }
