@@ -1,3 +1,14 @@
+/**
+ * (JOII) Javascript Object Inheritance Implementation
+ *
+ * @author Harold Iedema <harold@iedema.me>
+ */
+
+// Namespace/Alias Collection
+__joii__ = {
+        aliases: {}
+};
+
 // Crappy IE hack. (IE 8 and below)
 if(Object.create === undefined) {
     Object.create = function( o ) {
@@ -16,7 +27,7 @@ function Class(params, body)
     }
 
     // Public API.
-    return function() {
+    var ret = function() {
 
         // Construct our object.
         var obj_class = function(){ };
@@ -200,14 +211,18 @@ function Class(params, body)
             o.__construct.apply(obj_class, arguments);
         }
 
-        // Alias registration
-        if (typeof(params.name) === 'string') {
-            __joii__.aliases[params.name] = obj_class;
-        }
+
 
         // Return the finalized product.
         return obj_class;
     }
+
+    // Alias registration
+    if (typeof(params.name) === 'string') {
+        __joii__.aliases[params.name] = ret;
+    }
+
+    return ret;
 }
 /**
  * Interface implementation for creation of class 'rules'.
@@ -261,6 +276,7 @@ Interface = function(params, body) {
     }
 
     if (typeof(params.name) === 'string') {
+        console.debug('Registered alias: ' + params.name);
         __joii__.aliases[params.name] = implementation;
     }
     return implementation;
