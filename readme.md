@@ -7,12 +7,14 @@ I've seen lots of attempts from people trying to create a way of implementing ob
 
 ## Features ##
 
-* Lightweight! (2kb minified)
+* Lightweight! (3.5kb minified)
+* ***Supports Internet Explorer 6 !***
 * Extending native and JOII-classes.
 * Overrides & parent inheritance
 * Using interfaces, making sure a class contains the functionality you need.
 * Using traits, get rid of horizontal code duplication.
 * Constructors & Destructors
+* Aliases for global accessibility.
 
 Check out the examples below for the possibilities.
 
@@ -100,6 +102,30 @@ var MyClass = new Class({ extends: SecondBaseClass }, function()
 
 // instantiate the class.
 new MyClass();
+```
+
+### Example 3: Using aliases ###
+
+Sometimes functions (classes) aren't available on the global scope. For this we have aliases. Simply name your class in the parameters object and you'll be able to use this name to extend, implement or mixin on the desired class.
+
+```javascript
+new Interface({ name: 'example.interface' }, {
+    foo: 'string'
+});
+
+new Class({ name: 'example.some.class', implements: ['example.interface'] }, function() {
+    this.foo = "bar";
+});
+
+new Class({ name: 'example.rawr', extends: 'example.some.class' }, function() {
+    this.__construct = function() {
+        console.log(this.foo) // "bar"
+    }
+});
+
+var obj = new Class({ extends: 'example.rawr' }, function(){});
+
+new obj(); // prints "bar".
 ```
 
 ## Interfaces ##
