@@ -1,8 +1,12 @@
-/**
- * (JOII) Javascript Object Inheritance Implementation
- *
- * @author Harold Iedema <harold@iedema.me>
- */
+// Crappy IE hack. (IE 8 and below)
+if(Object.create === undefined) {
+    Object.create = function( o ) {
+        function F(){}
+        F.prototype = o;
+        return new F();
+    };
+}
+
 function Class(params, body)
 {
     // Support only one argument if params are not required.
@@ -15,19 +19,26 @@ function Class(params, body)
     return function() {
 
         // Construct our object.
-        var obj_class = function(){ this.parent = {} };
+        var obj_class = function(){ };
 
         // Class inheritance
-        if (typeof(params.extends) === 'function') {
+        if (typeof(params['extends']) === 'string') {
+            var alias = params['extends'];
+            params['extends'] = __joii__.aliases[alias];
+            if (typeof(params['extends']) === 'undefined') {
+                throw 'Alias "' + alias + '" does not exist.';
+            }
+        }
+        if (typeof(params['extends']) === 'function') {
             // If we're extending another 'Class', use this strange little "hack"
             // to get the results we need.
-            if (params.extends.toString().indexOf('is-class-reference') !== -1) {
-                var obj = Object.create(params.extends.prototype);
-                obj_class  = params.extends.apply(obj, arguments);
+            if (params['extends'].toString().indexOf('is-class-reference') !== -1) {
+                var obj = Object.create(params['extends'].prototype);
+                obj_class  = params['extends'].apply(obj, arguments);
             } else {
             // Use this for native functions/objects.
-                var obj = Object.create(params.extends.prototype);
-                params.extends.apply(obj, arguments);
+                var obj = Object.create(params['extends'].prototype);
+                params['extends'].apply(obj, arguments);
                 obj_class = obj;
             }
         }
@@ -38,6 +49,13 @@ function Class(params, body)
             var uses = typeof(params.uses) === 'object' ? params.uses : [params.uses];
             // Iterate over "traits".
             for (var e in uses) {
+                if (typeof(uses[e]) === 'string') {
+                    var alias = uses[e];
+                    uses[e] = __joii__.aliases[alias];
+                    if (typeof(uses[e]) === 'undefined') {
+                        throw 'Alias "' + alias + '" does not exist.';
+                    }
+                }
                 // ... And their functions...
                 for (var i in uses[e]) {
                     if (typeof(uses[e][i]) === 'function') {
@@ -53,18 +71,25 @@ function Class(params, body)
         if (params.implements !== undefined) {
             var implements = typeof(params.implements) === 'object' ? params.implements : [params.implements];
             for (var x in implements) {
+                if (typeof(implements[x]) === 'string') {
+                    var alias = implements[x];
+                    implements[x] = __joii__.aliases[alias];
+                    if (typeof(implements[x]) === 'undefined') {
+                        throw 'Alias "' + alias + '" does not exist.';
+                    }
+                }
                 if (typeof(implements[x]) === 'object') {
                     interfaces.push(implements[x]);
                 } else if(typeof(implements[x]) === 'function') {
                     var obj = Object.create(implements[x].prototype);
-                    obj_class  = implements[x].apply(obj, arguments);
+                    var inf_class = implements[x].apply(obj, arguments);
                     var imp = {};
-                    for (var i in obj_class) {
+                    for (var i in inf_class) {
                         // Blacklist
                         if (interface_inheritance_blacklist.indexOf(i) !== -1) {
                             continue;
                         }
-                        imp[i] = obj_class[i];
+                        imp[i] = inf_class[i];
                     }
                     interfaces.push(imp);
                 } else {
@@ -95,19 +120,27 @@ function Class(params, body)
                 obj_class.parent[i] = obj_class[i];
             }
             obj_class[i] = o[i];
+
+            // Since "name" is a reserved property of 'prototype', we'll have to
+            // save it somewhere else...
+            if (i === 'name') {
+                console.warn("A property 'name' is ignored since its a reserved name by Prototype. See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/name. Your value has been stored in this._name instead.");
+                obj_class._name = o[i];
+            }
         }
 
+
         // Apply interfaces
-        var i, name;
+        var i, interface_name;
         obj_class.__interfaces__ = obj_class.__interfaces__ || [];
         for (var i in interfaces) {
             obj_class.__interfaces__.push(interfaces[i]);
         }
 
         for (i in interfaces) {
-            for (name in interfaces[i]) {
-                if (typeof(obj_class[name]) !== interfaces[i][name]) {
-                    throw 'Missing ' + interfaces[i][name] + ' implementation: ' + name;
+            for (interface_name in interfaces[i]) {
+                if (typeof(obj_class[interface_name]) !== interfaces[i][interface_name]) {
+                    throw 'Missing ' + interfaces[i][interface_name] + ' implementation: ' + interface_name;
                 }
             }
         }
@@ -120,6 +153,13 @@ function Class(params, body)
         obj_class.implements = function(i)
         {
             var sig = [];
+            if (typeof(i) === 'string') {
+                var alias = i;
+                i = __joii__.aliases[alias];
+                if (typeof(i) === 'undefined') {
+                    throw 'Alias "' + alias + '" does not exist.';
+                }
+            }
             for (var x in i) {
                 sig.push(typeof(i[x]) + ':'+x);
             }
@@ -160,6 +200,11 @@ function Class(params, body)
             o.__construct.apply(obj_class, arguments);
         }
 
+        // Alias registration
+        if (typeof(params.name) === 'string') {
+            __joii__.aliases[params.name] = obj_class;
+        }
+
         // Return the finalized product.
         return obj_class;
     }
@@ -168,7 +213,7 @@ function Class(params, body)
  * Interface implementation for creation of class 'rules'.
  *
  * Example:
- *     var iTest = new Interface({ extends: iAnotherInterface }, {
+ *     var iTest = new Interface({ 'extends': iAnotherInterface }, {
  *         myMethod: 'function',
  *         my_property: 'string'
  *     });
@@ -183,15 +228,24 @@ Interface = function(params, body) {
 
     var implementation = {}, obj, ret, i;
 
-    if (typeof(params.extends) === 'function') {
-        obj = Object.create(params.extends.prototype);
-        ret = params.extends.apply(obj);
+    if (typeof(params['extends']) === 'string') {
+        var alias = params['extends'];
+        params['extends'] = __joii__.aliases[alias];
+        if (typeof(params['extends']) === 'undefined') {
+            throw 'Alias "' + alias + '" does not exist.';
+        }
+    }
+
+    if (typeof(params['extends']) === 'function') {
+        obj = Object.create(params['extends'].prototype);
+        ret = params['extends'].apply(obj);
         for (i in obj) {
             implementation[i] = obj[i];
         }
     }
-    if (typeof(params.extends) === 'object') {
-        implementation = params.extends;
+
+    if (typeof(params['extends']) === 'object') {
+        implementation = params['extends'];
     }
     if (typeof(body) === 'function') {
         obj = Object.create(body.prototype);
@@ -204,6 +258,10 @@ Interface = function(params, body) {
         for (var i in body) {
             implementation[i] = body[i];
         }
+    }
+
+    if (typeof(params.name) === 'string') {
+        __joii__.aliases[params.name] = implementation;
     }
     return implementation;
 };
