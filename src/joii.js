@@ -276,7 +276,6 @@ Interface = function(params, body) {
     }
 
     if (typeof(params.name) === 'string') {
-        console.debug('Registered alias: ' + params.name);
         __joii__.aliases[params.name] = implementation;
     }
     return implementation;
