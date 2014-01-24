@@ -4,24 +4,79 @@
  * @author Harold Iedema <harold@iedema.me>
  */
 
+//Crappy IE hack. (IE 8 and below)
+if(Object.create === undefined) {
+Object.create = function( o ) {
+   function F(){}
+   F.prototype = o;
+   return new F();
+};
+}
+
 // Namespace/Alias Collection
 __joii__ = {
-        aliases: {}
-};
+    aliases: {},
+    proto: {
+        /**
+         * Returns true if the given interface name is implemented within the
+         * current object.
+         *
+         * @return bool
+         */
+        implements: function(i)
+        {
+            var sig = [];
+            if (typeof(i) === 'string') {
+                var alias = i;
+                i = __joii__.aliases[alias];
+                if (typeof(i) === 'undefined') {
+                    throw 'Alias "' + alias + '" does not exist.';
+                }
+            }
+            for (var x in i) {
+                sig.push(typeof(i[x]) + ':'+x);
+            }
+            sig = JSON.stringify(sig);
+            for (var i in this.__interfaces__) {
+                var sig_i = [];
+                for (var x in this.__interfaces__[i]) {
+                    sig_i.push(typeof(this.__interfaces__[i][x]) + ':' + x);
+                }
+                sig_i = JSON.stringify(sig_i);
+                if (sig === sig_i) {
+                    return true;
+                }
+            }
+            return false;
+        },
 
-// Crappy IE hack. (IE 8 and below)
-if(Object.create === undefined) {
-    Object.create = function( o ) {
-        function F(){}
-        F.prototype = o;
-        return new F();
-    };
-}
+        /**
+         * Applies the functions and properties of the given object to the
+         * current function scope.
+         *
+         * @param object obj
+         */
+        mixin: function(obj, overwrite_existing)
+        {
+            overwrite_existing = overwrite_existing || false;
+            if (typeof(obj) === 'function') {
+                var o = obj;
+                obj = Object.create(o.prototype, this);
+                obj = o.apply(this, []); // @todo add arguments support
+            }
+            for (var i in obj) {
+                if ((this[i] !== undefined && overwrite_existing === true) || this[i] === undefined) {
+                    this[i] = obj[i];
+                }
+            }
+        }
+    }
+};
 
 function Class(params, body)
 {
     // Support only one argument if params are not required.
-    if (body === undefined && typeof params === 'function') {
+    if (body === undefined && (typeof params === 'function' || typeof params === 'object')) {
         body   = params;
         params = {};
     }
@@ -110,7 +165,12 @@ function Class(params, body)
         }
 
         // Instantiate/construct the current scope.
-        var o = Object.create(body.prototype);
+        var o;
+        if (typeof(body) === 'function') {
+            o = Object.create(body.prototype);
+        } else {
+            o = body;
+        }
 
         // Apply "traits"
         for (var i in traits) {
@@ -121,7 +181,9 @@ function Class(params, body)
         }
 
         // Invoke construct.
-        var construct_result = body.apply(o, arguments);
+        if (typeof(body) === 'function') {
+            var construct_result = body.apply(o, arguments);
+        }
 
         // Apply elements from current scope to our class.
         for (var i in o) {
@@ -156,36 +218,9 @@ function Class(params, body)
             }
         }
 
-        /**
-         * Returns true if this class contains an implementation of {i}.
-         *
-         * @return boolean
-         */
-        obj_class.implements = function(i)
-        {
-            var sig = [];
-            if (typeof(i) === 'string') {
-                var alias = i;
-                i = __joii__.aliases[alias];
-                if (typeof(i) === 'undefined') {
-                    throw 'Alias "' + alias + '" does not exist.';
-                }
-            }
-            for (var x in i) {
-                sig.push(typeof(i[x]) + ':'+x);
-            }
-            sig = JSON.stringify(sig);
-            for (var i in this.__interfaces__) {
-                var sig_i = [];
-                for (var x in this.__interfaces__[i]) {
-                    sig_i.push(typeof(this.__interfaces__[i][x]) + ':' + x);
-                }
-                sig_i = JSON.stringify(sig_i);
-                if (sig === sig_i) {
-                    return true;
-                }
-            }
-            return false;
+        // Apply JOII-proto
+        for (var i in __joii__.proto) {
+            obj_class[i] = __joii__.proto[i];
         }
 
         // If we have a destructor method, bind it to the window unload event.
@@ -236,7 +271,7 @@ function Class(params, body)
 Interface = function(params, body) {
 
     // Support only one argument if params are not required.
-    if (body === undefined && typeof params === 'function') {
+    if (body === undefined && (typeof params === 'function' || typeof params === 'object')) {
         body   = params;
         params = {};
     }
@@ -278,5 +313,6 @@ Interface = function(params, body) {
     if (typeof(params.name) === 'string') {
         __joii__.aliases[params.name] = implementation;
     }
+
     return implementation;
 };
