@@ -7,7 +7,7 @@ I've seen lots of attempts from people trying to create a way of implementing ob
 
 ## Features ##
 
-* Lightweight! (3.5kb minified)
+* Lightweight! (3.5k minified)
 * ***Supports Internet Explorer 6 !***
 * Extending native and JOII-classes.
 * Overrides & parent inheritance
@@ -15,6 +15,7 @@ I've seen lots of attempts from people trying to create a way of implementing ob
 * Using traits, get rid of horizontal code duplication.
 * Constructors & Destructors
 * Aliases for global accessibility.
+* On-the-fly mixin support
 
 Check out the examples below for the possibilities.
 
@@ -126,6 +127,55 @@ new Class({ name: 'example.rawr', extends: 'example.some.class' }, function() {
 var obj = new Class({ extends: 'example.rawr' }, function(){});
 
 new obj(); // prints "bar".
+```
+
+### Example 4: Use objects instead of functions ###
+If you don't like to use functions as class objects, you're free to use object-style syntax instead:
+
+```javascript
+var BaseClass = Class({
+    foo: "bar"
+});
+
+var MyClass = Class({ extends: BaseClass }, {
+{
+    /**
+     * @param string value
+     */
+    __construct: function(value)
+    {
+        this.some_var = value;
+        console.log(this.foo);
+    }
+});
+
+var m = new MyClass(); // prints: bar
+
+```
+## Mixins ##
+If you want to apply functionality from another object on-the-fly, after you already instantiated a class, you can use the `.mixin` method. This will copy all methods and properties from the mixin to the current object scope. Existing properties and methods are not overwritten unless you give the overwrite argument. See example:
+
+```javascript
+var MyClass = Class(function() {
+   this.test = function() {
+       return "Hello World";
+   }
+});
+var MyMixin = Class(function() {
+   this.test = function() {
+       return "Foobar";
+   }
+});
+
+var m = new MyClass();
+console.log(m.test()); // Prints: Hello World
+
+m.mixin(MyMixin);
+console.log(m.test()); // Prints: Hello World
+
+// Overwrite existing elements:
+m.mixin(MyMixin, true);
+console.log(m.test()); // Prints: Foobar
 ```
 
 ## Interfaces ##
