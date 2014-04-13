@@ -6,11 +6,11 @@
 
 //Crappy IE hack. (IE 8 and below)
 if(Object.create === undefined) {
-Object.create = function( o ) {
-   function F(){}
-   F.prototype = o;
-   return new F();
-};
+    Object.create = function( o ) {
+       function F(){}
+       F.prototype = o;
+       return new F();
+    };
 }
 
 // Namespace/Alias Collection
@@ -182,16 +182,17 @@ function Class(params, body)
 
         // Invoke construct.
         if (typeof(body) === 'function') {
-            var construct_result = body.apply(o, arguments);
+            body.apply(o, arguments);
         }
 
         // Apply elements from current scope to our class.
         for (var i in o) {
-            // If a method already exists in this scope, move it to the parent.
-            if (obj_class[i] !== undefined) {
-                obj_class.parent = obj_class.parent || {};
-                obj_class.parent[i] = obj_class[i];
+            if (!o.hasOwnProperty(i)) {
+                continue;
             }
+            // If a method already exists in this scope, move it to the parent.
+            obj_class.parent = obj_class.parent || {};
+            obj_class.parent[i] = obj_class[i] || o[i];
             obj_class[i] = o[i];
 
             // Since "name" is a reserved property of 'prototype', we'll have to
@@ -201,7 +202,6 @@ function Class(params, body)
                 obj_class._name = o[i];
             }
         }
-
 
         // Apply interfaces
         var i, interface_name;
@@ -295,7 +295,7 @@ Interface = function(params, body) {
     }
 
     if (typeof(params['extends']) === 'object') {
-        implementation = params['extends'];
+        implementation = JSON.parse(JSON.stringify(params['extends']));
     }
     if (typeof(body) === 'function') {
         obj = Object.create(body.prototype);
