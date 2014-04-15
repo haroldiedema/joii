@@ -5,7 +5,7 @@
 
 I've seen lots of attempts from people trying to create a way of implementing object inheritance in javascript, but rarely see anything successful, unless it's bloated with an entire framework. If you're looking for a minimalistic approach, you came to the right place.
 
-See extended documentation and samples here: http://harold.info/projects/joii
+See extended documentation and samples here: http://harold.info/projects/joii or on the github page: http://haroldiedema.github.io/joii/
 
 ## Features ##
 
