@@ -100,7 +100,7 @@ function Class(params, body)
             // to get the results we need.
             if (params['extends'].toString().indexOf('is-class-reference') !== -1) {
                 var obj = Object.create(params['extends'].prototype);
-                obj_class  = params['extends'].apply(obj, arguments);
+                obj_class = params['extends'].apply(obj, arguments);
             } else {
             // Use this for native functions/objects.
                 var obj = Object.create(params['extends'].prototype);
@@ -246,7 +246,14 @@ function Class(params, body)
             o.__construct.apply(obj_class, arguments);
         }
 
-
+        // Get rid of 'private' properties
+        for (var i in obj_class) {
+            if (obj_class.hasOwnProperty(i)) {
+                if (i.charAt(0) === '_') {
+                    delete obj_class[i];
+                }
+            }
+        }
 
         // Return the finalized product.
         return obj_class;
@@ -256,7 +263,7 @@ function Class(params, body)
     if (typeof(params.name) === 'string') {
         __joii__.aliases[params.name] = ret;
     }
-
+    
     return ret;
 }
 /**

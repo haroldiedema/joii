@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JOII QUnit</title>
+    
+    <script type="text/javascript" src="http://code.jquery.com/qunit/qunit-1.14.0.js"></script>
+    <script type="text/javascript" src="src/joii.js"></script>
+    
+    <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.14.0.css">
+    
+</head>
+<body>
+<div id="qunit"></div>
+
+<script>QUnit.module("Classes")</script>
+<script src="test/qunit.class.constructor.js"></script>
+<script src="test/qunit.class.extends.js"></script>
+<script src="test/qunit.class.visibility.js"></script>
+
+<script>QUnit.module("Interfaces")</script>
+<script src="test/qunit.interface.js"></script>
+<script src="test/qunit.interface.extends.js"></script>
+<script src="test/qunit.interface.extends.class.js"></script>
+
+<script>QUnit.module("Traits")</script>
+<script src="test/qunit.trait.js"></script>
+<script src="test/qunit.trait.extends.js"></script>
+
+<script>QUnit.module("Mixins")</script>
+<script src="test/qunit.mixin.js"></script>
+
+</body>
+</html>
