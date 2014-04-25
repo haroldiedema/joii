@@ -9,6 +9,7 @@ See extended documentation and samples here: http://harold.info/projects/joii or
 
 ## Features ##
 
+* Unit-tested using QUnit (http://qunitjs.com/)
 * Lightweight! (3.5k minified)
 * ***Supports Internet Explorer 6 !***
 * Extending native and JOII-classes.
