@@ -44,7 +44,7 @@ Assuming you have basic knowledge of javascript, or any programming language in 
 
 Lets move on to a class declaration that's going to **extend** on this class.
 ```javascript
-var MyClass = new Class({ extends: BaseClass }, function()
+var MyClass = Class({ extends: BaseClass }, function()
 {
     /**
      * @param string value
@@ -73,7 +73,7 @@ Lets move on to something a little more intermediate. We'll create 2 *base* clas
 
 ```javascript
 // Note that the parameters argument isn't required if you don't need it.
-var BaseClass = new Class(function()
+var BaseClass = Class(function()
 {
     /**
      * @return string
@@ -84,7 +84,7 @@ var BaseClass = new Class(function()
     }
 });
 
-var SecondBaseClass = new Class({ extends: BaseClass }, function()
+var SecondBaseClass = Class({ extends: BaseClass }, function()
 {
     /**
      * @see BaseClass.getText
@@ -95,7 +95,7 @@ var SecondBaseClass = new Class({ extends: BaseClass }, function()
     }
 });
 
-var MyClass = new Class({ extends: SecondBaseClass }, function()
+var MyClass = Class({ extends: SecondBaseClass }, function()
 {
     this.__construct = function()
     {
@@ -117,17 +117,17 @@ new Interface({ name: 'example.interface' }, {
     foo: 'string'
 });
 
-new Class({ name: 'example.some.class', implements: ['example.interface'] }, function() {
+Class({ name: 'example.some.class', implements: ['example.interface'] }, function() {
     this.foo = "bar";
 });
 
-new Class({ name: 'example.rawr', extends: 'example.some.class' }, function() {
+Class({ name: 'example.rawr', extends: 'example.some.class' }, function() {
     this.__construct = function() {
         console.log(this.foo) // "bar"
     }
 });
 
-var obj = new Class({ extends: 'example.rawr' }, function(){});
+var obj = Class({ extends: 'example.rawr' }, function(){});
 
 new obj(); // prints "bar".
 ```
@@ -224,7 +224,7 @@ var iLoggable = new Interface({
     log: function(msg) {}
 });
 
-var MyClass = new Class({ implements: [iUser]}, function()
+var MyClass = Class({ implements: [iUser]}, function()
 {
     this.getUsername = function() {
         return 'user';
@@ -264,7 +264,7 @@ var iAnother = new Interface({ extends: iBase}, {
 /**
  * Our class. Note that we're only implementing iAnother.
  */
-var MyClass = new Class({ implements: [iAnother] }, function(){
+var MyClass = Class({ implements: [iAnother] }, function(){
     
     this.baseMethod = function() {
         return 'This is a base method.';
@@ -299,7 +299,7 @@ var tMath = {
     sub : function(a, b) { return a - b; }
 }
 
-var MyClass = new Class({ uses: [tLogger, tMath] }, function()
+var MyClass = Class({ uses: [tLogger, tMath] }, function()
 {
     this.__construct = function()
     {
@@ -362,7 +362,7 @@ Note that once binding the interface `iLoggable` to this class, the definition r
 
 
 ```javascript
-var User = new Class({extends: ObjectStorage, implements: [iUser, iLoggable], uses: [tLogger]}, function() {
+var User = Class({extends: ObjectStorage, implements: [iUser, iLoggable], uses: [tLogger]}, function() {
 
     this.__construct = function(username, displayname)
     {
