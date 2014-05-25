@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script type="text/javascript" src="dist/joii.min.js" data-ns="$"></script>
+    <script type="text/javascript" src="src/joii.min.js" data-ns="$"></script>
+    <script type="text/javascript" src="src/plugins/joii.mixin.js"></script>
     <script type="text/javascript" src="test/qunit.js"></script>
     <link rel="stylesheet" href="test/qunit.css">
 </head>
 <body>
     <div id="qunit"></div>
+
     <script type="text/javascript" src="test/class.js"></script>
     <script type="text/javascript" src="test/inheritance-basic.js"></script>
     <script type="text/javascript" src="test/inheritance-deep.js"></script>
+    <script type="text/javascript" src="test/interface.js"></script>
+    <script type="text/javascript" src="test/traits.js"></script>
+
     <script type="text/javascript" src="test/plugin-scope.js"></script>
     <script type="text/javascript" src="test/plugin-support.js"></script>
     <script type="text/javascript" src="test/plugin-compile.js"></script>
-    <script type="text/javascript" src="test/interface.js"></script>
-    <script type="text/javascript" src="test/traits.js"></script>
+
+    <script type="text/javascript" src="test/joii.plugin.mixin.js"></script>
 </body>
 </html>
