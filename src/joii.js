@@ -17,7 +17,7 @@
 
  ------------------------------------------------------------------------------
 */
-var _g = window || global;
+var _g = (typeof(window) !== 'undefined') ? window : global;
 
 _g.$JOII = {
 
@@ -463,13 +463,19 @@ _g.$JOII = {
      */
     initialize: function()
     {
-        var scripts = document.getElementsByTagName( 'script' ),
-            current = scripts[scripts.length - 1];
-        if (!(ns = current.getAttribute('data-ns'))) {
+        var ns;
+        if (typeof(window) === 'undefined' && typeof(module) !== 'undefined') {
+            module.exports = _g.$JOII.PublicAPI;
             ns = _g;
-        }
-        if (typeof(ns) === 'string') {
-            ns = _g.$JOII.Compat.CreateNamespaceObject(ns);
+        } else {
+            var scripts = document.getElementsByTagName( 'script' ),
+                current = scripts[scripts.length - 1];
+            if (!(ns = current.getAttribute('data-ns'))) {
+                ns = _g;
+            }
+            if (typeof(ns) === 'string') {
+                ns = _g.$JOII.Compat.CreateNamespaceObject(ns);
+            }
         }
         for (var i in _g.$JOII.PublicAPI) {
             if (_g.$JOII.PublicAPI.hasOwnProperty(i)) {
@@ -480,3 +486,5 @@ _g.$JOII = {
 };
 
 _g.$JOII.initialize();
+
+
