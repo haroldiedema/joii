@@ -7,9 +7,10 @@ Check out the [website](http://joii.harold.info/) for examples and documentation
 
 # Features
 
+* ***Dependency Injection***
+* ***Supports Internet Explorer 5 and up***
 * Extremely lightweight!
 * Full OOP support for JavaScript
-* Supports Internet Explorer 5 and up
 * Interfaces
 * Traits / Mix-ins
 * Custom Plugins
@@ -339,6 +340,73 @@ var LogTrait = {
 
 var MyClass = Class({ uses: [MathTrait, LogTrait] }, {
     // ...
+});
+```
+
+# Dependency Injection
+
+JOII allows you to register a class as a service.
+
+For more information about dependency injection, please check out this article
+by Martin Fowler, the "inventor" of this design pattern: http://martinfowler.com/articles/injection.html
+
+A service is registered using the `Service` function.
+
+```javascript
+var SomeServiceClass = Class({
+
+    some_value: null,
+    another_value: null,
+
+    __construct: function(some_value, another_value) {
+        this.some_value = some_value;
+        this.another_value = another_value;
+    }
+    
+    this.getValue = function() {
+        return this.some_value + this.another_value;
+    }
+});
+
+// Register the "SomeServiceClass"-class as 2 different services:
+
+Service("my_first_service", SomeServiceClass, {
+    some_value: 1,
+    another_value: 2
+});
+
+Service("my_second_service", SomeServiceClass, {
+    some_value: 2,
+    another_value: 4
+});
+
+// We're going to use these services in the following class:
+
+var MyClass = Class({ injects: { 
+    serivce1: "my_first_service",  // Name of the service
+    service2: "my_second_service"  // Name of the service
+}}, {
+    __construct: function() {
+        console.log(this.service1.getValue()); // prints: 3
+        console.log(this.service2.getValue()); // prints: 6
+    }
+});
+
+new MyClass();
+
+// Create a service that depends on the first two services we already have:
+
+var DependencyClass = Class({
+    __construct: function(a, b, c) {
+        console.log(a.getValue() + b.getValue() + c); // prints: 10
+    }
+});
+
+// If a value is prefixed with an @ [at-sign], it's pointing to a service.
+Service('dependency_class', DependencyClass, {
+    a: '@my_first_service',
+    b: '@my_second_service',
+    c: 1 // Just a random value
 });
 ```
 
