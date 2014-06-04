@@ -353,6 +353,8 @@ by Martin Fowler, the "inventor" of this design pattern: http://martinfowler.com
 A service is registered using the `Service` function.
 
 ```javascript
+// The following class simply holds 2 variables and returns the
+// sum of them in the getValue() method.
 var SomeServiceClass = Class({
 
     some_value: null,
@@ -369,7 +371,6 @@ var SomeServiceClass = Class({
 });
 
 // Register the "SomeServiceClass"-class as 2 different services:
-
 Service("my_first_service", SomeServiceClass, {
     some_value: 1,
     another_value: 2
@@ -381,7 +382,6 @@ Service("my_second_service", SomeServiceClass, {
 });
 
 // We're going to use these services in the following class:
-
 var MyClass = Class({ injects: { 
     serivce1: "my_first_service",  // Name of the service
     service2: "my_second_service"  // Name of the service
@@ -392,10 +392,8 @@ var MyClass = Class({ injects: {
     }
 });
 
-new MyClass();
 
 // Create a service that depends on the first two services we already have:
-
 var DependencyClass = Class({
     __construct: function(a, b, c) {
         console.log(a.getValue() + b.getValue() + c); // prints: 10
