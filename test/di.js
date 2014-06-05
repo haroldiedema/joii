@@ -1,6 +1,6 @@
 test('Class - Dependency Injection', function(assert) {
 
-    var DataContainer = $.Class({
+    var DataContainer = Class({
         a: null,
         b: null,
 
@@ -10,10 +10,10 @@ test('Class - Dependency Injection', function(assert) {
         }
     });
 
-    $.Service('dc1', DataContainer, { a: 1, b: 2 });
-    $.Service('dc2', DataContainer, { a: 3, b: 4 });
+    Service('dc1', DataContainer, { a: 1, b: 2 });
+    Service('dc2', DataContainer, { a: 3, b: 4 });
 
-    var InjectClass = $.Class({ injects: { a: 'dc1', b: 'dc2' }}, {
+    var InjectClass = Class({ injects: { a: 'dc1', b: 'dc2' }}, {
 
         __construct: function()
         {
@@ -34,7 +34,7 @@ test('Class - Dependency Injection', function(assert) {
 
     // _____________________________________________________________________ //
 
-    var Logger = $.Class({
+    var Logger = Class({
 
         __construct: function(a, b)
         {
@@ -45,9 +45,9 @@ test('Class - Dependency Injection', function(assert) {
         }
     });
 
-    $.Service('logger', Logger, { a: '@dc1', b: '@dc2' });
+    Service('logger', Logger, { a: '@dc1', b: '@dc2' });
 
-    var InjectClass = $.Class({ injects: {logger: 'logger', dc1: 'dc1'} }, {
+    var InjectClass = Class({ injects: {logger: 'logger', dc1: 'dc1'} }, {
         __construct: function() {
             assert.equal(this.dc1.a, 6, 'Service "dc1" property modified by logger.');
         }
@@ -58,7 +58,7 @@ test('Class - Dependency Injection', function(assert) {
 
     // _____________________________________________________________________ //
 
-    var c1 = $.Class({
+    var c1 = Class({
 
         __construct: function()
         {

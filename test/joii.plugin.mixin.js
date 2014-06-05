@@ -12,7 +12,7 @@ test('JOII Plugin - Mixin', function(assert) {
         }
     };
 
-    var MyClass = $.Class({
+    var MyClass = Class({
         foo: 0,
 
         __construct: function() {

@@ -6,7 +6,7 @@ test('Traits', function(assert) {
         }
     };
 
-    var c = $.Class({ 'uses': t1 }, {
+    var c = Class({ 'uses': t1 }, {
         a: 0,
         __construct: function() {
             this.a = this.add(1,2);
@@ -18,7 +18,7 @@ test('Traits', function(assert) {
 
     // _____________________________________________________________________ //
 
-    var d = $.Class({'extends': c}, {
+    var d = Class({'extends': c}, {
         __construct: function() {
             this.a = this.add(38, 4);
         }
@@ -28,18 +28,18 @@ test('Traits', function(assert) {
 
     // _____________________________________________________________________ //
 
-    var e = $.Class({
+    var e = Class({
         a: 0,
         __construct: function() {
             this.a = this.add(38, 4);
         }
     });
-    var f = $.Class({'extends': e, 'uses': t1}, {});
+    var f = Class({'extends': e, 'uses': t1}, {});
 
     var f1 = new f();
     assert.equal(42, f1.a, 'Trait declared in child class is usable from parent class.');
 
-    var g = $.Class({'extends': e, 'uses': t1}, {
+    var g = Class({'extends': e, 'uses': t1}, {
         __construct: function() {
             this['super']('__construct');
         }

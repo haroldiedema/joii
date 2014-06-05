@@ -2,7 +2,7 @@ test('Plugins - Compile', function(assert) {
 
     // _____________________________________________________________________ //
 
-    $.RegisterJOIIPlugin('test3', {
+    RegisterJOIIPlugin('test3', {
         supports: function(product) {
             return product.prototype.a === 1;
         },
@@ -11,8 +11,8 @@ test('Plugins - Compile', function(assert) {
         }
     });
 
-    var first = $.Class({ a: 0 });
-    var second = $.Class({ 'extends': first }, { a: 1 });
+    var first = Class({ a: 0 });
+    var second = Class({ 'extends': first }, { a: 1 });
     var f = new first();
     var s = new second();
 

@@ -2,34 +2,34 @@ test('Class - Inheriting (deeply nested)', function(assert) {
 
     // _____________________________________________________________________ //
 
-    var first = $.Class({
+    var first = Class({
         a: 0,
         __construct: function() {
             this.a = 1;
         }
     });
-    var second = $.Class({ 'extends' : first }, {
+    var second = Class({ 'extends' : first }, {
         b: 0,
         __construct: function() {
             this['super']('__construct');
             this.b = this.a + 1;
         }
     });
-    var third = $.Class({ 'extends' : second }, {
+    var third = Class({ 'extends' : second }, {
         c: 0,
         __construct: function() {
             this['super']('__construct');
             this.c = this.b + 1;
         }
     });
-    var fourth = $.Class({ 'extends' : third }, {
+    var fourth = Class({ 'extends' : third }, {
         d: 0,
         __construct: function() {
             this['super']('__construct');
             this.d = this.c + 1;
         }
     });
-    var fifth = $.Class({ 'extends' : fourth }, {
+    var fifth = Class({ 'extends' : fourth }, {
         e: 0,
         __construct: function() {
             this['super']('__construct');
@@ -46,7 +46,7 @@ test('Class - Inheriting (deeply nested)', function(assert) {
 
     // _____________________________________________________________________ //
 
-    var first = $.Class({
+    var first = Class({
         a: 0,
         __construct: function() {
             this.a = 1;
@@ -54,13 +54,13 @@ test('Class - Inheriting (deeply nested)', function(assert) {
             this.c = 3;
         }
     });
-    var second = $.Class({ 'extends' : first }, {
+    var second = Class({ 'extends' : first }, {
         b: 0
     });
-    var third = $.Class({ 'extends' : second }, {
+    var third = Class({ 'extends' : second }, {
         c: 0
     });
-    var fourth = $.Class({ 'extends' : third }, {
+    var fourth = Class({ 'extends' : third }, {
         d: 0,
         __construct: function() {
             this['super']('__construct');
@@ -68,7 +68,7 @@ test('Class - Inheriting (deeply nested)', function(assert) {
             this.e = 5;
         }
     });
-    var fifth = $.Class({ 'extends' : fourth }, {
+    var fifth = Class({ 'extends' : fourth }, {
         e: 0
     });
 

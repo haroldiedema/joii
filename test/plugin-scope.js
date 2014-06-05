@@ -2,7 +2,7 @@ test('Plugins - Scope', function(assert) {
 
     // _____________________________________________________________________ //
 
-    $.RegisterJOIIPlugin('test1', {
+    RegisterJOIIPlugin('test1', {
         supports: function() {
             return true;
         },
@@ -13,8 +13,8 @@ test('Plugins - Scope', function(assert) {
         }
     });
 
-    var first = $.Class({ a: 0 });
-    var second = $.Class({ 'extends': first }, { b: 1, __construct: function(a) { this.a = a; } });
+    var first = Class({ a: 0 });
+    var second = Class({ 'extends': first }, { b: 1, __construct: function(a) { this.a = a; } });
     var s = new second(123);
 
 
@@ -23,7 +23,7 @@ test('Plugins - Scope', function(assert) {
     assert.equal(1, s.b, 'Second initial value of instantiated class is OK.');
     assert.equal(124, s.test1(), 'Value returned by plugin method based on object values is OK.');
 
-    var third = $.Class({ 'extends': second }, {
+    var third = Class({ 'extends': second }, {
         b: 10
     });
     var t = new third(1);

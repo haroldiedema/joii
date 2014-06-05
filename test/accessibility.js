@@ -2,7 +2,7 @@ test('Class - Accessibility', function(assert) {
 
     // _____________________________________________________________________ //
 
-    var c1 = $.Class({
+    var c1 = Class({
 
         a: 1,
         b: 2,
@@ -18,15 +18,13 @@ test('Class - Accessibility', function(assert) {
 
     var a = new c1();
 
-    console.log(a);
-
     assert.equal(typeof(a.a), 'number', 'c1.a is a number');
     assert.equal(typeof(a.b), 'undefined', 'c1.b is undefined');
     assert.equal(typeof(a.c), 'undefined', 'c1.c is undefined');
 
     // _____________________________________________________________________ //
 
-    var c2 = $.Class({'extends': c1}, {
+    var c2 = Class({'extends': c1}, {
         __construct: function() {
             return {
                 a: this.a,
@@ -43,11 +41,11 @@ test('Class - Accessibility', function(assert) {
 
     // _____________________________________________________________________ //
 
-    var i = $.Interface({
+    var i = Interface({
         foo: 'function'
     });
 
-    var c3 = $.Class({'implements': i}, {
+    var c3 = Class({'implements': i}, {
 
         p: 'private',
 

@@ -2,7 +2,7 @@ test('Class - No Inheritance', function(assert) {
 
     // _____________________________________________________________________ //
 
-    var first = $.Class({
+    var first = Class({
         a: 0,
         __construct: function()
         {
@@ -14,7 +14,7 @@ test('Class - No Inheritance', function(assert) {
 
     // _____________________________________________________________________ //
 
-    var second = $.Class({
+    var second = Class({
         a: 0,
         __construct: function(a)
         {
@@ -30,7 +30,7 @@ test('Class - No Inheritance', function(assert) {
 
     // _____________________________________________________________________ //
 
-    var third = $.Class({
+    var third = Class({
         a: 0,
         __construct: function(a, b) {
             this.a = this.add(a, b);
