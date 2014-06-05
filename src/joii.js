@@ -108,8 +108,8 @@ _g.$JOII = {
              * @param string method
              * @param ...
              */
-            'super': function(method, _) {
-
+            'super': function(method) {
+                arguments = arguments || [];
                 var args          = Array.prototype.slice.call(arguments, 1),
                     current_scope = this,
                     original_prop = this.__joii__,
@@ -214,6 +214,40 @@ _g.$JOII = {
             // Representation of the resulting object.
             var product = _g.$JOII.System.ApplyPrototype(function(){
 
+                if (typeof(this.__construct) === 'function') {
+                    arguments = arguments || [];
+                    var api = this.__construct.apply(this, arguments);
+                    if (typeof(api) === 'object') {
+                        // Constructor returns a "public api"
+                        var f = {};
+                        for (var i in api) {
+                            if (typeof(api[i]) === 'function') {
+                                f[i] = api[i].bind(this);
+                            } else {
+                                f[i] = api[i];
+                            }
+                        }
+
+                        // Check implemented interfaces
+                        if (typeof(this.__joii__.interfaces) !== 'undefined' &&
+                            this.__joii__.interfaces.length > 0) {
+                            for (var i in this.__joii__.interfaces) {
+                                var interf = _g.$JOII.Interfaces[this.__joii__.interfaces[i]];
+                                for (var x in interf) {
+                                    if (typeof(f[x]) !== interf[x]) {
+                                        throw new Error('Public API must implement ' + interf[x] + ' "' + x + '" as defined in the interface the class implements.');
+                                    }
+                                }
+                            }
+                        }
+                        return f;
+                    }
+                }
+
+                // If we came at this point in the code, the __construct method
+                // didn't return any object, thus the entire class is public.
+                // Iterate over the implemented interfaces to validate the
+                // exposed properties.
                 for (var name in this.__joii__.implementation_list) {
                     var type = this.__joii__.implementation_list[name];
                     if (typeof(this[name]) !== type && name.charAt(0) !== '_' && name.charAt(1) !== '_') {
@@ -223,10 +257,6 @@ _g.$JOII = {
                             throw new Error('Property "' + name + '" must be of type "' + type + '", ' + typeof(name) + ' detected.');
                         }
                     }
-                }
-
-                if (typeof(this.__construct) === 'function') {
-                    this.__construct.apply(this, arguments);
                 }
             }, body);
 
@@ -298,7 +328,7 @@ _g.$JOII = {
             // when using Class-API methods, like 'super'.
             _g.$JOII.Compat.CreateProperty(product.prototype, '__joii__', product.__joii__);
 
-            var p = product; return p;
+            return product;
         },
 
         /**
