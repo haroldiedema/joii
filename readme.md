@@ -266,7 +266,7 @@ var p = new Person();
 
 # Inheritance
 
-You can implement an interface on a base class to enfore a child class to
+You can implement an interface on a base class to enforce a child class to
 implement certain properties.
 
 ```javascript
