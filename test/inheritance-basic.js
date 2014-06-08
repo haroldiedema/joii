@@ -36,5 +36,38 @@ test('Class - Inheriting (basic)', function(assert) {
     assert.equal(s.a, 1, 'Parent constructor called using super(), modified property correctly');
     assert.equal(s.b, 2, 'Property correctly modified after calling parent constructor');
 
+    // _____________________________________________________________________ //
+    // Issue #4 - https://github.com/haroldiedema/joii/issues/4, by jpravetz
 
+    var Animal = Class({
+        type: 'animal',
+        name: null,
+        friends: [],
+        __construct: function (type, name) {
+            this.type = type;
+            this.name = name;
+        },
+        addFriend: function (name) {
+            this.friends.push(name);
+        }
+    });
+
+    var Pet = Class({ 'extends': Animal}, {
+        breed: null,
+        __construct: function (type,name, breed) {
+            this['super']('__construct',type, name);
+            this.breed = breed;
+        }
+    });
+
+    var buffy = new Pet('dog','buffy', 'spoodle');
+    var peaches = new Pet('cat','peaches','persian');
+    buffy.addFriend('elfy');
+    peaches.addFriend('pooh');
+
+    assert.equal(buffy.friends.length, 1, "base argument not modified by 2nd child instance.");
+    assert.equal(buffy.friends[0], 'elfy', "base object argument property copied.");
+
+    assert.equal(peaches.friends.length, 1, "base argument not modified by 2nd child instance.");
+    assert.equal(peaches.friends[0], 'pooh', "base object argument property copied.");
 });

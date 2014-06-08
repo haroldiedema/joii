@@ -20,7 +20,6 @@
 var _g = (typeof(window) !== 'undefined') ? window : global;
 
 _g.$JOII = {
-
         /**
          * JOII's public API.
          *
@@ -214,9 +213,25 @@ _g.$JOII = {
             // Representation of the resulting object.
             var product = _g.$JOII.System.ApplyPrototype(function(){
 
-                if (typeof(this.__construct) === 'function') {
+                var f = function(){};
+                var object = _g.$JOII.Compat.extend(true, {}, Object.create(this));
+                f.prototype = object;
+                product = Object.create(new f());
+                _g.$JOII.Compat.CreateProperty(product, '__joii__', this.__joii__);
+
+                // Apply the public class API to the product
+                for (var i in _g.$JOII.PublicClassAPI) {
+                    if (typeof(product.i) !== 'undefined') {
+                        throw new Error('Method "' + i + '" is reserved by JOII.');
+                    }
+                    _g.$JOII.Compat.CreateProperty(product, i, _g.$JOII.PublicClassAPI[i]);
+                }
+
+                _g.$JOII.System.ApplyPlugins(product, body);
+
+                if (typeof(product.__construct) === 'function') {
                     arguments = arguments || [];
-                    var api = this.__construct.apply(this, arguments);
+                    var api = product.__construct.apply(product, arguments);
                     if (typeof(api) === 'object') {
                         // Constructor returns a "public api"
                         var f = {};
@@ -229,10 +244,10 @@ _g.$JOII = {
                         }
 
                         // Check implemented interfaces
-                        if (typeof(this.__joii__.interfaces) !== 'undefined' &&
+                        if (typeof(product.__joii__.interfaces) !== 'undefined' &&
                             this.__joii__.interfaces.length > 0) {
-                            for (var i in this.__joii__.interfaces) {
-                                var interf = _g.$JOII.Interfaces[this.__joii__.interfaces[i]];
+                            for (var i in product.__joii__.interfaces) {
+                                var interf = _g.$JOII.Interfaces[product.__joii__.interfaces[i]];
                                 for (var x in interf) {
                                     if (typeof(f[x]) !== interf[x]) {
                                         throw new Error('Public API must implement ' + interf[x] + ' "' + x + '" as defined in the interface the class implements.');
@@ -248,16 +263,18 @@ _g.$JOII = {
                 // didn't return any object, thus the entire class is public.
                 // Iterate over the implemented interfaces to validate the
                 // exposed properties.
-                for (var name in this.__joii__.implementation_list) {
-                    var type = this.__joii__.implementation_list[name];
-                    if (typeof(this[name]) !== type && name.charAt(0) !== '_' && name.charAt(1) !== '_') {
-                        if (typeof(this[name]) === 'undefined') {
+                for (var name in product.__joii__.implementation_list) {
+                    var type = product.__joii__.implementation_list[name];
+                    if (typeof(product[name]) !== type && name.charAt(0) !== '_' && name.charAt(1) !== '_') {
+                        if (typeof(product[name]) === 'undefined') {
                             throw new Error('Class is missing ' + type + ' implementation of property "' + name +'".');
                         } else {
                             throw new Error('Property "' + name + '" must be of type "' + type + '", ' + typeof(name) + ' detected.');
                         }
                     }
                 }
+
+                return product;
             }, body);
 
             if (typeof(params['extends']) === 'function' &&
@@ -276,18 +293,6 @@ _g.$JOII = {
                     product.prototype[key] = _g.$JOII.System.getService(name);
                 }
             }
-
-            // Apply the public class API to the product
-            for (var i in _g.$JOII.PublicClassAPI) {
-                if (typeof(product.prototype.i) !== 'undefined') {
-                    throw new Error('Method "' + i + '" is reserved by JOII.');
-                }
-                _g.$JOII.Compat.CreateProperty(product.prototype, i, _g.$JOII.PublicClassAPI[i]);
-            }
-
-            // Apply plugin scopes
-            _g.$JOII.System.ApplyPlugins(product, body);
-
 
             // Apply traits
             if (typeof(params['uses']) !== 'undefined') {
@@ -458,15 +463,24 @@ _g.$JOII = {
              */
             ApplyPlugins: function(product, body)
             {
+                tmp_product = _g.$JOII.Compat.extend(true, {}, product);
+                tmp_product.prototype = tmp_product;
                 for (var i in _g.$JOII.Plugins) {
-                    if (!_g.$JOII.Plugins[i].supports(product)) {
+                    if (!_g.$JOII.Plugins[i].supports(tmp_product)) {
                         continue;
                     }
+                    product.prototype = product;
                     if (undefined !== (p = _g.$JOII.Plugins[i].compile(product))) {
+                        if (typeof(p.prototype) !== 'undefined') {
+                            p = p.prototype;
+                        }
                         product = p;
                     }
+                    if (typeof(product.prototype) !== 'undefined') {
+                        delete product.prototype;
+                    }
                     for (var x in _g.$JOII.Plugins[i].scope) {
-                        if (typeof(product.prototype[x]) !== 'undefined') {
+                        if (typeof(product[x]) !== 'undefined') {
                             if (typeof(body[x]) !== 'undefined') {
                                 throw new Error('Method "' + x + '" is reserved by plugin "' + i + '".');
                             }
@@ -478,7 +492,7 @@ _g.$JOII = {
                                 }
                             };
                         }
-                        product.prototype[x] = _g.$JOII.Plugins[i].scope[x];
+                        product[x] = _g.$JOII.Plugins[i].scope[x];
                     };
                 }
             },
@@ -534,6 +548,76 @@ _g.$JOII = {
          *                              will have normal props created instead.
          */
         Compat: {
+
+            /**
+             * Detect if the given object is an array.
+             * - original by jQuery (http://jquery.com/)
+             */
+            isArray: function(obj) {
+                var length = obj.length,
+                    type = typeof(obj);
+
+                if (type === "function" || (typeof(window) !== 'undefined' && obj === window)) {
+                    return false;
+                }
+                if (obj.nodeType === 1 && length) {
+                    return true;
+                }
+                return Object.prototype.toString.call(obj) === '[object Array]';
+            },
+
+            /**
+             * Extend an object onto another or use to 'copy' an object.
+             * - original by jQuery (http://jquery.com/)
+             */
+            extend: function() {
+                var options, src, copy, copyIsArray = false, clone,
+                target = arguments[0] || {},
+                i = 1,
+                length = arguments.length,
+                deep = false;
+                if (typeof target === "boolean") {
+                    deep = target; target = arguments[ i ] || {}; i++;
+                }
+                if (typeof target !== "object" && typeof(target) !== "function") {
+                    target = {};
+                }
+                for (;i < length; i++) {
+                    if ((options = arguments[i]) != null) {
+                        for (var name in options) {
+                            src = target[name];
+                            copy = options[name];
+                            if (target === copy) { continue; }
+                            if (deep && copy && (_g.$JOII.Compat.isPlainObject(copy) || (copyIsArray = _g.$JOII.Compat.isArray(copy)) ) ) {
+                                if (copyIsArray) {
+                                    copyIsArray = false;
+                                    clone = src && _g.$JOII.Compat.isArray(src) ? src : [];
+                                } else {
+                                    clone = src && _g.$JOII.Compat.isPlainObject(src) ? src : {};
+                                }
+                                target[name] = _g.$JOII.Compat.extend(deep, clone, copy);
+                            } else if (copy !== undefined) {
+                                target[name] = copy;
+                            }
+                        }
+                    }
+                }
+                return target;
+            },
+
+            /**
+             * Detect if an object is a plain object.
+             * - original by jQuery (http://jquery.com/)
+             */
+            isPlainObject: function( obj ) {
+                if (typeof(obj) !== "object" || obj.nodeType || (typeof(window) !== 'undefined' && obj === window)) {
+                    return false;
+                }
+                if (obj.constructor && !obj.hasOwnProperty("isPrototypeOf")) {
+                    return false;
+                }
+                return true;
+            },
 
             indexOf: function(array, value)
             {
@@ -615,6 +699,18 @@ _g.$JOII = {
     }
 };
 
+// Unfortunate, but mandatory IE 'polyfill'.
+if (typeof(Object.create) === 'undefined') {
+    Object.create = (function(){
+        function F(){}
+        return function(o){
+            if (arguments.length != 1) {
+                throw new Error('Object.create implementation only accepts one parameter.');
+            }
+            F.prototype = o;
+            return new F();
+        };
+    })();
+}
 _g.$JOII.initialize();
-
 
