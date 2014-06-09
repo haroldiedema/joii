@@ -15,3 +15,11 @@ for an example.
 ### Dependency Injection support
 Added a feature to register classes as services. For more information about dependency injection, some folks
 at stackoverflow can provide you with some nice answers: http://stackoverflow.com/questions/130794/what-is-dependency-injection
+
+## 2.1.1
+- Fixed issue #4
+- Polished dependency injection support (dropped the 'injects' parameter from class declarations)
+
+## 2.1.2
+- Polished public API support
+- Fixed an issue where objects remained static from parent classes (related to issue #4)
