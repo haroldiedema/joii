@@ -1,9 +1,9 @@
 # JOII has been updated to 2.0
 
-A lot has changed and 2.0 is not backwards compatible with 1.0. If you still wish to use
+A lot has changed and 2.1 is not backwards compatible with 1.0. If you still wish to use
 the old version, please use the 1.0 tag.
 
-Check out the [website](http://joii.harold.info/) for examples and documentation.
+[http://joii.harold.info/](http://joii.harold.info/)
 
 # Features
 
@@ -13,9 +13,10 @@ Check out the [website](http://joii.harold.info/) for examples and documentation
 * Full OOP support for JavaScript
 * Interfaces
 * Traits / Mix-ins
+* Public Class API (protected / public methods)
 * Custom Plugins
 
-[http://joii.harold.info/](http://joii.harold.info/)
+Check out [http://joii.harold.info/documentation/installation/](http://joii.harold.info/documentation/installation) for documentation and examples.
 
 # Installation
 
