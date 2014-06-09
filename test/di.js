@@ -13,10 +13,13 @@ test('Class - Dependency Injection', function(assert) {
     Service('dc1', DataContainer, { a: 1, b: 2 });
     Service('dc2', DataContainer, { a: 3, b: 4 });
 
-    var InjectClass = Class({ injects: { a: 'dc1', b: 'dc2' }}, {
+    var InjectClass = Class({
 
         __construct: function()
         {
+            this.a = this.getService('dc1');
+            this.b = this.getService('dc2');
+
             assert.equal(this.a.a, 1, 'DataContainer service "dc1" a = 1');
             assert.equal(this.a.b, 2, 'DataContainer service "dc1" b = 2');
 
@@ -27,7 +30,6 @@ test('Class - Dependency Injection', function(assert) {
         getDataContainer1: function() {
             return this.a;
         }
-
     });
 
     var ic = new InjectClass();
@@ -40,15 +42,16 @@ test('Class - Dependency Injection', function(assert) {
         {
             assert.equal(a.a, 1, 'Service dependency "dc1" correctly injected.');
             assert.equal(b.a, 3, 'Service dependency "dc2" correctly injected.');
-
             a.a = 6;
         }
     });
 
     Service('logger', Logger, { a: '@dc1', b: '@dc2' });
 
-    var InjectClass = Class({ injects: {logger: 'logger', dc1: 'dc1'} }, {
+    var InjectClass = Class({
         __construct: function() {
+            this.logger = this.getService('logger');
+            this.dc1 = this.getService('dc1');
             assert.equal(this.dc1.a, 6, 'Service "dc1" property modified by logger.');
         }
     });

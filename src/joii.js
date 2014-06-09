@@ -237,7 +237,7 @@ _g.$JOII = {
                         var f = {};
                         for (var i in api) {
                             if (typeof(api[i]) === 'function') {
-                                f[i] = api[i].bind(this);
+                                f[i] = api[i].bind(product);
                             } else {
                                 f[i] = api[i];
                             }
@@ -285,13 +285,6 @@ _g.$JOII = {
             } else if (typeof(params['extends']) !== 'undefined') {
                 throw new Error(
                         'Parent class must be a function containing a prototype.');
-            }
-
-            if (typeof(params['injects']) !== 'undefined') {
-                for (var key in params['injects']) {
-                    var name = params['injects'][key];
-                    product.prototype[key] = _g.$JOII.System.getService(name);
-                }
             }
 
             // Apply traits
@@ -610,10 +603,12 @@ _g.$JOII = {
              * - original by jQuery (http://jquery.com/)
              */
             isPlainObject: function( obj ) {
+                var hasOwn = ({}).hasOwnProperty;
                 if (typeof(obj) !== "object" || obj.nodeType || (typeof(window) !== 'undefined' && obj === window)) {
                     return false;
                 }
-                if (obj.constructor && !obj.hasOwnProperty("isPrototypeOf")) {
+                if ( obj.constructor &&
+                        !hasOwn.call( obj.constructor.prototype, "isPrototypeOf" ) ) {
                     return false;
                 }
                 return true;
@@ -713,4 +708,3 @@ if (typeof(Object.create) === 'undefined') {
     })();
 }
 _g.$JOII.initialize();
-
