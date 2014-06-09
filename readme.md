@@ -1,4 +1,4 @@
-# JOII has been updated to 2.0
+# JOII has been updated to 2.1
 
 A lot has changed and 2.1 is not backwards compatible with 1.0. If you still wish to use
 the old version, please use the 1.0 tag.
