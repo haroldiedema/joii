@@ -122,6 +122,41 @@ var MyClass = Class({
 var obj = new MyClass(10, 20);
 alert(obj.foo); // Alerts: 30
 ```
+
+## Public API
+
+The traditional objects in javascript don't official support "protected" 
+methods or properties. With JOII you can define a 'Public API' for your
+class, making only a subset of the class accessible to the public.
+
+A public API is defined by returning an object containing property names
+pointing to references within the scope of the class.
+
+```javascript
+
+var MyClass = Class({
+    
+    hello: 'Hello World',
+    
+    __construct: function() {
+        // Define the "Public API".
+        return {
+            getHello: this.getHello
+        }
+    },
+    
+    getHello: function() {
+        return this.hello;
+    }
+});
+
+var mc = new MyClass();
+
+typeof(mc.hello); // undefined
+mc.getHello(); // returns "Hello World"
+
+```
+
 # Inheritance
 
 Classes can be extended upon other classes to a theoretically infinite depth,

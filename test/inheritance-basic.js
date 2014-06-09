@@ -79,8 +79,8 @@ test('Class - Inheriting (basic)', function(assert) {
         add: function(a){ this.my_array.push(a); }
     });
 
-    var C1 = Class({ extends: B1 }, {});
-    var C2 = Class({ extends: B1 }, {});
+    var C1 = Class({ 'extends': B1 }, {});
+    var C2 = Class({ 'extends': B1 }, {});
 
     var i1 = new C1();
     var i2 = new C2();

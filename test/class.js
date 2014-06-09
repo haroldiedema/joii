@@ -58,4 +58,47 @@ test('Class - No Inheritance', function(assert) {
     assert.equal(false, i1.instanceOf(second), '(instanceOf) Asserting that i1 is not an instance of second');
     assert.equal(false, i3.instanceOf(first), '(instanceOf) Asserting that i3 is not an instance of first');
 
+    // _____________________________________________________________________ //
+
+    var c1 = Class({
+        obj: {},
+
+        __construct: function() {
+            return {
+                set: this.set
+            };
+        },
+
+        set: function(a) {
+            this.foo();
+            this.obj[a] = a;
+        },
+
+        foo: function() {
+            assert.equal(typeof(this.obj), 'object', 'Private method called successfully.');
+            this.obj['private'] = true;
+        }
+    });
+
+    var c2 = Class({ 'extends': c1 }, {
+        __construct: function() {
+            return {
+                set: this.set,
+                get: this.get
+            };
+        },
+        get: function(a) {
+            return this.obj[a];
+        }
+    });
+
+    cc1 = new c1();
+    cc2 = new c2();
+
+    cc1.set('a');
+    cc2.set('c');
+    assert.equal(typeof(cc2.get('a')), 'undefined');
+    assert.equal(typeof(cc2.get('c')), 'string');
+    assert.equal(cc2.get('c'), 'c');
+    assert.equal(typeof(cc2.get('private')), 'boolean', 'Confirmed private method has been called successfully.');
 });
