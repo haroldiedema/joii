@@ -243,6 +243,10 @@ _g.$JOII = {
                             }
                         }
 
+                        _g.$JOII.Compat.CreateProperty(f, '__joii__', this.__joii__);
+                        _g.$JOII.Compat.CreateProperty(f, body, _g.$JOII.PublicClassAPI[i]);
+                        _g.$JOII.System.ApplyPlugins(f, body);
+
                         // Check implemented interfaces
                         if (typeof(product.__joii__.interfaces) !== 'undefined' &&
                             this.__joii__.interfaces.length > 0) {
