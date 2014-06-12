@@ -23,3 +23,9 @@ at stackoverflow can provide you with some nice answers: http://stackoverflow.co
 ## 2.1.2
 - Polished public API support
 - Fixed an issue where objects remained static from parent classes (related to issue #4)
+
+## 2.1.3
+- Minor bugfixes
+
+## 2.1.4
+- Bugfix: Interfaces & plugins weren't properly applied when a public class API was defined.
