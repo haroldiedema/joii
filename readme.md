@@ -4,8 +4,11 @@ A lot has changed and 2.1 is not backwards compatible with 1.0. If you still wis
 the old version, please use the 1.0 tag.
 
 [http://joii.zone/](http://joii.zone/)
+
 [http://joii.codes/](http://joii.codes/)
+
 [http://joii.academy/](http://joii.academy/)
+
 
 # Features
 
