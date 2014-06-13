@@ -3,9 +3,10 @@
 A lot has changed and 2.1 is not backwards compatible with 1.0. If you still wish to use
 the old version, please use the 1.0 tag.
 
-- [http://joii.zone/](joii.zone)
-- [http://joii.codes/](joii.codes)
-- [http://joii.academy/](joii.academy)
+The official website can be visited using one of the following domains:
+- [joii.zone](http://joii.zone/)
+- [joii.codes](http://joii.codes/)
+- [joii.academy](http://joii.academy/)
 
 
 # Features
