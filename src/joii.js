@@ -51,6 +51,9 @@ _g.$JOII = {
                 var o = {};
                 var s = _g.$JOII.System.guid()();
                 for (var i in body) {
+                    if (typeof(body[i]) !== 'string') {
+                        throw new Error("An interface definition must be a string, defining the property type.");
+                    }
                     o[i] = body[i];
                 }
                 _g.$JOII.Compat.CreateProperty(o, '__interface__', s);
@@ -254,7 +257,7 @@ _g.$JOII = {
                                 }
                                 var interf = _g.$JOII.Interfaces[product.__joii__.interfaces[i]];
                                 for (var x in interf) {
-                                    if (typeof(f[x]) !== interf[x]) {
+                                    if (interf.hasOwnProperty(x) && typeof(f[x]) !== interf[x]) {
                                         throw new Error('Public API must implement ' + interf[x] + ' "' + x + '" as defined in the interface the class implements.');
                                     }
                                 }
@@ -270,7 +273,7 @@ _g.$JOII = {
                 // exposed properties.
                 for (var name in product.__joii__.implementation_list) {
                     var type = product.__joii__.implementation_list[name];
-                    if (typeof(product[name]) !== type && name.charAt(0) !== '_' && name.charAt(1) !== '_') {
+                    if (typeof(product[name]) !== type && name.charAt(0) !== '_' && name.charAt(1) !== '_' && typeof(type) === 'string') {
                         if (typeof(product[name]) === 'undefined') {
                             throw new Error('Class is missing ' + type + ' implementation of property "' + name +'".');
                         } else {
