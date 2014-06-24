@@ -48,7 +48,7 @@ _g.$JOII = {
              * @param object body
              */
             'Interface': function(body) {
-                var o = new Object();
+                var o = {};
                 var s = _g.$JOII.System.guid()();
                 for (var i in body) {
                     o[i] = body[i];
@@ -108,7 +108,6 @@ _g.$JOII = {
              * @param ...
              */
             'super': function(method) {
-                arguments = arguments || [];
                 var args          = Array.prototype.slice.call(arguments, 1),
                     current_scope = this,
                     original_prop = this.__joii__,
@@ -230,7 +229,6 @@ _g.$JOII = {
                 _g.$JOII.System.ApplyPlugins(product, body);
 
                 if (typeof(product.__construct) === 'function') {
-                    arguments = arguments || [];
                     var api = product.__construct.apply(product, arguments);
                     if (typeof(api) === 'object') {
                         // Constructor returns a "public api"
@@ -251,6 +249,9 @@ _g.$JOII = {
                         if (typeof(product.__joii__.interfaces) !== 'undefined' &&
                             this.__joii__.interfaces.length > 0) {
                             for (var i in product.__joii__.interfaces) {
+                                if (typeof(product.__joii__.interfaces[i]) === 'undefined') {
+                                    continue;
+                                }
                                 var interf = _g.$JOII.Interfaces[product.__joii__.interfaces[i]];
                                 for (var x in interf) {
                                     if (typeof(f[x]) !== interf[x]) {
