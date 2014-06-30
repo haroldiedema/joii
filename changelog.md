@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.6
+- Small optimizations (removed redeclarations of variables)
+- Renamed "arguments" to "args" as "arguments" is a reserved keyword (d'oh)
+
 ## 2.1.5
 - Bugfix: Prototype (the framework) was messing up the registered interfaces list by injecting undefined elements to the interfaces array. The implementation check-mechanism now skips "undefined" variables.
 - Optimization: V8 was unable to optimize certain internal functions.
