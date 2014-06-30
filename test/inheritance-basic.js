@@ -19,20 +19,20 @@ test('Class - Inheriting (basic)', function(assert) {
 
     // _____________________________________________________________________ //
 
-    var first = Class({
+    var first2 = Class({
         a: 0,
         __construct: function() {
             this.a = 1;
         }
     });
-    var second = Class({ 'extends' : first }, {
+    var second2 = Class({ 'extends' : first2 }, {
         b: 0,
         __construct: function() {
             this['super']('__construct');
             this.b = this.a + 1;
         }
     });
-    var s = new second();
+    s = new second2();
     assert.equal(s.a, 1, 'Parent constructor called using super(), modified property correctly');
     assert.equal(s.b, 2, 'Property correctly modified after calling parent constructor');
 

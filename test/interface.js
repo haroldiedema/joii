@@ -1,5 +1,7 @@
 test('Interfaces', function(assert) {
 
+    var b, m, a;
+
     // _____________________________________________________________________ //
 
     var i1 = Interface({
@@ -9,16 +11,16 @@ test('Interfaces', function(assert) {
         fn: 'function'
     });
 
-    var m = '';
-    try { var b = Class({ 'implements': i1 }, { }); new b(); } catch (e) { m = e.message; }
+    m = '';
+    try { b = Class({ 'implements': i1 }, { }); new b(); } catch (e) { m = e.message; }
 
     assert.equal(m, 'Class is missing number implementation of property "num".', 'Correct exception thrown for missing implementations.');
 
     m = '';
-    try { var b = Class({ 'implements': i1 }, { num: 'test' }); new b(); } catch (e) { m = e.message; }
+    try { b = Class({ 'implements': i1 }, { num: 'test' }); new b(); } catch (e) { m = e.message; }
     assert.equal(m, 'Property "num" must be of type "number", string detected.', 'Correct exception thrown for type-mismatch in implementation.');
 
-    var a = Class({ 'implements': i1 }, {
+    a = Class({ 'implements': i1 }, {
         num: 1,
         str: 'foo',
         obj: {},
@@ -33,9 +35,9 @@ test('Interfaces', function(assert) {
         b: 'number'
     });
 
-    var m = '';
+    m = '';
     try {
-        var b = Class({ 'implements': [i1, i2] }, {
+        b = Class({ 'implements': [i1, i2] }, {
             num: 1,
             str: 'foo',
             obj: {},
@@ -47,7 +49,7 @@ test('Interfaces', function(assert) {
     }
     assert.equal(m, 'Class is missing boolean implementation of property "a".', 'Correct exception thrown for missing implementations when implementing multiple interfaces.');
 
-    var b = Class({ 'implements': [i1, i2] }, {
+    b = Class({ 'implements': [i1, i2] }, {
         num: 1,
         str: 'foo',
         obj: {},
@@ -68,9 +70,9 @@ test('Interfaces', function(assert) {
     assert.ok(c1.instanceOf(i1), 'Class extending on B is instance of Interface 1.');
     assert.ok(c1.instanceOf(i2), 'Class extending on B is instance of Interface 2.');
 
-    var m = '';
+    m = '';
     try {
-        var b = Class({ 'extends': b }, {
+        b = Class({ 'extends': b }, {
             num: 'not a number'
         });
         new b();
@@ -80,9 +82,9 @@ test('Interfaces', function(assert) {
     assert.equal(m, 'Property "num" must be of type "number", string detected.', 'Correct exception thrown when overriding a correctly implemented property but with wrong type.');
 
 
-    var a = Class({'implements': i2}, { });
-    var b = Class({'extends' : a}, {});
-    var m = '';
+    a = Class({'implements': i2}, { });
+    b = Class({'extends' : a}, {});
+    m = '';
     try {
         b1 = new b();
     } catch (e) {

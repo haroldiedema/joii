@@ -48,7 +48,7 @@ test('Class - Dependency Injection', function(assert) {
 
     Service('logger', Logger, { a: '@dc1', b: '@dc2' });
 
-    var InjectClass = Class({
+    var InjectClass2 = Class({
         __construct: function() {
             this.logger = this.getService('logger');
             this.dc1 = this.getService('dc1');
@@ -56,7 +56,7 @@ test('Class - Dependency Injection', function(assert) {
         }
     });
 
-    new InjectClass();
+    new InjectClass2();
     assert.equal(ic.getDataContainer1().a, 6, 'Previously instantiated class has updated dc1 value.');
 
     // _____________________________________________________________________ //

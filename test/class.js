@@ -25,7 +25,7 @@ test('Class - No Inheritance', function(assert) {
     var s = new second();
     assert.equal(s.a, undefined, 'Instance with no constructor arguments, modifying property.');
 
-    var s = new second('foobar');
+    s = new second('foobar');
     assert.equal(s.a, 'foobar', 'Instance with constructor arguments, modifying property.');
 
     // _____________________________________________________________________ //
@@ -76,7 +76,7 @@ test('Class - No Inheritance', function(assert) {
 
         foo: function() {
             assert.equal(typeof(this.obj), 'object', 'Private method called successfully.');
-            this.obj['private'] = true;
+            this.obj.private = true;
         }
     });
 

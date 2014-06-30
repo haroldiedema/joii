@@ -69,7 +69,7 @@ _g.$JOII = {
              * @param object arguments
              * @return void
              */
-            'Service': function(name, class_object, arguments) {
+            'Service': function(name, class_object, args) {
                 if (typeof(_g.$JOII.Services[name]) !== 'undefined') {
                     throw new Error('Another service with the name "' + name + '" is already defined.');
                 }
@@ -77,7 +77,7 @@ _g.$JOII = {
                 _g.$JOII.Services[name] = {
                     object    : class_object,
                     instance  : undefined,
-                    arguments : arguments
+                    arguments : args
                 };
             },
 
@@ -215,14 +215,14 @@ _g.$JOII = {
             // Representation of the resulting object.
             var product = _g.$JOII.System.ApplyPrototype(function(){
 
-                var f = function(){};
+                var f = function(){}, i = null;
                 var object = _g.$JOII.Compat.extend(true, {}, Object.create(this));
                 f.prototype = object;
                 product = Object.create(new f());
                 _g.$JOII.Compat.CreateProperty(product, '__joii__', this.__joii__);
 
                 // Apply the public class API to the product
-                for (var i in _g.$JOII.PublicClassAPI) {
+                for (i in _g.$JOII.PublicClassAPI) {
                     if (typeof(product.i) !== 'undefined') {
                         throw new Error('Method "' + i + '" is reserved by JOII.');
                     }
@@ -235,8 +235,8 @@ _g.$JOII = {
                     var api = product.__construct.apply(product, arguments);
                     if (typeof(api) === 'object') {
                         // Constructor returns a "public api"
-                        var f = {};
-                        for (var i in api) {
+                        f = {};
+                        for (i in api) {
                             if (typeof(api[i]) === 'function') {
                                 f[i] = api[i].bind(product);
                             } else {
@@ -251,7 +251,7 @@ _g.$JOII = {
                         // Check implemented interfaces
                         if (typeof(product.__joii__.interfaces) !== 'undefined' &&
                             this.__joii__.interfaces.length > 0) {
-                            for (var i in product.__joii__.interfaces) {
+                            for (i in product.__joii__.interfaces) {
                                 if (typeof(product.__joii__.interfaces[i]) === 'undefined') {
                                     continue;
                                 }
@@ -296,15 +296,15 @@ _g.$JOII = {
             }
 
             // Apply traits
-            if (typeof(params['uses']) !== 'undefined') {
-                if (typeof(params['uses'][0]) === 'undefined') {
-                    var i = params['uses'];
-                    params['uses'] = [i];
+            if (typeof(params.uses) !== 'undefined') {
+                if (typeof(params.uses[0]) === 'undefined') {
+                    i = params.uses;
+                    params.uses = [i];
                 }
-                for (var i in params['uses']) {
-                    if (typeof(params['uses'][i]) === 'object') {
-                        for (var k in params['uses'][i]) {
-                            var v = params['uses'][i][k];
+                for (i in params.uses) {
+                    if (typeof(params.uses[i]) === 'object') {
+                        for (var k in params.uses[i]) {
+                            var v = params.uses[i][k];
                             if (typeof(product.prototype[k]) === 'undefined') {
                                 product.prototype[k] = v;
                             }
@@ -315,13 +315,13 @@ _g.$JOII = {
 
 
             // Apply interfaces
-            if (typeof(params['implements']) !== 'undefined' && typeof(params['implements'][0]) === 'undefined') {
-                var i = params['implements'];
-                params['implements'] = [];
-                params['implements'].push(i);
+            if (typeof(params.implements) !== 'undefined' && typeof(params.implements[0]) === 'undefined') {
+                i = params.implements;
+                params.implements = [];
+                params.implements.push(i);
             }
-            params['implements'] = params['implements'] || [];
-            product.__joii__['implements'] = params['implements'];
+            params.implements = params.implements || [];
+            product.__joii__.implements = params.implements;
             product.__joii__['interfaces'] = [];
 
             _g.$JOII.System.ApplyInterfaces(product);
@@ -388,7 +388,7 @@ _g.$JOII = {
                                 value = _g.$JOII.System.getService(value.substring(1, value.length));
                             }
                             args.push(value);
-                        };
+                        }
                     }
                     _g.$JOII.Services[service_name].instance = construct(obj, args);
                 }
@@ -418,7 +418,7 @@ _g.$JOII = {
              */
             ApplyParent: function(product, parent)
             {
-                product.__joii__.parent = new Object();
+                product.__joii__.parent = {};
                 product.__joii__.parent.prototype = parent.prototype;
                 if (typeof(parent.__joii__) === 'object') {
                     product.__joii__.parent.__joii__ = parent.__joii__;
@@ -491,7 +491,7 @@ _g.$JOII = {
                                         throw new Error('Method "' + x + '" from plugin "' + i + '" is already in use by plugin "' + name + '".');
                                     }
                                 }
-                            };
+                            }
                         }
                         product[x] = _g.$JOII.Plugins[i].scope[x];
                     };
@@ -503,15 +503,15 @@ _g.$JOII = {
                 var collectInterfaces = function(scope, col)
                 {
                     col = col || {};
-                    for (var i in scope.__joii__['implements']) {
-                        product.__joii__['interfaces'].push(scope.__joii__['implements'][i].__interface__);
-                        for (var m in scope.__joii__['implements'][i]) {
-                            col[m] = scope.__joii__['implements'][i][m];
+                    for (var i in scope.__joii__.implements) {
+                        product.__joii__['interfaces'].push(scope.__joii__.implements[i].__interface__);
+                        for (var m in scope.__joii__.implements[i]) {
+                            col[m] = scope.__joii__.implements[i][m];
                         }
                     }
                     if (typeof(scope.__joii__.parent) !== 'undefined') {
                         var c = collectInterfaces(scope.__joii__.parent, col);
-                        for (var i in c) {
+                        for (i in c) {
                             col[i] = c[i];
                         }
                     }
@@ -584,7 +584,7 @@ _g.$JOII = {
                     target = {};
                 }
                 for (;i < length; i++) {
-                    if ((options = arguments[i]) != null) {
+                    if ((options = arguments[i]) !== null && arguments[i] !== undefined) {
                         for (var name in options) {
                             src = target[name];
                             copy = options[name];
@@ -727,9 +727,7 @@ if (!Function.prototype.bind) {
             fToBind = this,
             fNOP = function () {},
             fBound = function () {
-                return fToBind.apply(this instanceof fNOP && oThis
-                   ? this
-                   : oThis,
+                return fToBind.apply(this instanceof fNOP && oThis ? this : oThis,
                    aArgs.concat(Array.prototype.slice.call(arguments)));
             };
 

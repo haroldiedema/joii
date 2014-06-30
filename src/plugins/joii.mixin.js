@@ -59,7 +59,7 @@ _g.$JOII.PublicAPI.RegisterJOIIPlugin('mixin', {
                 obj = arguments[i];
                 // Mix-ins (traits) can only be a series of objects.
                 if (typeof(obj) === 'object') {
-                    for (var i in obj) {
+                    for (i in obj) {
                         // We only want to apply mix-ins that currently don't
                         // exist in the current context.
                         if (typeof(this[i]) === 'undefined') {
