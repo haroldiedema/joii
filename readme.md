@@ -16,7 +16,7 @@ The official website can be visited at [joii.zone](http://joii.zone/)
 * Public Class API (protected / public methods)
 * Custom Plugins
 
-Check out [http://joii.harold.info/documentation/installation/](http://joii.harold.info/documentation/installation) for documentation and examples.
+Check out [joii.zone/documentation](http://joii.zone/documentation/installation) for documentation and examples.
 
 # Installation
 
