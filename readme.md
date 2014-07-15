@@ -1,13 +1,9 @@
-# JOII has been updated to 2.1
+# JOII has been updated to 2.2
 
-A lot has changed and 2.1 is not backwards compatible with 1.0. If you still wish to use
+A lot has changed and 2.* is not backwards compatible with 1.0. If you still wish to use
 the old version, please use the 1.0 tag.
 
-The official website can be visited using one of the following domains:
-- [joii.zone](http://joii.zone/)
-- [joii.codes](http://joii.codes/)
-- [joii.academy](http://joii.academy/)
-
+The official website can be visited at [joii.zone](http://joii.zone/)
 
 # Features
 
@@ -538,6 +534,28 @@ var m = new MyClass('Hello');
 // Constructor has been called!
 // Hello
 ```
+
+## Register something within the JOII-namespace
+
+Since JOII 2.2, it's now possible to add "external" plugins which function as
+a completely separate "project" but will be registered inside the JOII-namespace.
+
+For example, if you configured JOII to be registered in the `HelloWorld`
+namespace and you define classes like `var MyClass = HelloWorld.Class({ /* ... */ });`,
+it's now possible for external classes to also be registered in the `HelloWorld`
+namespace using the following snippet:
+
+```javascript
+_g.$JOII.RegisterInNS('Something', _g.$JOII.PublicAPI.Class({
+    // Your class code here...
+});
+
+// If namespace = HelloWorld:
+var something = new HelloWorld.Something();
+```
+
+A use-case example of this feature is the diagram plugin, found at
+<https://github.com/haroldiedema/joii-diagram>.
 
 # Compatibility
 

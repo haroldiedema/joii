@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.2
+- Added plugin support, allowing classes to be registered within the JOII-namespace.
+
 ## 2.1.6
 - Small optimizations (removed redeclarations of variables)
 - Renamed "arguments" to "args" as "arguments" is a reserved keyword (d'oh)

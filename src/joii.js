@@ -20,6 +20,9 @@
 var _g = (typeof(window) !== 'undefined') ? window : global;
 
 _g.$JOII = {
+
+        REVISION: 22,
+
         /**
          * JOII's public API.
          *
@@ -198,6 +201,23 @@ _g.$JOII = {
          * Service collection
          */
         Services: {},
+
+        /**
+         * Reference to the JOII-namespace. This can vary from the 'window'-
+         * object or any user-defined object-scope.
+         */
+        Namespace: {},
+
+        /**
+         * Register the given object in the JOII-namespace.
+         *
+         * @param string name
+         * @param mixed object
+         */
+        'RegisterInNS': function(name, object)
+        {
+            _g.$JOII.Namespace[name] = object;
+        },
 
         /**
          * Builds a class object which may be instantiated at run-time.
@@ -699,6 +719,7 @@ _g.$JOII = {
                 ns[i] = _g.$JOII.PublicAPI[i];
             }
         }
+        _g.$JOII.Namespace = ns;
     }
 };
 
