@@ -18,6 +18,13 @@ The official website can be visited at [joii.zone](http://joii.zone/)
 
 Check out [joii.zone/documentation](http://joii.zone/documentation/installation) for documentation and examples.
 
+# Plugins
+Starting from JOII 2.2, plugins can be created and will be added to this list.
+
+* [JOII Diagram](https://github.com/haroldiedema/joii-diagram) - Generate UML diagrams for your classes.
+ 
+Want your plugin here? Open an issue showcasing your plugin. Once approved, a link will be added here.
+
 # Installation
 
 Download the latest version of JOII and include it like any other javascript library:
