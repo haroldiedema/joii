@@ -101,4 +101,8 @@ test('Class - No Inheritance', function(assert) {
     assert.equal(typeof(cc2.get('c')), 'string');
     assert.equal(cc2.get('c'), 'c');
     assert.equal(typeof(cc2.get('private')), 'boolean', 'Confirmed private method has been called successfully.');
+
+    // _____________________________________________________________________ //
+    
+    
 });

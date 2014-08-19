@@ -91,4 +91,20 @@ test('Interfaces', function(assert) {
         m = e.message;
     }
     assert.equal(m, 'Class is missing boolean implementation of property "a".', 'Correct exception thrown of missing implementation in child class with interface on parent.');
+
+
+    var t;
+
+    m = '';
+    try {
+        t = Interface({}, {
+            m2: {}
+        });
+    } catch(e) {
+        m = e.message;
+    }
+
+    assert.equal(m, 'An interface definition must be a string, defining the property type.', 'Exception on definition must be string');
+
+
 });
