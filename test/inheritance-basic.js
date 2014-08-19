@@ -92,8 +92,8 @@ test('Class - Inheriting (basic)', function(assert) {
 
     // _____________________________________________________________________ //
     // Issue #6 - https://github.com/haroldiedema/joii/issues/6, by georgePadolsey
-    
-    var errorMessage = '';
+
+    var error_message = '';
 
 
     // ___ Interfaces used in the following examples ___
@@ -113,10 +113,10 @@ test('Class - Inheriting (basic)', function(assert) {
     });
 
     // ____________ #1 Test of Interface Extension __________
-    
+
 
     C1 = Class({
-        'implements': i2 
+        'implements': i2
     }, {
         m1: function() {},
         m3: ''
@@ -125,16 +125,16 @@ test('Class - Inheriting (basic)', function(assert) {
     try {
         new C1();
     } catch(e) {
-        errorMessage = e.message;
+        error_message = e.message;
     }
 
-    assert.equal(errorMessage, 'Class is missing string implementation of property \"m2\".', 'Intefaces that extend other interfaces still work as usual with classes (requiring implementation)');
+    assert.equal(error_message, 'Class is missing string implementation of property \"m2\".', 'Intefaces that extend other interfaces still work as usual with classes (requiring implementation)');
 
     // ____________ #2 Test of Interface Extension ___________
 
-    errorMessage = ''
+    error_message = '';
     C2 = Class({
-        'implements': i2 
+        'implements': i2
     }, {
         m1: 'I should be a function',
         m2: '',
@@ -144,16 +144,16 @@ test('Class - Inheriting (basic)', function(assert) {
     try {
         new C2();
     } catch(e) {
-        errorMessage = e.message;
+        error_message = e.message;
     }
 
-    assert.equal(errorMessage, 'Property \"m1\" must be of type \"function\", string detected.', 'When an interface is extended properties are correctly overrided.');
+    assert.equal(error_message, 'Property \"m1\" must be of type \"function\", string detected.', 'When an interface is extended properties are correctly overrided.');
 
     // ____________ #3 Test of Interface Extension ___________
 
-    errorMessage = ''
+    error_message = '';
     var C3 = Class({
-        'implements': i2 
+        'implements': i2
     }, {
         m1: function() {},
         m2: ''
@@ -162,8 +162,8 @@ test('Class - Inheriting (basic)', function(assert) {
     try {
         new C3();
     } catch(e) {
-        errorMessage = e.message;
+        error_message = e.message;
     }
 
-     assert.equal(errorMessage, 'Class is missing string implementation of property \"m3\".', 'New properties are added from the interface that is being extended.');
+     assert.equal(error_message, 'Class is missing string implementation of property \"m3\".', 'New properties are added from the interface that is being extended.');
 });

@@ -227,10 +227,13 @@ _g.$JOII = {
             // the new object
             var o = {};
 
-            // Get an new UniqueId 
+            // Get an new UniqueId
             var s = _g.$JOII.System.guid()();
 
             for (var i in body) {
+                if (!body.hasOwnProperty(i)) {
+                    continue;
+                }
                 if (typeof(body[i]) !== 'string') {
                     throw new Error("An interface definition must be a string, defining the property type.");
                 }
@@ -586,12 +589,17 @@ _g.$JOII = {
 
                 for(var prop in object) {
 
-                    // If product has own property. Then let it override.
-                    if(product.hasOwnProperty(prop))
+                    // Only process properties that belong to object.
+                    if (!object.hasOwnProperty(prop)) {
                         continue;
+                    }
+
+                    // If product has own property. Then let it override.
+                    if(product.hasOwnProperty(prop)) {
+                        continue;
+                    }
 
                     product[prop] = object[prop];
-
                 }
 
                 // Add the iterface to the interface list
