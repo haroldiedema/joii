@@ -348,6 +348,24 @@ var SomePerson = Class({ implements: [IPerson, ILogger] }, {
 });
 ```
 
+# Extending interfaces
+
+Interfaces can be extended, the same way as classes.
+
+```javascript
+var SomeInterface = Interface({
+    log: 'function'
+});
+
+var AnotherInterface = Interface({ extends: SomeInterface }, {
+    someFunction: 'function'
+});
+```
+Any class implementing `AnotherInterface` must now implement the methods `log` and `someFunction`.
+
+Credits for this implementation to @georgePadolsey.
+
+
 # Traits
 A trait serves as a mix-in for classes to provide additional, generic, functionality.
 You can implement a trait using the `uses` property in the configuration object.
