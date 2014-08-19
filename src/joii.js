@@ -368,13 +368,13 @@ _g.$JOII = {
 
 
             // Apply interfaces
-            if (typeof(params.implements) !== 'undefined' && typeof(params.implements[0]) === 'undefined') {
-                i = params.implements;
-                params.implements = [];
-                params.implements.push(i);
+            if (typeof(params['implements']) !== 'undefined' && typeof(params['implements'][0]) === 'undefined') {
+                i = params['implements'];
+                params['implements'] = [];
+                params['implements'].push(i);
             }
-            params.implements = params.implements || [];
-            product.__joii__.implements = params.implements;
+            params['implements'] = params['implements'] || [];
+            product.__joii__['implements'] = params['implements'];
             product.__joii__['interfaces'] = [];
 
             _g.$JOII.System.ApplyInterfaces(product);
@@ -556,10 +556,10 @@ _g.$JOII = {
                 var collectInterfaces = function(scope, col)
                 {
                     col = col || {};
-                    for (var i in scope.__joii__.implements) {
-                        product.__joii__['interfaces'].push(scope.__joii__.implements[i].__interface__);
-                        for (var m in scope.__joii__.implements[i]) {
-                            col[m] = scope.__joii__.implements[i][m];
+                    for (var i in scope.__joii__['implements']) {
+                        product.__joii__['interfaces'].push(scope.__joii__['implements'][i].__interface__);
+                        for (var m in scope.__joii__['implements'][i]) {
+                            col[m] = scope.__joii__['implements'][i][m];
                         }
                     }
                     if (typeof(scope.__joii__.parent) !== 'undefined') {
