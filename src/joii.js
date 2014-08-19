@@ -582,7 +582,7 @@ _g.$JOII = {
             ExtendInterface: function(product, object) {
 
                 // Get the UUID
-                var uuId = product['__interface__'];
+                var uuId = product.__interface__;
 
                 for(var prop in object) {
 
