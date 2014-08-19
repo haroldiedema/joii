@@ -98,12 +98,12 @@ test('Class - Inheriting (basic)', function(assert) {
 
     // ___ Interfaces used in the following examples ___
 
-    var i1 = Interface({
+    i1 = Interface({
         m1: 'string',
         m2: 'string'
     });
 
-    var i2 = Interface({
+    i2 = Interface({
         'extends': i1
     },
     {
@@ -115,7 +115,7 @@ test('Class - Inheriting (basic)', function(assert) {
     // ____________ #1 Test of Interface Extension __________
     
 
-    var c1 = Class({
+    C1 = Class({
         'implements': i2 
     }, {
         m1: function() {},
@@ -123,7 +123,7 @@ test('Class - Inheriting (basic)', function(assert) {
     });
 
     try {
-        new c1();
+        new C1();
     } catch(e) {
         errorMessage = e.message;
     }
@@ -133,7 +133,7 @@ test('Class - Inheriting (basic)', function(assert) {
     // ____________ #2 Test of Interface Extension ___________
 
     errorMessage = ''
-    var c2 = Class({
+    C2 = Class({
         'implements': i2 
     }, {
         m1: 'I should be a function',
@@ -142,7 +142,7 @@ test('Class - Inheriting (basic)', function(assert) {
     });
 
     try {
-        new c2();
+        new C2();
     } catch(e) {
         errorMessage = e.message;
     }
@@ -152,7 +152,7 @@ test('Class - Inheriting (basic)', function(assert) {
     // ____________ #3 Test of Interface Extension ___________
 
     errorMessage = ''
-    var c2 = Class({
+    var C3 = Class({
         'implements': i2 
     }, {
         m1: function() {},
@@ -160,7 +160,7 @@ test('Class - Inheriting (basic)', function(assert) {
     });
 
     try {
-        new c2();
+        new C3();
     } catch(e) {
         errorMessage = e.message;
     }
