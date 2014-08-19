@@ -21,7 +21,7 @@ var _g = (typeof(window) !== 'undefined') ? window : global;
 
 _g.$JOII = {
 
-        REVISION: 22,
+        REVISION: 23,
 
         /**
          * JOII's public API.
@@ -38,7 +38,7 @@ _g.$JOII = {
              * @param object body
              */
             'Class': function(params, body) {
-                if (typeof(body) === 'undefined') {
+                if (!body) {
                     body   = params;
                     params = {};
                 }
@@ -50,18 +50,16 @@ _g.$JOII = {
              *
              * @param object body
              */
-            'Interface': function(body) {
-                var o = {};
-                var s = _g.$JOII.System.guid()();
-                for (var i in body) {
-                    if (typeof(body[i]) !== 'string') {
-                        throw new Error("An interface definition must be a string, defining the property type.");
-                    }
-                    o[i] = body[i];
+            'Interface': function(params, body) {
+
+                // Allow for only one argument
+                if(!body) {
+                    body = params;
+                    params = {};
                 }
-                _g.$JOII.Compat.CreateProperty(o, '__interface__', s);
-                _g.$JOII.Interfaces[s] = o;
-                return o;
+
+                // Build the interface
+                return (new _g.$JOII.InterfaceBuilder(params, body));
             },
 
             /**
@@ -217,6 +215,41 @@ _g.$JOII = {
         'RegisterInNS': function(name, object)
         {
             _g.$JOII.Namespace[name] = object;
+        },
+
+        /**
+         * Builds an interface object
+         * @param {Object} params the parameters for the interface
+         * @param {Object} body   the body of the interface
+         */
+        InterfaceBuilder: function(params, body) {
+
+            // the new object
+            var o = {};
+
+            // Get an new UniqueId 
+            var s = _g.$JOII.System.guid()();
+
+            for (var i in body) {
+                if (typeof(body[i]) !== 'string') {
+                    throw new Error("An interface definition must be a string, defining the property type.");
+                }
+                o[i] = body[i];
+            }
+
+            // Assign the interface it's UUID
+            _g.$JOII.Compat.CreateProperty(o, '__interface__', s);
+
+            // Add it to the interfaces array
+            _g.$JOII.Interfaces[s] = o;
+
+            // If extends exists and object
+            if(typeof(params['extends']) === 'object' &&
+                 !!params['extends'].__interface__) {
+                o = _g.$JOII.System.ExtendInterface(o, params['extends']);
+            }
+
+            return o;
         },
 
         /**
@@ -538,6 +571,33 @@ _g.$JOII = {
                     return col;
                 };
                 product.__joii__.implementation_list = collectInterfaces(product);
+            },
+
+            /**
+             * Extend an interface with another interface
+             * @param {Object} product the interface that extends object
+             * @param {Object} object  the interface that is being extended
+             * @return {Object} An interface that has extended object
+             */
+            ExtendInterface: function(product, object) {
+
+                // Get the UUID
+                var uuId = product['__interface__'];
+
+                for(var prop in object) {
+
+                    // If product has own property. Then let it override.
+                    if(product.hasOwnProperty(prop))
+                        continue;
+
+                    product[prop] = object[prop];
+
+                }
+
+                // Add the iterface to the interface list
+                _g.$JOII.Interfaces[uuId] = product;
+
+                return product;
             },
 
             /**

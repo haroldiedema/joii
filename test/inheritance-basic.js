@@ -89,4 +89,81 @@ test('Class - Inheriting (basic)', function(assert) {
     i1.add('array');
     assert.equal(i1.get('a'), 'b', 'Object-copy check OK.');
     assert.equal(typeof(i2.get('a')), 'undefined', 'Object-copy check OK on second reference.');
+
+    // _____________________________________________________________________ //
+    // Issue #6 - https://github.com/haroldiedema/joii/issues/6, by georgePadolsey
+    
+    var errorMessage = '';
+
+
+    // ___ Interfaces used in the following examples ___
+
+    var i1 = Interface({
+        m1: 'string',
+        m2: 'string'
+    });
+
+    var i2 = Interface({
+        'extends': i1
+    },
+    {
+        m1: 'function',
+        // Where m2 would be (semantical) //
+        m3: 'string'
+    });
+
+    // ____________ #1 Test of Interface Extension __________
+    
+
+    var c1 = Class({
+        'implements': i2 
+    }, {
+        m1: function() {},
+        m3: ''
+    });
+
+    try {
+        new c1();
+    } catch(e) {
+        errorMessage = e.message;
+    }
+
+    assert.equal(errorMessage, 'Class is missing string implementation of property \"m2\".', 'Intefaces that extend other interfaces still work as usual with classes (requiring implementation)');
+
+    // ____________ #2 Test of Interface Extension ___________
+
+    errorMessage = ''
+    var c2 = Class({
+        'implements': i2 
+    }, {
+        m1: 'I should be a function',
+        m2: '',
+        m3: ''
+    });
+
+    try {
+        new c2();
+    } catch(e) {
+        errorMessage = e.message;
+    }
+
+    assert.equal(errorMessage, 'Property \"m1\" must be of type \"function\", string detected.', 'When an interface is extended properties are correctly overrided.');
+
+    // ____________ #3 Test of Interface Extension ___________
+
+    errorMessage = ''
+    var c2 = Class({
+        'implements': i2 
+    }, {
+        m1: function() {},
+        m2: ''
+    });
+
+    try {
+        new c2();
+    } catch(e) {
+        errorMessage = e.message;
+    }
+
+     assert.equal(errorMessage, 'Class is missing string implementation of property \"m3\".', 'New properties are added from the interface that is being extended.');
 });
