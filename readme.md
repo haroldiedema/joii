@@ -406,6 +406,8 @@ var MyClass = Class({ uses: [MathTrait, LogTrait] }, {
 
 # Dependency Injection
 
+### This feature is deprecated. Please use the [JOII-DI](https://github.com/haroldiedema/joii-di) package instead.
+
 JOII allows you to register a class as a service.
 
 For more information about dependency injection, please check out this article
