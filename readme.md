@@ -22,6 +22,7 @@ Check out [joii.zone/documentation](http://joii.zone/documentation/installation)
 Starting from JOII 2.2, plugins can be created and will be added to this list.
 
 * [JOII Diagram](https://github.com/haroldiedema/joii-diagram) - Generate UML diagrams for your classes.
+* [Dependency Injection](https://github.com/haroldiedema/joii-di) - Dependency Injection / Inversion of Control.
  
 Want your plugin here? Open an issue showcasing your plugin. Once approved, a link will be added here.
 
