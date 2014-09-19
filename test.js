@@ -11,7 +11,6 @@ testrunner.run({
             "./test/plugin-compile",
             "./test/plugin-scope",
             "./test/plugin-support",
-            "./test/traits",
-            "./test/di"
+            "./test/traits"
     ]
 });

@@ -1,6 +1,6 @@
 /*                                                        ____.      .__.__
  Javascript Object Inheritance Implementation            |    | ____ |__|__|
- Copyright 2014, Harold Iedema. All rights reserved.     |    |/  _ \|  |  |
+ Copyright 2014, Harold Iedema <harold@iedema.me>        |    |/  _ \|  |  |
 ---------------------------------------------------- /\__|    (  <_> )  |  | --
                                                      \________|\____/|__|__|
 
@@ -21,7 +21,7 @@ var _g = (typeof(window) !== 'undefined') ? window : global;
 
 _g.$JOII = {
 
-        REVISION: 23,
+        REVISION: 24,
 
         /**
          * JOII's public API.
@@ -60,26 +60,6 @@ _g.$JOII = {
 
                 // Build the interface
                 return (new _g.$JOII.InterfaceBuilder(params, body));
-            },
-
-            /**
-             * Registers a defined class as a service.
-             *
-             * @param string name
-             * @param object class_object
-             * @param object arguments
-             * @return void
-             */
-            'Service': function(name, class_object, args) {
-                if (typeof(_g.$JOII.Services[name]) !== 'undefined') {
-                    throw new Error('Another service with the name "' + name + '" is already defined.');
-                }
-
-                _g.$JOII.Services[name] = {
-                    object    : class_object,
-                    instance  : undefined,
-                    arguments : args
-                };
             },
 
             /**
@@ -173,16 +153,6 @@ _g.$JOII = {
                 };
                 return check(this, object);
             },
-
-            /**
-             * Return an instance of the service by the given name.
-             *
-             * @param string service_name
-             * @return object
-             */
-            'getService' : function(service_name) {
-                return _g.$JOII.System.getService(service_name);
-            }
         },
 
         /**
@@ -194,11 +164,6 @@ _g.$JOII = {
          * Interface collection
          */
         Interfaces: {},
-
-        /**
-         * Service collection
-         */
-        Services: {},
 
         /**
          * Reference to the JOII-namespace. This can vary from the 'window'-
@@ -249,7 +214,7 @@ _g.$JOII = {
             // If extends exists and object
             if(typeof(params['extends']) === 'object' &&
                  !!params['extends'].__interface__) {
-                o = _g.$JOII.System.ExtendInterface(o, params['extends']);
+                o = _g.$JOII.System.extendInterface(o, params['extends']);
             }
 
             return o;
@@ -399,59 +364,6 @@ _g.$JOII = {
         System: {
 
             /**
-             * Returns an instantiated a service.
-             *
-             * @param string service_name
-             * @return object
-             */
-            getService: function(service_name)
-            {
-                if (typeof(_g.$JOII.Services[service_name]) === 'undefined') {
-                    throw new Error('Service "' + service_name + '" is not defined.');
-                }
-
-                if (typeof(_g.$JOII.Services[service_name].instance) === 'undefined') {
-                    var obj  = _g.$JOII.Services[service_name].object;
-                    var cons = obj.prototype.__construct;
-                    var args = [];
-
-                    // Construct function to use '.apply' on 'new' objects.
-                    var construct = function(constructor, args) {
-                        var _ = [];
-                        _[service_name] = function() {
-                            return constructor.apply(this, args);
-                        };
-                        _[service_name].prototype = constructor.prototype;
-                        return new _[service_name]();
-                    };
-
-                    // Class has a constructor. Check arguments and inject whatever we can!
-                    if (typeof(cons) !== 'undefined') {
-                        var params = function(func) {
-                            var fnStr = func.toString().replace(/((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg, '');
-                            var result = fnStr.slice(fnStr.indexOf('(')+1, fnStr.indexOf(')')).match(/([^\s,]+)/g);
-                            if(result === null)
-                                result = [];
-                            return result;
-                        }(cons);
-
-                        var service_args = _g.$JOII.Services[service_name].arguments;
-
-                        for (var param_name in params) {
-                            var value = service_args[params[param_name]];
-                            if (typeof(value) === 'string' && value.charAt(0) === '@') {
-                                // Inject another service.
-                                value = _g.$JOII.System.getService(value.substring(1, value.length));
-                            }
-                            args.push(value);
-                        }
-                    }
-                    _g.$JOII.Services[service_name].instance = construct(obj, args);
-                }
-                return _g.$JOII.Services[service_name].instance;
-            },
-
-            /**
              * Applies the contents of 'object' to the prototype of 'product'.
              *
              * @param function product
@@ -578,11 +490,12 @@ _g.$JOII = {
 
             /**
              * Extend an interface with another interface
+             *
              * @param {Object} product the interface that extends object
              * @param {Object} object  the interface that is being extended
              * @return {Object} An interface that has extended object
              */
-            ExtendInterface: function(product, object) {
+            extendInterface: function(product, object) {
 
                 // Get the UUID
                 var uuId = product.__interface__;

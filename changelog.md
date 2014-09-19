@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.2
+- __IMPORTANT__ Removed builtin DependencyInjection. Please use the [Dependency Injection](https://github.com/haroldiedema/joii-di) package 
+
+## 2.2.1
+- Added the ability to extend interfaces.
+
 ## 2.2
 - Added plugin support, allowing classes to be registered within the JOII-namespace.
 

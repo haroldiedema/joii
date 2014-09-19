@@ -7,7 +7,6 @@ The official website can be visited at [joii.zone](http://joii.zone/)
 
 # Features
 
-* ***Dependency Injection***
 * ***Supports Internet Explorer 5 and up***
 * Extremely lightweight!
 * Full OOP support for JavaScript
@@ -407,70 +406,7 @@ var MyClass = Class({ uses: [MathTrait, LogTrait] }, {
 
 # Dependency Injection
 
-### This feature is deprecated. Please use the [JOII-DI](https://github.com/haroldiedema/joii-di) package instead.
-
-JOII allows you to register a class as a service.
-
-For more information about dependency injection, please check out this article
-by Martin Fowler, the "inventor" of this design pattern: http://martinfowler.com/articles/injection.html
-
-A service is registered using the `Service` function.
-
-```javascript
-// The following class simply holds 2 variables and returns the
-// sum of them in the getValue() method.
-var SomeServiceClass = Class({
-
-    some_value: null,
-    another_value: null,
-
-    __construct: function(some_value, another_value) {
-        this.some_value = some_value;
-        this.another_value = another_value;
-    }
-    
-    this.getValue = function() {
-        return this.some_value + this.another_value;
-    }
-});
-
-// Register the "SomeServiceClass"-class as 2 different services:
-Service("my_first_service", SomeServiceClass, {
-    some_value: 1,
-    another_value: 2
-});
-
-Service("my_second_service", SomeServiceClass, {
-    some_value: 2,
-    another_value: 4
-});
-
-// We're going to use these services in the following class:
-var MyClass = Class({ injects: { 
-    serivce1: "my_first_service",  // Name of the service
-    service2: "my_second_service"  // Name of the service
-}}, {
-    __construct: function() {
-        console.log(this.service1.getValue()); // prints: 3
-        console.log(this.service2.getValue()); // prints: 6
-    }
-});
-
-
-// Create a service that depends on the first two services we already have:
-var DependencyClass = Class({
-    __construct: function(a, b, c) {
-        console.log(a.getValue() + b.getValue() + c); // prints: 10
-    }
-});
-
-// If a value is prefixed with an @ [at-sign], it's pointing to a service.
-Service('dependency_class', DependencyClass, {
-    a: '@my_first_service',
-    b: '@my_second_service',
-    c: 1 // Just a random value
-});
-```
+### This feature was deprecated as of version 2.2, removed in version 2.3. Please use the [JOII-DI](https://github.com/haroldiedema/joii-di) package instead.
 
 # Plugins
 
@@ -565,13 +501,18 @@ var m = new MyClass('Hello');
 
 ## Register something within the JOII-namespace
 
-Since JOII 2.2, it's now possible to add "external" plugins which function as
+Since JOII 2.2, it's now possible to add "external" plugins which operate as
 a completely separate "project" but will be registered inside the JOII-namespace.
 
 For example, if you configured JOII to be registered in the `HelloWorld`
 namespace and you define classes like `var MyClass = HelloWorld.Class({ /* ... */ });`,
 it's now possible for external classes to also be registered in the `HelloWorld`
 namespace using the following snippet:
+
+JOII would be loaded like this:
+```markup
+<script src="js/joii.min.js" data-ns="HelloWorld"></script>
+```
 
 ```javascript
 _g.$JOII.RegisterInNS('Something', _g.$JOII.PublicAPI.Class({
