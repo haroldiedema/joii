@@ -1,7 +1,9 @@
-# JOII has been updated to 2.2
+# JOII has been updated to 2.3
 
 A lot has changed and 2.* is not backwards compatible with 1.0. If you still wish to use
 the old version, please use the 1.0 tag.
+
+Please see the changelog.md details.
 
 The official website can be visited at [joii.zone](http://joii.zone/)
 
