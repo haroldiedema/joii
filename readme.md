@@ -1,11 +1,6 @@
-# JOII has been updated to 2.3
-
-A lot has changed and 2.* is not backwards compatible with 1.0. If you still wish to use
-the old version, please use the 1.0 tag.
+# JOII has been updated to 2.4
 
 Please see the changelog.md details.
-
-The official website can be visited at [joii.zone](http://joii.zone/)
 
 # Features
 
@@ -16,16 +11,15 @@ The official website can be visited at [joii.zone](http://joii.zone/)
 * Traits / Mix-ins
 * Public Class API (protected / public methods)
 * Custom Plugins
-
-Check out [joii.zone/documentation](http://joii.zone/documentation/installation) for documentation and examples.
+* __NEW in 2.4!__ Final methods & properties
 
 # Plugins
-Starting from JOII 2.2, plugins can be created and will be added to this list.
+Since JOII 2.2, plugins can be created and will be added to this list.
 
-* [JOII Diagram](https://github.com/haroldiedema/joii-diagram) - Generate UML diagrams for your classes.
 * [Dependency Injection](https://github.com/haroldiedema/joii-di) - Dependency Injection / Inversion of Control.
- 
-Want your plugin here? Open an issue showcasing your plugin. Once approved, a link will be added here.
+* [PlantUML Diagrams](https://github.com/haroldiedema/joii-diagram) - Generate UML diagrams for your classes.
+
+Want your plugin here? Open an issue showcasing your plugin. Once approved, a link will be added.
 
 # Installation
 
@@ -263,6 +257,46 @@ alert(Peter.instanceOf(Manager)); // true
 ```
 
 The method `instanceOf` also works with testing whether a class implements a certain [interface](/documentation/interfaces).
+
+# Final classes, methods and properties
+
+Since JOII 2.4, any class may define a set of final methods or properties or declare itself as a whole as a final class.
+When a class is marked as final, it cannot be used as a parent class for anything.
+
+The `final` parameter has 2 possible options:
+* (bool) true - Makes the entire class final - equivalent of PHP or Java: `final class Foobar { ... }`.
+* (array) methods - Define an array with names of properties/methods that must be final.
+
+__Making a final class:__
+```javascript
+var MyClass = Class({ final: true }, { /* class body */ });
+
+// This will throw an exception stating that extending on MyClass is impossible
+// because it's marked as 'final'.
+var AnotherClass = Class({ extends: MyClass }, {
+    // ...
+});
+```
+
+__Making a set of methods & properties final__
+```javascript:
+var MyClass = Class({ final: ['__construct', 'foobar'] }, {
+    __construct: function() {
+        // I may not be overwritten by any child class.
+    },
+    
+    foobar: 'Me neither...'
+});
+
+var AnotherClass = Class({ extends: MyClass }, {
+    __construct: function() {
+        // An exception is thrown. Overriding __construct is forbidden.
+    },
+    
+    // The same applies to overriding this property:
+    foobar: 'Exception is now thrown...'
+});
+```
 
 # Interfaces
 An interface defines the behaviour of a class by defining which properties and

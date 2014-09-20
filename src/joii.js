@@ -21,7 +21,7 @@ var _g = (typeof(window) !== 'undefined') ? window : global;
 
 _g.$JOII = {
 
-        REVISION: 24,
+        REVISION: 25,
 
         /**
          * JOII's public API.
@@ -306,8 +306,20 @@ _g.$JOII = {
                 return product;
             }, body);
 
+            if (typeof(params['final']) !== 'undefined') {
+                product.__joii__.is_final = params['final'];
+            }
+
             if (typeof(params['extends']) === 'function' &&
                 typeof(params['extends'].prototype) === 'object') {
+                // Check if the Class we're extending is final.
+                if (typeof(params['extends'].__joii__) !== 'undefined' &&
+                    typeof(params['extends'].__joii__.is_final) !== 'undefined' &&
+                    params['extends'].__joii__.is_final === true) {
+                    throw new Error('Unable to extend a class that is final.');
+                }
+
+                // Apply the product
                 product = _g.$JOII.System.ApplyParent(product, params['extends']);
             } else if (typeof(params['extends']) === 'object' ) {
                 product = _g.$JOII.System.ApplyTrait(product, params['extends']);
@@ -386,6 +398,17 @@ _g.$JOII = {
              */
             ApplyParent: function(product, parent)
             {
+                if (typeof(parent.__joii__.is_final) === 'object') {
+                    var o = product.__joii__.is_final || [];
+                    if (o !== true && typeof(o) === 'object') {
+                        for (var i in parent.__joii__.is_final) {
+                            if (parent.__joii__.is_final.hasOwnProperty(i)) {
+                                o.push(parent.__joii__.is_final[i]);
+                            }
+                        }
+                    }
+                    product.__joii__.is_final = o;
+                }
                 product.__joii__.parent = {};
                 product.__joii__.parent.prototype = parent.prototype;
                 if (typeof(parent.__joii__) === 'object') {
@@ -394,6 +417,18 @@ _g.$JOII = {
                 for (var i in parent.prototype) {
                     if (typeof(product.prototype[i]) === 'undefined') {
                         product.prototype[i] = parent.prototype[i];
+                    } else {
+                        // Check if the method/property is final in the
+                        // parent class.
+                        if (typeof(parent.__joii__) !== 'undefined' &&
+                            typeof(parent.__joii__.is_final) === 'object') {
+
+                            for (var ii in parent.__joii__.is_final) {
+                                if (parent.__joii__.is_final.hasOwnProperty(ii)) {
+                                    throw new Error('Unable to override method "' + i + '", because it is marked as final in the parent class.');
+                                }
+                            }
+                        }
                     }
                 }
                 return product;

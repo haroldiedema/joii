@@ -112,8 +112,37 @@ test('Class - Inheriting (basic)', function(assert) {
         m3: 'string'
     });
 
-    // ____________ #1 Test of Interface Extension __________
+    // _____________________________________________________________________ //
 
+    // If the 'final' parameter is set to true, extending the class is not possible.
+    error_message = '';
+    C1 = Class({ 'final': true }, {});
+    try { C2 = Class({ 'extends' : C1 }, {}); } catch(e) { error_message = e.message; }
+    assert.equal(error_message, 'Unable to extend a class that is final.', "Extending a class marked as 'final' is not possible.");
+
+    // If the 'final' parameter is an array of property/method names, overriding these is not possible.
+    error_message = '';
+    C1 = Class({ 'final' : ['__construct']}, { __construct: function(){} });
+    try { C2 = Class({ 'extends': C1 }, { __construct: function(){} }); } catch(e) { error_message = e.message; }
+    assert.equal(error_message, 'Unable to override method "__construct", because it is marked as final in the parent class.', 'Overriding final methods is not possible.');
+
+    // Nest deeper...
+    error_message = '';
+    C1 = Class({ 'final' : ['__construct']}, { __construct: function(){} });
+    C2 = Class({ 'extends': C1 }, { });
+    try { Class({ 'extends': C2 }, { __construct: function(){} }); } catch(e) { error_message = e.message; }
+    assert.equal(error_message, 'Unable to override method "__construct", because it is marked as final in the parent class.', 'Overriding final methods is not possible (recursive).');
+
+    // Combine 2 classes which both have final methods defined.
+    error_message = '';
+    C1 = Class({ 'final' : ['__construct']}, { __construct: function(){} });
+    C2 = Class({ 'extends': C1, 'final' : ['foobar'] }, { foobar: function(){} });
+    try { Class({ 'extends': C2 }, { foobar: function() {} }); } catch (e) { error_message = e.message; }
+    assert.equal(error_message, 'Unable to override method "foobar", because it is marked as final in the parent class.', 'Extending classes that both have final methods (1)');
+    try { Class({ 'extends': C2 }, { __construct: function() {} }); } catch (e) { error_message = e.message; }
+    assert.equal(error_message, 'Unable to override method "__construct", because it is marked as final in the parent class.', 'Extending classes that both have final methods (2)');
+
+    // ____________ #1 Test of Interface Extension __________
 
     C1 = Class({
         'implements': i2

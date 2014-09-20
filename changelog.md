@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4
+- Added the `final` parameter to mark a class or a set of properties _final_.
+
 ## 2.3
 - __IMPORTANT__ Removed builtin DependencyInjection. Please use the [Dependency Injection](https://github.com/haroldiedema/joii-di) package 
 
