@@ -11,7 +11,7 @@ Please see the changelog.md details.
 * Traits / Mix-ins
 * Public Class API (protected / public methods)
 * Custom Plugins
-* __NEW in 2.4!__ Final methods & properties
+* __NEW in 2.4!__ Final classes, methods & properties
 
 # Plugins
 Since JOII 2.2, plugins can be created and will be added to this list.
