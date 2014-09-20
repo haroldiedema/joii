@@ -21,7 +21,8 @@ Since JOII 2.2, plugins can be created and will be added to this list.
 
 Want your plugin here? Open an issue showcasing your plugin. Once approved, a link will be added.
 
-# Installation
+Installation
+============
 
 Download the latest version of JOII and include it like any other javascript library:
 ```markup
@@ -42,7 +43,8 @@ JOII contains 3 functions: `Class`, `Interface` and `RegisterJOIIPlugin`. By def
 are injected into the global namespace, `window`. If you're running JOII on NodeJS, the `global` namespace
 is used instead.
 
-# Namespaces
+Namespaces
+==========
 
 Because the function names `Class` and `Interface` are really generic, you'll have the possibility to
 use a custom namespace using the `data-ns` attribute on the `<script>` tag which you use to load JOII.
@@ -62,7 +64,8 @@ This way, you're still free to use any other library that might conflict with JO
 </html>
 ```
 
-# Classes
+Classes
+=======
 
 The `Class` function accepts 2 arguments: A _configuration object_ and the _class
 body_, which is also taken as an object. The configuration object is optional and
@@ -73,7 +76,8 @@ The configuration object accepts the following parameters:
  * [implements](/documentation/interfaces)    _implementing one or more interfaces_
  * [uses](/documentation/traits)              _applying one or more traits_
 
-### Example: A simple class without parameters
+A simple class without parameters
+---------------------------------
 
 ```javascript
 var MyClass = Class({
@@ -86,7 +90,8 @@ obj = new MyClass();
 obj.helloWorld('Harold'); // Alerts: Hello, Harold.
 ```
 
-# Constructor
+Constructor
+-----------
 
 Because JOII accepts an object as class body, there is no actual function 
 constructor in the tranditional sense of JavaScript. Therefore, JOII utilizes
@@ -99,8 +104,8 @@ it manually using the `super` method.
 You can read more about this in the [inheritance](/documentation/inheritance)
 section.
 
-### Example: A class constructor without arguments
-
+A class constructor without arguments
+-------------------------------------
 ```javascript
 var MyClass = Class({
     foo: 0,
@@ -113,8 +118,8 @@ var obj = new MyClass();
 alert(obj.foo); // Alerts: 1
 ```
 
-### Example: A class constructor with arguments
-
+A class constructor with arguments
+----------------------------------
 ```javascript
 var MyClass = Class({
     foo: 0,
@@ -127,7 +132,8 @@ var obj = new MyClass(10, 20);
 alert(obj.foo); // Alerts: 30
 ```
 
-## Public API
+Public API
+----------
 
 The traditional objects in javascript don't official support "protected" 
 methods or properties. With JOII you can define a 'Public API' for your
@@ -161,7 +167,8 @@ mc.getHello(); // returns "Hello World"
 
 ```
 
-# Inheritance
+Inheritance
+===========
 
 Classes can be extended upon other classes to a theoretically infinite depth,
 as long as your browser can support it and doesn't run out of memory - so to
@@ -175,7 +182,8 @@ object which you pass to a class declaration.
 > reserved in Internet Explorer 8 and below. You'll have to wrap them around
 > quotes to be able to use it. Modern browsers don't need the quotes.
 
-## A quick example
+A quick example
+---------------
 
 The code below defines 3 classes: `Person`, `Employee` and `Manager`.
 
@@ -233,7 +241,8 @@ var Manager = Class({ extends: Employee }, {
 });
 ```
 
-# InstanceOf
+InstanceOf
+----------
 
 As in many object oriented languages, checking the type of an object may be
 crucial in some situations. Here's how this is done in JOII:
@@ -258,7 +267,8 @@ alert(Peter.instanceOf(Manager)); // true
 
 The method `instanceOf` also works with testing whether a class implements a certain [interface](/documentation/interfaces).
 
-# Final classes, methods and properties
+Final classes, methods and properties
+-------------------------------------
 
 Since JOII 2.4, any class may define a set of final methods or properties or declare itself as a whole as a final class.
 When a class is marked as final, it cannot be used as a parent class for anything.
@@ -298,7 +308,9 @@ var AnotherClass = Class({ extends: MyClass }, {
 });
 ```
 
-# Interfaces
+Interfaces
+==========
+
 An interface defines the behaviour of a class by defining which properties and
 methods a class **must** implement. The body of an interface is always defined
 as an _object_ and contains properties with values indicating the desired 
@@ -343,7 +355,8 @@ var p = new Person();
 > reserved in Internet Explorer 8 and below. You'll have to wrap it around
 > quotes to be able to use it. Modern browsers don't need the quotes.
 
-# Inheritance
+Inheritance
+-----------
 
 You can implement an interface on a base class to enforce a child class to
 implement certain properties.
@@ -369,7 +382,8 @@ a.instanceOf(BasePerson); // true
 a.instanceOf(IPerson); // true
 ```
 
-# Multiple interfaces
+Multiple interfaces
+-------------------
 
 Multiple interfaces can be implemented on one class. The `implements` property
 may accept an array of interfaces instead of just one.
@@ -384,7 +398,8 @@ var SomePerson = Class({ implements: [IPerson, ILogger] }, {
 });
 ```
 
-# Extending interfaces
+Extending interfaces
+--------------------
 
 Interfaces can be extended, the same way as classes.
 
@@ -402,7 +417,9 @@ Any class implementing `AnotherInterface` must now implement the methods `log` a
 Credits for this implementation to @georgePadolsey.
 
 
-# Traits
+Traits
+======
+
 A trait serves as a mix-in for classes to provide additional, generic, functionality.
 You can implement a trait using the `uses` property in the configuration object.
 
@@ -424,7 +441,8 @@ var MyClass = Class({ uses: MathTrait }, {
 var m = new MyClass(10, 20); // alerts: 30
 ```
 
-# Multiple traits
+Multiple traits
+---------------
 
 Just as interfaces, traits can also be implemented with more than once.
 
@@ -440,11 +458,13 @@ var MyClass = Class({ uses: [MathTrait, LogTrait] }, {
 });
 ```
 
-# Dependency Injection
+Dependency Injection
+====================
 
 ### This feature was deprecated as of version 2.2, removed in version 2.3. Please use the [JOII-DI](https://github.com/haroldiedema/joii-di) package instead.
 
-# Plugins
+Plugins
+=======
 
 Plugins allow you to fully extend the functionality of JOII by dynamically
 injecting properties into the scope of any created class or even recompile
@@ -459,7 +479,8 @@ The configuration object takes 3 properties:
 * supports _A function which returns true if the plugin supports the class_
 * compile _A function which takes the product as argument and returns it as well, allowing modification._
 
-## "scope" - Adding a function to any class.
+Adding a function to any class.
+-------------------------------
 
 The `scope` property defines an object. The contents of this object is injected
 into the created classes.
@@ -479,7 +500,8 @@ var m = new MyClass();
 m.helloWorld(); // Hello World
 ```
 
-## "supports" - Only register plugins to classes that 'support' it.
+Only register plugins to classes that support it
+------------------------------------------------
 
 The `supports` method returns a boolean indicating whether to register the 
 plugin or not. This method has one argument which represents the product.
@@ -499,7 +521,8 @@ RegisterJOIIPlugin('my-plugin', {
 });
 ```
 
-## "compile" - Modify the product
+Modify the product
+------------------
 
 The compile function takes one argument which represents the product. The
 product is the class being built by the internal ClassBuilder before it's
@@ -535,7 +558,8 @@ var m = new MyClass('Hello');
 // Hello
 ```
 
-## Register something within the JOII-namespace
+Register something within the JOII-namespace
+--------------------------------------------
 
 Since JOII 2.2, it's now possible to add "external" plugins which operate as
 a completely separate "project" but will be registered inside the JOII-namespace.
@@ -562,7 +586,8 @@ var something = new HelloWorld.Something();
 A use-case example of this feature is the diagram plugin, found at
 <https://github.com/haroldiedema/joii-diagram>.
 
-# Compatibility
+Compatibility
+-------------
 
 Because multiple plugins may be registered, some properties might be added to a
 class scope which are also implemented by other plugins. If this happens, an
@@ -601,5 +626,4 @@ var MyClass = Class({
 
 // Error: Method "test" is reserved by plugin "my-plugin".
 ```
-
 
