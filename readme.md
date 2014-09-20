@@ -21,6 +21,35 @@ Since JOII 2.2, plugins can be created and will be added to this list.
 
 Want your plugin here? Open an issue showcasing your plugin. Once approved, a link will be added.
 
+Table of contents
+=================
+* [Installation](#installation)
+* [Namespaces](#namespaces)
+* [Classes](#classes)
+  * [A simple class without parameters](#a-simple-class-without-parameters)
+  * [Constructor](#constructor)
+  * [A class constructor without arguments](#a-class-constructor-without-arguments)
+  * [A class constructor with arguments](#a-class-constructor-with-arguments)
+  * [Public API](#public-api)
+* [Inheritance](#inheritance)
+  * [A quick example](#a-quick-example)
+  * [InstanceOf](#instanceof)
+  * [Final classes, methods and properties](#final-classes-methods-and-properties)
+* [Interfaces](#interfaces)
+  * [Inheritance](#inheritance-1)
+  * [Multiple interfaces](#multiple-interfaces)
+  * [Extending interfaces](#extending-interfaces)
+* [Traits](#traits)
+  * [Multiple traits](#multiple-traits)
+* [Dependency Injection](#dependency-injection)
+* [Plugins](#plugins)
+  * [Adding a function to any class](#adding-a-function-to-any-class)
+  * [Only register plugins to classes that support it](#only-register-plugins-to-classes-that-support-it)
+  * [Modify the product](#modify-the-product)
+  * [Register something within the JOII-namespace](#register-something-within-the-joii-namespace)
+  * [Compatibility](#compatibility)
+
+
 Installation
 ============
 
