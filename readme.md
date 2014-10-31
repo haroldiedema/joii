@@ -96,7 +96,7 @@ inst.getAString(); // Hello World
 inst.a_string = "Foobar!"
 inst.getAString(); // Hello World
 ```
-If there is only *one* scope, this wouldn't happen. I've thought about using one scope if everything in the class would be declared public, but that could easily break your entire application if only **one** method or property would be declared protected - which only works by introduces two scopes again.
+If there is only *one* scope, this wouldn't happen. I've thought about using one scope if everything in the class would be declared public, but that could easily break your entire application if only **one** method or property would be declared protected - which only works by introducing two scopes again.
 
 I've seen other libraries using a "properties" object, which you _need_ to use to access your properties directly, but I absolutely refuse to do this "magic". Example: `inst.__properties.a_string = "Foobar";` 
 After long consideration, and asking opinions from other skilled programmers and engineers, the best approach is to use getters and setters, period. I think most of you would agree on this. 
