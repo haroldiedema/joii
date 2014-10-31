@@ -6,10 +6,11 @@ A little list of most notable changes / features:
 * Properties are declared public/protected/abstract/final/nullable/type in declaration (see example below)
 * Interfaces and classes support & enforce type-checking on properties
 * Properties are always "protected" and not directly accessible from the outside
-* Automatically generated `getters` and `setters` (Read-only properties will not get a setter)
+* Automatically generated `getters` and `setters` (Read-only properties will not get a setter, `private` properties will get neither.)
 * Support for `__call`: Execute different logic when your class is executed as a function rather than being instantiated.
 * Support for `abstract` classes and properties.
 * Support for `Reflection`: Retrieve metadata from your class definitions (property visibility, function arguments, etc.)
+* A clean code-base. Functionality is separated over several files. Unit-tests are separated by category.
 * Best of all: It **still** works flawlessly on Internet Explorer 5.5 and up ;)
 
 ### A little teaser:
@@ -35,8 +36,10 @@ var SomePerson = Class({ 'implements': Person }, {
 
 var PersonHolder = Class({}, {
     // Making a property nullable, allows "null" or "undefined" to be passed to setters.
-    'public nullable Person owner'       : null,
-    'public nullable Person some_person' : null
+    'public nullable Person owner'  : null,
+    
+    // It is also possible to use a class definition as a type.
+    'public SomePerson some_person' : null
 });
 
 // Instantiate the PersonHolder class.
