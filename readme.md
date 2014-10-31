@@ -1,6 +1,120 @@
-# JOII has been updated to 2.4
+# JOII 3.0 is coming _soon_!
 
-Please see the changelog.md details.
+JOII 3.0 is currently in internal beta and will be coming ***soon!***
+A little list of most notable changes / features:
+
+* Properties are declared public/protected/abstract/final/nullable/type in declaration (see example below)
+* Interfaces and classes support & enforce type-checking on properties
+* Properties are always "protected" and not directly accessible from the outside
+* Automatically generated `getters` and `setters` (Read-only properties will not get a setter)
+* Support for `__call`: Execute different logic when your class is executed as a function rather than being instantiated.
+* Support for `abstract` classes and properties.
+* Support for `Reflection`: Retrieve metadata from your class definitions (property visibility, function arguments, etc.)
+* Best of all: It **still** works flawlessly on Internet Explorer 5.5 and up ;)
+
+### A little teaser:
+```javascript
+//Create an interface, making an instance of "Person" usabe as a type.
+var Person = Interface('Person', {
+    // Don't automatically generate a setter by applying the "read" flag
+    'public read string name'  : null,
+    'public read string email' : null
+});
+
+// Create a class that implements the Person interface.
+var SomePerson = Class({ implements: Person }, {
+    'public read string name'  : null,
+    'public read string email' : null,
+    
+    // Class constructor
+    'protected __construct' : function(name, email) {
+        this.name = name;
+        this.email = email;
+    }
+});
+
+var PersonHolder = Class({}, {
+    // Making a property nullable, allows "null" or "undefined" to be passed to setters.
+    'public nullable Person owner'       : null,
+    'public nullable Person some_person' : null
+});
+
+// Instantiate the PersonHolder class.
+var ph = new PersonHolder();
+
+// When passing something that isn't null or an instance of Person to the setters, an error
+// is thrown: "setOwner expects an instance of Person, string given."
+ph.setOwner('Something'); 
+
+// Fill the two properties by invoking the associated setters...
+ph.setOwner(new SomePerson('John Doe', 'jd@example.com'));
+ph.setSomePerson(new SomePerson('Bob Marley', 'bmarley@example.com'));
+
+// Retrieve some data we've just set.
+console.log(ph.getOwner().getName());       // John Doe
+console.log(ph.getSomePerson().getEmail()); // bmarley@example.com
+```
+
+***IMPORTANT INFO ABOUT BACKWARDS COMPATIBILITY*** 
+
+Before you get all scared about having to rewrite your entire application (or applications), please keep reading. It's not all bad...
+
+#### The following will keep working as usual
+- Nearly every new feature is **optional**. Defining visibility (`public`, `protected`) is optional. By default everything is public if you don't specify anything.
+- Class definitions work as they do now: `Class([parameters], <body>)`
+- Interfaces can be declared and used as they do now.
+- Classes can still be extended as normal (although some issues are fixed, most importantly issue #9)
+- Getters and setters are not overwritten if you already define them.
+- Traits - also known as mix-ins -  (using the `uses` class-parameters) remain functional as they are now.
+
+#### The following _will_ change or break
+- Most important: Properties are _always_ protected, meaning they are not directly accessible from outside the class scope. Using getters/setters has always been best-practice, JOII will enforce you to do so with 3.0 (see extra note below).
+- Public API used to be defined by returning an object from the `__construct` function. This is obviously no longer needed.
+- Defining `final` properties in the class-parameter is no longer working. You can now declare properties and methods as final directly in the declaration.
+- The plugin-system gets a full make-over.
+- Applying the JOII-API in a custom namespace, using the `data-ns` attribute on your `script`-tag is now done using a small initialisation function (to provide full compatibility with NodeJS and PhantomJS).
+- Visibility changes in the inheritance chain: If a parent class defines something being `public`, the overwritten property _needs_ to be `public` as well in the child class. Not doing so will cause an exception to be thrown.
+
+*** A little note about the properties ***
+Because JOII allows you to define public and protected methods, a class is basically built up in two scopes. The inside scope and the outside scope. Functions are bound to the inside scope (the `this` variable) while the variable holding the instance of your class has only access to the outside scope. Because JavaScript references object-types, modifying them in one scope will also update them in the other scope automatically. Unfortionately, this isn't the case for scalar types (strings, booleans, numbers, etc.).
+
+Here's a little exmaple:
+```javascript
+var A = Class({
+    // inside (this) scope
+    a_string: 'Hello World',
+    
+    // outside (instance) scope
+    getAString: function() {
+        return this.a_string;
+    }
+});
+
+var inst = new A();
+inst.getAString(); // Hello World
+inst.a_string = "Foobar!"
+inst.getAString(); // Hello World
+```
+If there is only *one* scope, this wouldn't happen. I've thought about using one scope if everything in the class would be declared public, but that could easily break your entire application if only **one** method or property would be declared protected - which only works by introduces two scopes again.
+
+I've seen other libraries using a "properties" object, which you _need_ to use to access your properties directly, but I absolutely refuse to do this "magic". Example: `inst.__properties.a_string = "Foobar";` 
+After long consideration, and asking opinions from other skilled programmers and engineers, the best approach is to use getters and setters, period. I think most of you would agree on this. 
+
+If you don't agree with this approach, let me try to convince you anyway: If you have a custom setter for a property which performs some additional functionality, your application will most likely "break" if something from the outside modifies your property directly. This is _very_ dangerous and hard to debug in large applications. The same applies to custom getters with additional functionality ofcourse.
+
+The visibility, abstract- and final state of a property is also copied to the generated getter and setter. This means that if you create a property which is final and public, the generated getter and setter methods will be final and public as well.
+
+
+Feel free to leave feedback, suggestions or questions by opening an issue or sending me an email to harold@iedema.me.
+
+Thank you very much for your interest and feedback! 
+Expect to see a release in the coming weeks.
+
+Enjoy your halloween and stay tuned!
+
+~ Harold
+
+-------------------------------------------------
 
 # Features
 
