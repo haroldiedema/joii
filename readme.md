@@ -22,7 +22,7 @@ var Person = Interface('Person', {
 });
 
 // Create a class that implements the Person interface.
-var SomePerson = Class({ implements: Person }, {
+var SomePerson = Class({ 'implements': Person }, {
     'public read string name'  : null,
     'public read string email' : null,
     
