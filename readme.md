@@ -76,6 +76,7 @@ Before you get all scared about having to rewrite your entire application (or ap
 - Visibility changes in the inheritance chain: If a parent class defines something being `public`, the overwritten property _needs_ to be `public` as well in the child class. Not doing so will cause an exception to be thrown.
 
 ***A little note about the properties***
+
 Because JOII allows you to define public and protected methods, a class is basically built up in two scopes. The inside scope and the outside scope. Functions are bound to the inside scope (the `this` variable) while the variable holding the instance of your class has only access to the outside scope. Because JavaScript references object-types, modifying them in one scope will also update them in the other scope automatically. Unfortionately, this isn't the case for scalar types (strings, booleans, numbers, etc.).
 
 Here's a little exmaple:
