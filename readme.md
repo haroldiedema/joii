@@ -18,14 +18,14 @@ A little list of most notable changes / features:
 //Create an interface, making an instance of "Person" usabe as a type.
 var Person = Interface('Person', {
     // Don't automatically generate a setter by applying the "read" flag
-    'public read string name'  : null,
-    'public read string email' : null
+    'public immutable string name'  : null,
+    'public immutable string email' : null
 });
 
 // Create a class that implements the Person interface.
 var SomePerson = Class({ 'implements': Person }, {
-    'public read string name'  : null,
-    'public read string email' : null,
+    'public immutable string name'  : null,
+    'public immutable string email' : null,
     
     // Class constructor
     'protected __construct' : function(name, email) {
@@ -63,7 +63,8 @@ console.log(ph.getSomePerson().getEmail()); // bmarley@example.com
 Before you get all scared about having to rewrite your entire application (or applications), please keep reading. It's not all bad...
 
 #### The following will keep working as usual
-- Nearly every new feature is **optional**. Defining visibility (`public`, `protected`) is optional. By default everything is public if you don't specify anything.
+- Nearly everything is backwards compatible except for parameters (read on...)
+- Declaration of properties as strings is **optional**: Defining visibility (`public`, `protected`) is optional. By default everything is public if you don't specify anything.
 - Class definitions work as they do now: `Class([parameters], <body>)`
 - Interfaces can be declared and used as they do now.
 - Classes can still be extended as normal (although some issues are fixed, most importantly issue #9)
