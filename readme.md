@@ -1,5 +1,11 @@
 # JOII 3.0 is coming _soon_!
 
+**Update nov. 27th 2014**: Version 3.0 is very close to release. I'm currently setting up a new website for documentation. Once this is finished, everything will be released.
+
+**Support for version 2.4**: If issues occur with version 2.4 that are fixable without major alterations, it will be fixed (end of life date is yet to be determined). However, I'd recommend you to migrate to 3.0 as soon as possible once its released.
+
+---
+
 JOII 3.0 is currently in internal beta and will be coming ***soon!***
 A little list of most notable changes / features:
 
