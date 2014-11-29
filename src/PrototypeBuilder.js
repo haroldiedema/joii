@@ -134,11 +134,11 @@
                     if (typeof(g.JOII.InterfaceRegistry[meta.type]) !== 'undefined' ||
                         typeof(g.JOII.ClassRegistry[meta.type]) !== 'undefined') {
                         validator = '\
-                            if (JOII.Compat.findJOIIName(v) === \'' + meta.type + '\') {} else {\
-                            if (typeof(v.instanceOf) !== \'function\' || !v.instanceOf(\'' + meta.type + '\')) {\
-                                if ('+nullable+' === false || ('+nullable+' === true && v !== null && typeof(v) !== "undefined")) {\
-                                    throw "'+setter+' expects an instance of '+meta.type+', " + typeof(v) + " given.";\
-                                }\
+                            if (JOII.Compat.findJOIIName(v) === \'' + meta.type + '\') {} else {\n\
+                            if (v !== null && typeof(v.instanceOf) !== \'function\' || (typeof(v) === \'object\' && v !== null && typeof(v.instanceOf) === \'function\' && !v.instanceOf(\'' + meta.type + '\')) || v === null) {\n\
+                                if ('+nullable+' === false || ('+nullable+' === true && v !== null && typeof(v) !== "undefined")) {\n\
+                                    throw "'+setter+' expects an instance of '+meta.type+', " + (v === null ? "null" : typeof(v)) + " given.";\n\
+                                }\n\
                             }};';
                     } else {
                     // Native type validator
@@ -276,33 +276,6 @@
                 ');
             }
         }
-
-        /*
-        if (typeof(parameters['uses']) !== 'undefined') {
-            var traits = g.JOII.Compat.flexibleArgumentToArray(parameters['uses']),
-                mixins = {};
-            for (var t in traits) {
-                for (var i in traits[t]) {
-                    var meta = g.JOII.ParseClassProperty(i);
-                    if (typeof(mixins[meta.name]) !== 'undefined') {
-                        throw 'Another trait already defined "' + i + '".';
-                    }
-                    mixins[meta.name] = traits[t][i];
-                    prototype[meta.name] = traits[t][i];
-                    // TODO FIXME! This is obviously broken. Traits are
-                    // forcefully applied to parent prototypes. Thats not
-                    // the way to go... Investigate later as this will
-                    // obviously break something in the future...
-                    if (typeof(prototype.__joii__.parent) === 'undefined') {
-                        prototype.__joii__.parent = {};
-                    }
-                    if (typeof(prototype.__joii__.parent[meta.name]) === 'undefined') {
-                        prototype.__joii__.parent[meta.name] = traits[t][i];
-                    }
-                }
-            }
-        }
-        */
 
         if (is_interface !== true) {
             /**
