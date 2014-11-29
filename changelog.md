@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.0
+- Properties are now always private
+- Getter/Setter generation
+- Added type support
+- Added constants
+- Added Enum-types
+- Enhanced visibility for properties and methods
+- Various bugfixes
+- Improved performance
+- Reworked the entire codebase
+- Using grunt & npm for unit testing and deployment
+
+The following features have been removed / relocated:
+- `final` parameter only accepts boolean "true", properties are defined `final` on the property declaration directly.
+- Removed the "Public API" feature to define public methods using a return value from the constructor
+- Removed support for plug-ins, as they are a potentional security breach and can easily mess up class definitions.
+
 ## 2.4
 - Added the `final` parameter to mark a class or a set of properties _final_.
 
