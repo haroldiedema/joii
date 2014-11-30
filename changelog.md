@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.2
+- Added `JOII.isInstance()` to verify if an object is an instance of a JOII class.
+
+## 3.0.1
+- Added fluid interfacing support. `this.__api__` returns the public scope of an instance.
+
 ## 3.0
 - Properties are now always private
 - Getter/Setter generation

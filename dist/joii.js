@@ -1972,13 +1972,12 @@
     /**
      * Returns true if the given value is an instance of a JOII class.
      *
-     * @param mixed c
+     * @param  mixed c
      * @return bool
      */
     g.JOII.isInstance = function(c) {
-        return
-            typeof(c.__joii__) !== 'undefined' &&
-            typeof(c.instanceOf) === 'function';
+        return typeof(c.__joii__) !== 'undefined' &&
+               typeof(c.instanceOf) === 'function';
     }
 
     g.JOII.Publish = g.JOII.Compat.Bind(function(namespace) {
