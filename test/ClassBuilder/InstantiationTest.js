@@ -71,4 +71,24 @@ test('ClassBuilder:InstantiationTest', function(assert) {
     assert.strictEqual(a.getA(), 2, 'Value of property "a" is updated correctly.');
     assert.strictEqual(a.getB(), 'foo', 'Value of property "b" is updated correctly.');
     assert.deepEqual(a.getC(), {'foo':'bar'}, 'Value of property "c" is updated correctly.');
+
+    var fluid = JOII.ClassBuilder({
+
+        a: function() {
+            return this.__api__;
+        },
+
+        b: function() {
+            return this.__api__;
+        }
+
+    });
+
+    var f = new fluid();
+
+    assert.strictEqual(typeof(f.__api__), 'undefined', '__api__ is undefined in public scope');
+    assert.strictEqual(typeof(f.a()), 'object', 'f.a returns an object.');
+    assert.strictEqual(typeof(f.a().b), 'function', 'f.a.b is a function.');
+    assert.strictEqual(typeof(f.a().b().a), 'function', 'f.a.b.a returns a function.');
+
 });

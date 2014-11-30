@@ -117,6 +117,9 @@
                 throw 'This class cannot be called as a function because it\'s lacking the __call method.';
             }
 
+            // Create a reference to the outer scope for use in fluid interfacing.
+            scope_in.__api__ = scope_out;
+
             // Does the class defintion have a constructor? If so, run it.
             if (typeof(scope_in['__construct']) === 'function') {
                 scope_in.__construct.apply(scope_in, arguments);
