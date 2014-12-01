@@ -411,7 +411,7 @@
                     throw msg;
                 }
             }
-        }
+        };
 
         for (i in data) {
             switch (data[i]) {

@@ -763,7 +763,7 @@
                     throw msg;
                 }
             }
-        }
+        };
 
         for (i in data) {
             switch (data[i]) {
@@ -1029,7 +1029,7 @@
             if (parameters.expose_enum === true) {
                 if (typeof(g[parameters.enum]) !== 'undefined') {
                     throw 'Cannot expose Enum "' + parameters.enum + '" becase it already exists in the global scope.';
-                };
+                }
                 g[parameters.enum] = e;
             }
         }
@@ -1041,7 +1041,7 @@
                 return '[class ' + n + ']';
             }
             return '[class Class]';
-        }
+        };
 
         // Store defined interfaces in the metadata.
         definition.prototype.__joii__.interfaces = parameters.implements;
