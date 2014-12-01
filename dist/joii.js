@@ -765,7 +765,7 @@
             }
         }
 
-        for (var i in data) {
+        for (i in data) {
             switch (data[i]) {
                 case 'public':
                     metaHas('protected', data, 'Property "' + name + '" cannot be both public and protected at the same time.');
