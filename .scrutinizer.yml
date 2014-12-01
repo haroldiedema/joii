@@ -1,0 +1,21 @@
+tools:
+    js_hint:
+        enabled: true
+        use_native_config: true
+        extensions:
+            - js
+        filter:
+            paths: {  }
+            excluded_paths: ["dist"]
+        config:
+            proto: true,
+            supernew: true,
+            sub: true,
+            multistr: true
+        path_configs: {  }
+filter:
+    paths: {  }
+    excluded_paths: ["dist"]
+build_failure_conditions: {  }
+application:
+    type: none
