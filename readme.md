@@ -1,4 +1,4 @@
-[![Build Status](https://scrutinizer-ci.com/g/haroldiedema/joii/badges/build.png?b=master)](https://scrutinizer-ci.com/g/haroldiedema/joii/build-status/master)
+[![Build Status](https://scrutinizer-ci.com/g/haroldiedema/joii/badges/build.png?b=master)](https://scrutinizer-ci.com/g/haroldiedema/joii/build-status/master) [![npm version](https://badge.fury.io/js/joii.svg)](http://badge.fury.io/js/joii)
 
 # What is JOII?
 
