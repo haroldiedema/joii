@@ -11,16 +11,16 @@ tools:
             "bitwise"       : false    # Prohibit bitwise operators (& | ^ etc.).
             "curly"         : false    # Require {} for every new block or scope.
             "eqeqeq"        : false    # Require triple equals i.e. `===`.
-            "forin"         : true     # Tolerate `for in` loops without `hasOwnPrototype`.
+            "forin"         : false    # Prohibit `for in` loops without `hasOwnPrototype`.
             "immed"         : false    # Require immediate invocations to be wrapped in parens e.g. `( function(){}() );`
             "latedef"       : true     # Prohibit variable use before definition.
             "newcap"        : false    # Require capitalization of all constructor functions e.g. `new F()`.
             "noarg"         : false    # Prohibit use of `arguments.caller` and `arguments.callee`.
             "noempty"       : false    # Prohibit use of empty blocks.
             "nonew"         : false    # Prohibit use of constructors for side-effects.
-            "plusplus"      : true     # Prohibit use of `++` & `--`.
+            "plusplus"      : false    # Prohibit use of `++` & `--`.
             "regexp"        : true     # Prohibit `.` and `[^...]` in regular expressions.
-            "undef"         : true     # Require all non-global variables be declared before they are used.
+            "undef"         : false    # Require all non-global variables be declared before they are used.
             "strict"        : false    # Require `use strict` pragma in every file.
             "trailing"      : false    # Prohibit trailing whitespaces.
             
@@ -36,7 +36,7 @@ tools:
             "eqnull"        : false    # Tolerate use of `== null`.
             "es5"           : false    # Allow EcmaScript 5 syntax.
             "esnext"        : false    # Allow ES.next specific features such as `const` and `let`.
-            "evil"          : false    # Tolerate use of `eval`.
+            "evil"          : true     # Tolerate use of `eval`.
             "expr"          : false    # Tolerate `ExpressionStatement` as Programs.
             "funcscope"     : false    # Tolerate declarations of variables inside of control structures while accessing them later from the outside.
             "globalstrict"  : false    # Allow global "use strict" (also enables 'strict').
