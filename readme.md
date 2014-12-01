@@ -1,3 +1,5 @@
+[![Build Status](https://scrutinizer-ci.com/g/haroldiedema/joii/badges/build.png?b=master)](https://scrutinizer-ci.com/g/haroldiedema/joii/build-status/master)
+
 # What is JOII?
 
 JOII (short for JavaScript Object Inheritance Implementation) brings ***class-
