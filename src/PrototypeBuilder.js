@@ -63,8 +63,8 @@
             metadata        : {},
             constants       : {},
             implementations : [name],
-            is_abstract     : parameters['abstract'] === true ? true : false,
-            is_final        : parameters['final']    === true ? true : false
+            is_abstract     : parameters.abstract === true ? true : false,
+            is_final        : parameters.final    === true ? true : false
         });
 
         // Apply traits / mix-ins
@@ -165,7 +165,7 @@
             }
         }
 
-        if (typeof(parameters['abstract']) !== 'undefined') {
+        if (typeof(parameters.abstract) !== 'undefined') {
             prototype.__joii__.is_abstract = true;
             if (is_interface) {
                 throw 'An interface cannot be declared abstract.';
@@ -173,8 +173,8 @@
         }
 
         // Apply the parent prototype.
-        if (typeof(parameters['extends']) !== 'undefined') {
-            var parent = parameters['extends'];
+        if (typeof(parameters.extends) !== 'undefined') {
+            var parent = parameters.extends;
 
             // If the given parent is a function, use its prototype.
             if (typeof(parent) === 'function') {

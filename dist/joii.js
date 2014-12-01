@@ -415,8 +415,8 @@
             metadata        : {},
             constants       : {},
             implementations : [name],
-            is_abstract     : parameters['abstract'] === true ? true : false,
-            is_final        : parameters['final']    === true ? true : false
+            is_abstract     : parameters.abstract === true ? true : false,
+            is_final        : parameters.final    === true ? true : false
         });
 
         // Apply traits / mix-ins
@@ -517,7 +517,7 @@
             }
         }
 
-        if (typeof(parameters['abstract']) !== 'undefined') {
+        if (typeof(parameters.abstract) !== 'undefined') {
             prototype.__joii__.is_abstract = true;
             if (is_interface) {
                 throw 'An interface cannot be declared abstract.';
@@ -525,8 +525,8 @@
         }
 
         // Apply the parent prototype.
-        if (typeof(parameters['extends']) !== 'undefined') {
-            var parent = parameters['extends'];
+        if (typeof(parameters.extends) !== 'undefined') {
+            var parent = parameters.extends;
 
             // If the given parent is a function, use its prototype.
             if (typeof(parent) === 'function') {
@@ -1024,13 +1024,13 @@
         }
 
         // Does the class implement an enumerator?
-        if (typeof(parameters['enum']) === 'string') {
-            var e = g.JOII.EnumBuilder(parameters['enum'], definition);
+        if (typeof(parameters.enum) === 'string') {
+            var e = g.JOII.EnumBuilder(parameters.enum, definition);
             if (parameters.expose_enum === true) {
-                if (typeof(g[parameters['enum']]) !== 'undefined') {
-                    throw 'Cannot expose Enum "' + parameters['enum'] + '" becase it already exists in the global scope.';
+                if (typeof(g[parameters.enum]) !== 'undefined') {
+                    throw 'Cannot expose Enum "' + parameters.enum + '" becase it already exists in the global scope.';
                 };
-                g[parameters['enum']] = e;
+                g[parameters.enum] = e;
             }
         }
 
@@ -1044,7 +1044,7 @@
         }
 
         // Store defined interfaces in the metadata.
-        definition.prototype.__joii__.interfaces = parameters['implements'];
+        definition.prototype.__joii__.interfaces = parameters.implements;
 
         // TODO performance can be increased here by storing the parsed
         //      interfaces in the 'interfaces' array in __joii__.
@@ -1089,7 +1089,7 @@
         // If any interfaces are implemented in this class, validate them
         // immediately rather than doing so during instantiation. If the
         // class is declared abstract, the validation is skipped.
-        if (parameters['abstract'] !== true) {
+        if (parameters.abstract !== true) {
             var interfaces = definition.prototype.__joii__.getInterfaces();
             for (var ii in interfaces) {
                 if (interfaces.hasOwnProperty(ii) && typeof(interfaces[ii]) === 'function') {
@@ -1224,13 +1224,13 @@
         }
 
         // Does the class implement an enumerator?
-        if (typeof(parameters['enum']) === 'string') {
-            var e = g.JOII.EnumBuilder(parameters['enum'], constants);
+        if (typeof(parameters.enum) === 'string') {
+            var e = g.JOII.EnumBuilder(parameters.enum, constants);
             if (parameters.expose_enum === true) {
-                if (typeof(g[parameters['enum']]) !== 'undefined') {
-                    throw 'Cannot expose Enum "' + parameters['enum'] + '" becase it already exists in the global scope.';
+                if (typeof(g[parameters.enum]) !== 'undefined') {
+                    throw 'Cannot expose Enum "' + parameters.enum + '" becase it already exists in the global scope.';
                 }
-                g[parameters['enum']] = e;
+                g[parameters.enum] = e;
             }
         }
 
