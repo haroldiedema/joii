@@ -406,14 +406,14 @@
                 args = [args];
             }
 
-            for (i in args) {
+            for (var i in args) {
                 if (g.JOII.Compat.indexOf(data, args[i]) !== -1) {
                     throw msg;
                 }
             }
         }
 
-        for (i in data) {
+        for (var i in data) {
             switch (data[i]) {
                 case 'public':
                     metaHas('protected', data, 'Property "' + name + '" cannot be both public and protected at the same time.');
