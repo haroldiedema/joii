@@ -1,7 +1,7 @@
 tools:
     js_hint:
         enabled: true
-        use_native_config: true
+        use_native_config: false
         extensions:
             - js
         filter:
