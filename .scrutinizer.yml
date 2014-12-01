@@ -8,21 +8,21 @@ tools:
             paths: {  }
             excluded_paths: ["dist"]
         config:
-            "bitwise"       : true     # Prohibit bitwise operators (& | ^ etc.).
-            "curly"         : true     # Require {} for every new block or scope.
-            "eqeqeq"        : true     # Require triple equals i.e. `===`.
+            "bitwise"       : false    # Prohibit bitwise operators (& | ^ etc.).
+            "curly"         : false    # Require {} for every new block or scope.
+            "eqeqeq"        : false    # Require triple equals i.e. `===`.
             "forin"         : true     # Tolerate `for in` loops without `hasOwnPrototype`.
-            "immed"         : true     # Require immediate invocations to be wrapped in parens e.g. `( function(){}() );`
+            "immed"         : false    # Require immediate invocations to be wrapped in parens e.g. `( function(){}() );`
             "latedef"       : true     # Prohibit variable use before definition.
-            "newcap"        : true     # Require capitalization of all constructor functions e.g. `new F()`.
-            "noarg"         : true     # Prohibit use of `arguments.caller` and `arguments.callee`.
-            "noempty"       : true     # Prohibit use of empty blocks.
-            "nonew"         : true     # Prohibit use of constructors for side-effects.
+            "newcap"        : false    # Require capitalization of all constructor functions e.g. `new F()`.
+            "noarg"         : false    # Prohibit use of `arguments.caller` and `arguments.callee`.
+            "noempty"       : false    # Prohibit use of empty blocks.
+            "nonew"         : false    # Prohibit use of constructors for side-effects.
             "plusplus"      : true     # Prohibit use of `++` & `--`.
             "regexp"        : true     # Prohibit `.` and `[^...]` in regular expressions.
             "undef"         : true     # Require all non-global variables be declared before they are used.
-            "strict"        : true     # Require `use strict` pragma in every file.
-            "trailing"      : true     # Prohibit trailing whitespaces.
+            "strict"        : false    # Require `use strict` pragma in every file.
+            "trailing"      : false    # Prohibit trailing whitespaces.
             
             # == Relaxing Options ================================================
             #
@@ -49,12 +49,12 @@ tools:
             "onecase"       : false    # Tolerate switches with just one case.
             "proto"         : true     # Tolerate __proto__ property. This property is deprecated.
             "regexdash"     : false    # Tolerate unescaped last dash i.e. `[-...]`.
-            "scripturl"     : false    # Tolerate script-targeted URLs.
+            "scripturl"     : true     # Tolerate script-targeted URLs.
             "smarttabs"     : false    # Tolerate mixed tabs and spaces when the latter are used for alignmnent only.
             "shadow"        : false    # Allows re-define variables later in code e.g. `var x=1; x=2;`.
             "sub"           : true     # Tolerate all forms of subscript notation besides dot notation e.g. `dict['key']` instead of `dict.key`.
             "supernew"      : true     # Tolerate `new function () { ... };` and `new Object;`.
-            "validthis"     : false    # Tolerate strict violations when the code is running in strict mode and you use this in a non-constructor function.
+            "validthis"     : true     # Tolerate strict violations when the code is running in strict mode and you use this in a non-constructor function.
             
             # == Environments ====================================================
             #
@@ -68,7 +68,7 @@ tools:
             "dojo"          : false    # Enable globals exposed by Dojo Toolkit.
             "jquery"        : false    # Enable globals exposed by jQuery JavaScript library.
             "mootools"      : false    # Enable globals exposed by MooTools JavaScript framework.
-            "node"          : false    # Enable globals available when code is running inside of the NodeJS runtime environment.
+            "node"          : true     # Enable globals available when code is running inside of the NodeJS runtime environment.
             "nonstandard"   : false    # Define non-standard but widely adopted globals such as escape and unescape.
             "prototypejs"   : false    # Enable globals exposed by Prototype JavaScript framework.
             "rhino"         : false    # Enable globals available when your code is running inside of the Rhino runtime environment.
@@ -86,7 +86,8 @@ tools:
         path_configs: {  }
 filter:
     paths: {  }
-    excluded_paths: ["dist"]
+    excluded_paths: 
+        - "dist/*"
 build_failure_conditions: {  }
 application:
     type: none
