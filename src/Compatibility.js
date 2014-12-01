@@ -46,6 +46,8 @@
      */
     g.JOII.Compat.findJOIIName = function(e)
     {
+        var i, r;
+        
         if (typeof(e) === 'string' ||
             typeof(e) === 'number' ||
             typeof(e) === 'undefined' ||
@@ -63,7 +65,7 @@
 
         // Chrome / FF // IE 11+
         if (typeof(e.__proto__) !== 'undefined') {
-            var r = g.JOII.Compat.findJOIIName(e.__proto__);
+            r = g.JOII.Compat.findJOIIName(e.__proto__);
             if (typeof(r) === 'string') {
                 return r;
             }
@@ -73,9 +75,9 @@
             e = e.prototype;
         }
 
-        for (var i in e) {
+        for (i in e) {
             if (typeof(e[i]) === 'function' || typeof(e[i]) === 'object') {
-                var r = g.JOII.Compat.findJOIIName(e[i]);
+                r = g.JOII.Compat.findJOIIName(e[i]);
                 if (typeof(r) === 'string') {
                     return r;
                 }
@@ -83,7 +85,7 @@
         }
 
         return false;
-    }
+    };
 
     /**
      * Array.indexOf implementation.
@@ -220,7 +222,7 @@
         })();
 
         return c(o);
-    }
+    };
 
     /**
      * Function.bind implementation. "bind" is part of ECMA-262, 5th edition
@@ -343,7 +345,7 @@
         } else {
             throw 'Unable to read ' + typeof(arg) + '. Object, function or array expected.';
         }
-    }
+    };
 }(
     typeof(global) !== 'undefined' ? global : window,
     undefined

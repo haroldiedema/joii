@@ -98,9 +98,9 @@
                 }
                 g.JOII.CreateProperty(enumerator, i, obj[i], false);
             }
-            return g.JOII.EnumRegistry[name.toLowerCase()] = enumerator;
+            g.JOII.EnumRegistry[name.toLowerCase()] = enumerator;
+            return enumerator;
         }
-
     });
 }(
     typeof(global) !== 'undefined' ? global : window,

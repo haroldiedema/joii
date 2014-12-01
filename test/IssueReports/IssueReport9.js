@@ -49,8 +49,8 @@ test('IssueReports:IssueReport9', function(assert) {
     });
 
     var C = new JOII.ClassBuilder({"extends": B}, {});
-    var c = new C;
-    c.test()
+    var c = new C();
+    c.test();
 
     assert.equal(output, 'AB', 'Issue report 9 OK.');
 });

@@ -40,26 +40,26 @@ test('PrototypeBuilder:PropertyMetaTest', function(assert) {
     var meta = proto.__joii__.metadata;
 
     // Test integrity of metadata properties.
-    assert.equal(meta['defaults'].name, 'defaults', 'Defaults: name OK.');
-    assert.equal(meta['defaults'].type, null, 'Defaults: type OK.');
-    assert.equal(meta['defaults'].visibility, 'public', 'Defaults: is_public OK.');
-    assert.equal(meta['defaults'].is_abstract, false, 'Defaults: is_abstract OK.');
-    assert.equal(meta['defaults'].is_final, false, 'Defaults: is_final OK.');
-    assert.equal(meta['i_am_protected'].name, 'i_am_protected', 'i_am_protected: name OK.');
-    assert.equal(meta['i_am_protected'].type, 'function', 'i_am_protected: type OK.');
-    assert.equal(meta['i_am_protected'].visibility, 'protected', 'i_am_protected: is_public OK.');
-    assert.equal(meta['i_am_protected'].is_abstract, false, 'i_am_protected: is_abstract OK.');
-    assert.equal(meta['i_am_protected'].is_final, false, 'i_am_protected: is_final OK.');
-    assert.equal(meta['i_am_final_protected'].name, 'i_am_final_protected', 'i_am_final_protected: name OK.');
-    assert.equal(meta['i_am_final_protected'].type, 'function', 'i_am_final_protected: type OK.');
-    assert.equal(meta['i_am_final_protected'].visibility, 'protected', 'i_am_final_protected: is_public OK.');
-    assert.equal(meta['i_am_final_protected'].is_abstract, false, 'i_am_final_protected: is_abstract OK.');
-    assert.equal(meta['i_am_final_protected'].is_final, true, 'i_am_final_protected: is_final OK.');
-    assert.equal(meta['i_am_abstract_func'].name, 'i_am_abstract_func', 'i_am_abstract_func: name OK.');
-    assert.equal(meta['i_am_abstract_func'].type, 'function', 'i_am_abstract_func: type OK.');
-    assert.equal(meta['i_am_abstract_func'].visibility, 'public', 'i_am_abstract_func: is_public OK.');
-    assert.equal(meta['i_am_abstract_func'].is_abstract, true, 'i_am_abstract_func: is_abstract OK.');
-    assert.equal(meta['i_am_abstract_func'].is_final, false, 'i_am_abstract_func: is_final OK.');
+    assert.equal(meta.defaults.name, 'defaults', 'Defaults: name OK.');
+    assert.equal(meta.defaults.type, null, 'Defaults: type OK.');
+    assert.equal(meta.defaults.visibility, 'public', 'Defaults: is_public OK.');
+    assert.equal(meta.defaults.is_abstract, false, 'Defaults: is_abstract OK.');
+    assert.equal(meta.defaults.is_final, false, 'Defaults: is_final OK.');
+    assert.equal(meta.i_am_protected.name, 'i_am_protected', 'i_am_protected: name OK.');
+    assert.equal(meta.i_am_protected.type, 'function', 'i_am_protected: type OK.');
+    assert.equal(meta.i_am_protected.visibility, 'protected', 'i_am_protected: is_public OK.');
+    assert.equal(meta.i_am_protected.is_abstract, false, 'i_am_protected: is_abstract OK.');
+    assert.equal(meta.i_am_protected.is_final, false, 'i_am_protected: is_final OK.');
+    assert.equal(meta.i_am_final_protected.name, 'i_am_final_protected', 'i_am_final_protected: name OK.');
+    assert.equal(meta.i_am_final_protected.type, 'function', 'i_am_final_protected: type OK.');
+    assert.equal(meta.i_am_final_protected.visibility, 'protected', 'i_am_final_protected: is_public OK.');
+    assert.equal(meta.i_am_final_protected.is_abstract, false, 'i_am_final_protected: is_abstract OK.');
+    assert.equal(meta.i_am_final_protected.is_final, true, 'i_am_final_protected: is_final OK.');
+    assert.equal(meta.i_am_abstract_func.name, 'i_am_abstract_func', 'i_am_abstract_func: name OK.');
+    assert.equal(meta.i_am_abstract_func.type, 'function', 'i_am_abstract_func: type OK.');
+    assert.equal(meta.i_am_abstract_func.visibility, 'public', 'i_am_abstract_func: is_public OK.');
+    assert.equal(meta.i_am_abstract_func.is_abstract, true, 'i_am_abstract_func: is_abstract OK.');
+    assert.equal(meta.i_am_abstract_func.is_final, false, 'i_am_abstract_func: is_final OK.');
 
     // Test validation of wrong combination of flags:
 

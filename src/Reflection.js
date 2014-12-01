@@ -456,12 +456,12 @@
                 fnText  = fn.toString().replace(STRIP_COMMENTS, '');
                 argDecl = fnText.match(FN_ARGS);
 
-                var r = argDecl[1].split(FN_ARG_SPLIT);
+                var r = argDecl[1].split(FN_ARG_SPLIT), repl = function(all, underscore, name) {
+                    args.push(name);
+                };
                 for (var a in r) {
                     var arg = r[a];
-                    arg.replace(FN_ARG, function(all, underscore, name) {
-                        args.push(name);
-                    });
+                    arg.replace(FN_ARG, repl);
                 }
 
                 return args;

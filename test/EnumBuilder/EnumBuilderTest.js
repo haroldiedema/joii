@@ -60,10 +60,10 @@ test('EnumBulder:EnumBuilderTest', function(assert) {
     assert.strictEqual(EnumTest2.contains(cls.ONE), true, 'cls.ONE exists within EnumTest2');
 
     // Test validation
-    assert.strictEqual(typeof(JOII.EnumRegistry['test1']), 'object', 'Test1 correctly registered');
-    assert.strictEqual(JOII.EnumRegistry['test1'].contains(1), true, 'Test1 contains 1');
-    assert.strictEqual(JOII.EnumRegistry['test1'].contains(2), true, 'Test1 contains 2');
-    assert.strictEqual(JOII.EnumRegistry['test1'].contains(3), false, 'Test1 does not contain 3');
+    assert.strictEqual(typeof(JOII.EnumRegistry.test1), 'object', 'Test1 correctly registered');
+    assert.strictEqual(JOII.EnumRegistry.test1.contains(1), true, 'Test1 contains 1');
+    assert.strictEqual(JOII.EnumRegistry.test1.contains(2), true, 'Test1 contains 2');
+    assert.strictEqual(JOII.EnumRegistry.test1.contains(3), false, 'Test1 does not contain 3');
 
     // Test duplicate enum name
     testException(function() {
@@ -81,7 +81,7 @@ test('EnumBulder:EnumBuilderTest', function(assert) {
     }, 'An enumerator cannot contain objects. "ONE" is an object.');
 
     // Test interface
-    var I1 = Interface({ enum: 'InterfaceEnum', expose_enum: true }, {
+    var I1 = JOII.InterfaceBuilder({ enum: 'InterfaceEnum', expose_enum: true }, {
         'const ONE' : 1,
         'const TWO' : 2
     });
@@ -92,7 +92,7 @@ test('EnumBulder:EnumBuilderTest', function(assert) {
     assert.strictEqual(InterfaceEnum.ONE, 1, 'interfaceObj: InterfaceEnum.ONE exists');
     assert.strictEqual(InterfaceEnum.TWO, 2, 'interfaceObj: InterfaceEnum.TWO exists');
 
-    var I2 = Interface({ enum: 'InterfaceEnum2', expose_enum: true, 'extends' : I1 }, {
+    var I2 = JOII.InterfaceBuilder({ enum: 'InterfaceEnum2', expose_enum: true, 'extends' : I1 }, {
         'const THREE' : 3,
         'const FOUR'  : 4
     });

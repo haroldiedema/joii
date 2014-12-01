@@ -46,6 +46,8 @@
      */
     g.JOII.Compat.findJOIIName = function(e)
     {
+        var i, r;
+        
         if (typeof(e) === 'string' ||
             typeof(e) === 'number' ||
             typeof(e) === 'undefined' ||
@@ -63,7 +65,7 @@
 
         // Chrome / FF // IE 11+
         if (typeof(e.__proto__) !== 'undefined') {
-            var r = g.JOII.Compat.findJOIIName(e.__proto__);
+            r = g.JOII.Compat.findJOIIName(e.__proto__);
             if (typeof(r) === 'string') {
                 return r;
             }
@@ -73,9 +75,9 @@
             e = e.prototype;
         }
 
-        for (var i in e) {
+        for (i in e) {
             if (typeof(e[i]) === 'function' || typeof(e[i]) === 'object') {
-                var r = g.JOII.Compat.findJOIIName(e[i]);
+                r = g.JOII.Compat.findJOIIName(e[i]);
                 if (typeof(r) === 'string') {
                     return r;
                 }
@@ -83,7 +85,7 @@
         }
 
         return false;
-    }
+    };
 
     /**
      * Array.indexOf implementation.
@@ -220,7 +222,7 @@
         })();
 
         return c(o);
-    }
+    };
 
     /**
      * Function.bind implementation. "bind" is part of ECMA-262, 5th edition
@@ -343,7 +345,7 @@
         } else {
             throw 'Unable to read ' + typeof(arg) + '. Object, function or array expected.';
         }
-    }
+    };
 }(
     typeof(global) !== 'undefined' ? global : window,
     undefined
@@ -418,8 +420,8 @@
         });
 
         // Apply traits / mix-ins
-        if (typeof(parameters['uses']) !== 'undefined') {
-            var traits = g.JOII.Compat.flexibleArgumentToArray(parameters['uses']);
+        if (typeof(parameters.uses) !== 'undefined') {
+            var traits = g.JOII.Compat.flexibleArgumentToArray(parameters.uses);
             for (var t in traits) {
                 deep_copy = g.JOII.Compat.extend(true, deep_copy, traits[t]);
             }
@@ -556,7 +558,7 @@
 
             // Iterate over the properties of the parent object and apply the
             // contents in our own prototype where applicable.
-            for (var i in prototype.__joii__.parent) {
+            for (i in prototype.__joii__.parent) {
                 // We're only interested in properties that really belong to
                 // the object. So we'll skip any inherited things from the
                 // native JavaScript's "Object".
@@ -668,7 +670,7 @@
              * @param string name
              * @return bool
              */
-            prototype['instanceOf'] = function(name) {
+            prototype.instanceOf = function(name) {
 
                 // Find the JOII scope of the given object.
                 if (typeof(name) === 'function') {
@@ -702,7 +704,7 @@
                     return false;
                 }
                 return true;
-            }
+            };
         }
 
         return prototype;
@@ -730,7 +732,7 @@
                 'is_read_only' : false,     // Don't generate a setter for the property.
                 'is_constant'  : false,     // Is the property publicly accessible?
                 'is_enum'      : false      // Is the property an enumerator?
-        };
+        }, i;
 
         // Remove the name from the list.
         data.pop();
@@ -742,7 +744,7 @@
 
         // Make sure all property flags are lowercase. We don't use Array.map
         // for this because Internet Explorer 8 (and below) doesn't know it.
-        for (var i in data) {
+        for (i in data) {
             if (typeof(g.JOII.InterfaceRegistry[data[i]]) === 'undefined' &&
                 typeof(g.JOII.ClassRegistry[data[i]]) === 'undefined') {
                 data[i] = data[i].toString().toLowerCase();
@@ -756,14 +758,14 @@
                 args = [args];
             }
 
-            for (var i in args) {
+            for (i in args) {
                 if (g.JOII.Compat.indexOf(data, args[i]) !== -1) {
                     throw msg;
                 }
             }
         }
 
-        for (var i in data) {
+        for (i in data) {
             switch (data[i]) {
                 case 'public':
                     metaHas('protected', data, 'Property "' + name + '" cannot be both public and protected at the same time.');
@@ -926,8 +928,7 @@
      */
     g.JOII.ClassBuilder = function()
     {
-        var definition,
-            args        = g.JOII.Compat.ParseArguments(arguments),
+        var args        = g.JOII.Compat.ParseArguments(arguments),
             name        = args.name,
             parameters  = args.parameters,
             body        = args.body;
@@ -1001,7 +1002,7 @@
             scope_in.__api__ = scope_out;
 
             // Does the class defintion have a constructor? If so, run it.
-            if (typeof(scope_in['__construct']) === 'function') {
+            if (typeof(scope_in.__construct) === 'function') {
                 scope_in.__construct.apply(scope_in, arguments);
             }
 
@@ -1025,10 +1026,10 @@
         // Does the class implement an enumerator?
         if (typeof(parameters['enum']) === 'string') {
             var e = g.JOII.EnumBuilder(parameters['enum'], definition);
-            if (parameters['expose_enum'] === true) {
+            if (parameters.expose_enum === true) {
                 if (typeof(g[parameters['enum']]) !== 'undefined') {
                     throw 'Cannot expose Enum "' + parameters['enum'] + '" becase it already exists in the global scope.';
-                }
+                };
                 g[parameters['enum']] = e;
             }
         }
@@ -1090,9 +1091,9 @@
         // class is declared abstract, the validation is skipped.
         if (parameters['abstract'] !== true) {
             var interfaces = definition.prototype.__joii__.getInterfaces();
-            for (var i in interfaces) {
-                if (interfaces.hasOwnProperty(i) && typeof(interfaces[i]) === 'function') {
-                    interfaces[i](definition);
+            for (var ii in interfaces) {
+                if (interfaces.hasOwnProperty(ii) && typeof(interfaces[ii]) === 'function') {
+                    interfaces[ii](definition);
                 }
             }
         }
@@ -1186,18 +1187,19 @@
             methods    = definition.__interface__.reflector.getMethods(),
             validate   = function(prop, prefix) {
             if (prop.isAbstract()) {
-                throw 'An interface may not contain abstract definitions. ' + prefix + ' ' + prop.getName() + ' is abstract in interface ' + definition.__interface__.name + '.'
+                throw 'An interface may not contain abstract definitions. ' + prefix + ' ' + prop.getName() + ' is abstract in interface ' + definition.__interface__.name + '.';
             }
             if (prop.isFinal()) {
                 throw 'An interface may not contain final definitions. ' + prefix + ' ' + prop.getName() + ' is final in interface ' + definition.__interface__.name + '.';
             }
-        }
+        };
 
         // Validate properties and methods.
-        for (var i in properties) {
+        var i;
+        for (i in properties) {
             validate(properties[i], 'Property');
         }
-        for (var i in methods) {
+        for (i in methods) {
             validate(methods[i], 'Method');
         }
 
@@ -1216,7 +1218,7 @@
 
         // Apply constants to the definition
         var constants = {};
-        for (var i in prototype.__joii__.constants) {
+        for (i in prototype.__joii__.constants) {
             g.JOII.CreateProperty(constructor, i, prototype.__joii__.constants[i], false);
             constants[i] = prototype.__joii__.constants[i];
         }
@@ -1224,7 +1226,7 @@
         // Does the class implement an enumerator?
         if (typeof(parameters['enum']) === 'string') {
             var e = g.JOII.EnumBuilder(parameters['enum'], constants);
-            if (parameters['expose_enum'] === true) {
+            if (parameters.expose_enum === true) {
                 if (typeof(g[parameters['enum']]) !== 'undefined') {
                     throw 'Cannot expose Enum "' + parameters['enum'] + '" becase it already exists in the global scope.';
                 }
@@ -1250,7 +1252,8 @@
     {
         var reflector  = new g.JOII.Reflection.Class(prototype),
             properties = this.reflector.getProperties(),
-            methods    = this.reflector.getMethods();
+            methods    = this.reflector.getMethods(),
+            i, p1, p2;
 
         // If the class is marked as 'abstract', running interface validation
         // on it is rather useless since the class can't be instantiated.
@@ -1271,12 +1274,14 @@
             return true;
         };
 
+        
+        
         // Verify that all properties exist and have the correct metadata.
-        for (var i in properties) {
-            var p1 = properties[i], p2;
+        for (i in properties) {
+            p1 = properties[i];
 
             if (!reflector.hasProperty(p1.getName())) {
-                throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.'
+                throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
             }
             p2 = reflector.getProperty(p1.getName());
 
@@ -1285,10 +1290,10 @@
         }
 
         // Verify methods.
-        for (var i in methods) {
-            var p1 = methods[i], p2;
+        for (i in methods) {
+            p1 = methods[i];
             if (!reflector.hasMethod(p1.getName())) {
-                throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.'
+                throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
             }
             p2 = reflector.getMethod(p1.getName());
 
@@ -1404,9 +1409,9 @@
                 }
                 g.JOII.CreateProperty(enumerator, i, obj[i], false);
             }
-            return g.JOII.EnumRegistry[name.toLowerCase()] = enumerator;
+            g.JOII.EnumRegistry[name.toLowerCase()] = enumerator;
+            return enumerator;
         }
-
     });
 }(
     typeof(global) !== 'undefined' ? global : window,
@@ -1869,12 +1874,12 @@
                 fnText  = fn.toString().replace(STRIP_COMMENTS, '');
                 argDecl = fnText.match(FN_ARGS);
 
-                var r = argDecl[1].split(FN_ARG_SPLIT);
+                var r = argDecl[1].split(FN_ARG_SPLIT), repl = function(all, underscore, name) {
+                    args.push(name);
+                };
                 for (var a in r) {
                     var arg = r[a];
-                    arg.replace(FN_ARG, function(all, underscore, name) {
-                        args.push(name);
-                    });
+                    arg.replace(FN_ARG, repl);
                 }
 
                 return args;
@@ -1937,100 +1942,6 @@
             return prefix + ': ' + body;
         }
     });
-}(
-    typeof(global) !== 'undefined' ? global : window,
-    undefined
-));
-;/*
- Javascript Object                               ______  ________________
- Inheritance Implementation                  __ / / __ \/  _/  _/\_____  \
-                                            / // / /_/ // /_/ /    _(__  <
- Copyright 2014, Harold Iedema.             \___/\____/___/___/   /       \
- --------------------------------------------------------------- /______  / ---
- Permission is hereby granted, free of charge, to any person obtaining  \/
- a copy of this software and associated documentation files (the
- "Software"), to deal in the Software without restriction, including
- without limitation the rights to use, copy, modify, merge, publish,
- distribute, sublicense, and/or sell copies of the Software, and to
- permit persons to whom the Software is furnished to do so, subject to
- the following conditions:
-
- The above copyright notice and this permission notice shall be
- included in all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- ------------------------------------------------------------------------------
- */
-(function(g, undefined) {
-
-    /**
-     * Returns true if the given value is an instance of a JOII class.
-     *
-     * @param  mixed c
-     * @return bool
-     */
-    g.JOII.isInstance = function(c) {
-        return typeof(c.__joii__) !== 'undefined' &&
-               typeof(c.instanceOf) === 'function';
-    }
-
-    g.JOII.Publish = g.JOII.Compat.Bind(function(namespace) {
-
-        // Create the namespace object in which the API will be available.
-        namespace = this.parseNamespace(namespace, g);
-
-        namespace.Class     = g.JOII.ClassBuilder;
-        namespace.Interface = g.JOII.InterfaceBuilder;
-        namespace.Enum      = g.JOII.EnumBuilder;
-
-        return namespace;
-    }, {
-        // ----------------------------------------------- Private Scope --- //
-
-        /**
-         * Parses the given namespace either as an object or string.
-         *
-         * @param undefined|string|object ns
-         * @param object root
-         * @return object
-         */
-        parseNamespace: function(ns, root)
-        {
-            // If no namespace is specified, return the root (window or global)
-            if (typeof(ns) === 'undefined') {
-                return root;
-            }
-
-            // If the given namespace is an object or function, return it.
-            if (typeof(ns) === 'object' || typeof(ns) === 'function') {
-                return ns;
-            }
-
-            // If we're dealing with a string, transform it to an object.
-            if (typeof(ns) === 'string') {
-                var parts = ns.split("."), len, obj, cur = [];
-                for (var i = 0, len = parts.length, obj = root; i < len; ++i) {
-                    cur.push(parts[i]);
-                    if (typeof(obj[parts[i]]) === 'undefined') {
-                        obj[parts[i]] = {};
-                        obj = obj[parts[i]];
-                    } else if (typeof(obj[parts[i]]) === 'object' || typeof(obj[parts[i]]) === 'function') {
-                        obj = obj[parts[i]];
-                    } else {
-                        throw 'Unable to create namespace: ' + cur.join('.') + ' already exists as ' + typeof(obj[parts[i]]) + '.';
-                    }
-                }
-                return obj;
-            }
-            throw 'parseNamespace expects undefined, object or string. ' + typeof(ns) + ' given.';
-        }
-    })();
 }(
     typeof(global) !== 'undefined' ? global : window,
     undefined

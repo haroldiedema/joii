@@ -46,8 +46,7 @@
      */
     g.JOII.ClassBuilder = function()
     {
-        var definition,
-            args        = g.JOII.Compat.ParseArguments(arguments),
+        var args        = g.JOII.Compat.ParseArguments(arguments),
             name        = args.name,
             parameters  = args.parameters,
             body        = args.body;
@@ -121,7 +120,7 @@
             scope_in.__api__ = scope_out;
 
             // Does the class defintion have a constructor? If so, run it.
-            if (typeof(scope_in['__construct']) === 'function') {
+            if (typeof(scope_in.__construct) === 'function') {
                 scope_in.__construct.apply(scope_in, arguments);
             }
 
@@ -145,10 +144,10 @@
         // Does the class implement an enumerator?
         if (typeof(parameters['enum']) === 'string') {
             var e = g.JOII.EnumBuilder(parameters['enum'], definition);
-            if (parameters['expose_enum'] === true) {
+            if (parameters.expose_enum === true) {
                 if (typeof(g[parameters['enum']]) !== 'undefined') {
                     throw 'Cannot expose Enum "' + parameters['enum'] + '" becase it already exists in the global scope.';
-                }
+                };
                 g[parameters['enum']] = e;
             }
         }
@@ -210,9 +209,9 @@
         // class is declared abstract, the validation is skipped.
         if (parameters['abstract'] !== true) {
             var interfaces = definition.prototype.__joii__.getInterfaces();
-            for (var i in interfaces) {
-                if (interfaces.hasOwnProperty(i) && typeof(interfaces[i]) === 'function') {
-                    interfaces[i](definition);
+            for (var ii in interfaces) {
+                if (interfaces.hasOwnProperty(ii) && typeof(interfaces[ii]) === 'function') {
+                    interfaces[ii](definition);
                 }
             }
         }

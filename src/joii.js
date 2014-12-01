@@ -33,9 +33,8 @@
      * @return bool
      */
     g.JOII.isInstance = function(c) {
-        return typeof(c.__joii__) !== 'undefined' &&
-               typeof(c.instanceOf) === 'function';
-    }
+        return typeof(c.__joii__) !== 'undefined' && typeof(c.instanceOf) === 'function';
+    };
 
     g.JOII.Publish = g.JOII.Compat.Bind(function(namespace) {
 
@@ -59,6 +58,8 @@
          */
         parseNamespace: function(ns, root)
         {
+            var i, len, obj, parts, cur = [];
+            
             // If no namespace is specified, return the root (window or global)
             if (typeof(ns) === 'undefined') {
                 return root;
@@ -71,8 +72,8 @@
 
             // If we're dealing with a string, transform it to an object.
             if (typeof(ns) === 'string') {
-                var parts = ns.split("."), len, obj, cur = [];
-                for (var i = 0, len = parts.length, obj = root; i < len; ++i) {
+                parts = ns.split(".");
+                for (i = 0, len = parts.length, obj = root; i < len; ++i) {
                     cur.push(parts[i]);
                     if (typeof(obj[parts[i]]) === 'undefined') {
                         obj[parts[i]] = {};

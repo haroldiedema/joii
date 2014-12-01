@@ -68,8 +68,8 @@
         });
 
         // Apply traits / mix-ins
-        if (typeof(parameters['uses']) !== 'undefined') {
-            var traits = g.JOII.Compat.flexibleArgumentToArray(parameters['uses']);
+        if (typeof(parameters.uses) !== 'undefined') {
+            var traits = g.JOII.Compat.flexibleArgumentToArray(parameters.uses);
             for (var t in traits) {
                 deep_copy = g.JOII.Compat.extend(true, deep_copy, traits[t]);
             }
@@ -206,7 +206,7 @@
 
             // Iterate over the properties of the parent object and apply the
             // contents in our own prototype where applicable.
-            for (var i in prototype.__joii__.parent) {
+            for (i in prototype.__joii__.parent) {
                 // We're only interested in properties that really belong to
                 // the object. So we'll skip any inherited things from the
                 // native JavaScript's "Object".
@@ -318,7 +318,7 @@
              * @param string name
              * @return bool
              */
-            prototype['instanceOf'] = function(name) {
+            prototype.instanceOf = function(name) {
 
                 // Find the JOII scope of the given object.
                 if (typeof(name) === 'function') {
@@ -352,7 +352,7 @@
                     return false;
                 }
                 return true;
-            }
+            };
         }
 
         return prototype;
@@ -380,7 +380,7 @@
                 'is_read_only' : false,     // Don't generate a setter for the property.
                 'is_constant'  : false,     // Is the property publicly accessible?
                 'is_enum'      : false      // Is the property an enumerator?
-        };
+        }, i;
 
         // Remove the name from the list.
         data.pop();
@@ -392,7 +392,7 @@
 
         // Make sure all property flags are lowercase. We don't use Array.map
         // for this because Internet Explorer 8 (and below) doesn't know it.
-        for (var i in data) {
+        for (i in data) {
             if (typeof(g.JOII.InterfaceRegistry[data[i]]) === 'undefined' &&
                 typeof(g.JOII.ClassRegistry[data[i]]) === 'undefined') {
                 data[i] = data[i].toString().toLowerCase();
@@ -406,14 +406,14 @@
                 args = [args];
             }
 
-            for (var i in args) {
+            for (i in args) {
                 if (g.JOII.Compat.indexOf(data, args[i]) !== -1) {
                     throw msg;
                 }
             }
         }
 
-        for (var i in data) {
+        for (i in data) {
             switch (data[i]) {
                 case 'public':
                     metaHas('protected', data, 'Property "' + name + '" cannot be both public and protected at the same time.');

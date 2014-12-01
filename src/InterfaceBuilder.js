@@ -73,18 +73,19 @@
             methods    = definition.__interface__.reflector.getMethods(),
             validate   = function(prop, prefix) {
             if (prop.isAbstract()) {
-                throw 'An interface may not contain abstract definitions. ' + prefix + ' ' + prop.getName() + ' is abstract in interface ' + definition.__interface__.name + '.'
+                throw 'An interface may not contain abstract definitions. ' + prefix + ' ' + prop.getName() + ' is abstract in interface ' + definition.__interface__.name + '.';
             }
             if (prop.isFinal()) {
                 throw 'An interface may not contain final definitions. ' + prefix + ' ' + prop.getName() + ' is final in interface ' + definition.__interface__.name + '.';
             }
-        }
+        };
 
         // Validate properties and methods.
-        for (var i in properties) {
+        var i;
+        for (i in properties) {
             validate(properties[i], 'Property');
         }
-        for (var i in methods) {
+        for (i in methods) {
             validate(methods[i], 'Method');
         }
 
@@ -103,7 +104,7 @@
 
         // Apply constants to the definition
         var constants = {};
-        for (var i in prototype.__joii__.constants) {
+        for (i in prototype.__joii__.constants) {
             g.JOII.CreateProperty(constructor, i, prototype.__joii__.constants[i], false);
             constants[i] = prototype.__joii__.constants[i];
         }
@@ -111,7 +112,7 @@
         // Does the class implement an enumerator?
         if (typeof(parameters['enum']) === 'string') {
             var e = g.JOII.EnumBuilder(parameters['enum'], constants);
-            if (parameters['expose_enum'] === true) {
+            if (parameters.expose_enum === true) {
                 if (typeof(g[parameters['enum']]) !== 'undefined') {
                     throw 'Cannot expose Enum "' + parameters['enum'] + '" becase it already exists in the global scope.';
                 }
@@ -137,7 +138,8 @@
     {
         var reflector  = new g.JOII.Reflection.Class(prototype),
             properties = this.reflector.getProperties(),
-            methods    = this.reflector.getMethods();
+            methods    = this.reflector.getMethods(),
+            i, p1, p2;
 
         // If the class is marked as 'abstract', running interface validation
         // on it is rather useless since the class can't be instantiated.
@@ -158,12 +160,14 @@
             return true;
         };
 
+        
+        
         // Verify that all properties exist and have the correct metadata.
-        for (var i in properties) {
-            var p1 = properties[i], p2;
+        for (i in properties) {
+            p1 = properties[i];
 
             if (!reflector.hasProperty(p1.getName())) {
-                throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.'
+                throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
             }
             p2 = reflector.getProperty(p1.getName());
 
@@ -172,10 +176,10 @@
         }
 
         // Verify methods.
-        for (var i in methods) {
-            var p1 = methods[i], p2;
+        for (i in methods) {
+            p1 = methods[i];
             if (!reflector.hasMethod(p1.getName())) {
-                throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.'
+                throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
             }
             p2 = reflector.getMethod(p1.getName());
 
