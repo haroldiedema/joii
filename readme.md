@@ -33,6 +33,37 @@ The MIT License is simple and easy to understand and it places almost no restric
 You are free to use any JOII-project in any other project (even commercial projects) as long as the copyright header is left intact.
 All sample codes on this website are public domain, meaning you're free to do with them as you please.
 
+## Installation
+
+### Browser
+
+Load JOII like any other library. JOII does not require any dependencies.
+```markup
+<script src="/path/to/joii.min.js"></script>
+```
+
+### Node
+
+Install using npm and automatically add to your package.json file using `--save` if you want.
+```sh
+npm install joii --save
+```
+Somewhere, in your node project:
+```javascript
+// JOII registers itself in the global namespace once loaded.
+require("joii");
+
+var MyClass = Class({ /* ... /* });
+```
+
+### Running unit tests
+
+1. Clone the repository from here.
+2. Install dependencies through npm via `npm install`
+3. Run the testsuite using the command `npm test`
+4. Optionally, open `testsuite.html` in a browser to see the browser-version of the unit tests.
+
+
 ## Sneak peek
 
 This is an example of what JOII looks like in action.
