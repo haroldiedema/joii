@@ -18,7 +18,7 @@ module.exports = function(grunt) {
                       'src/EnumBuilder.js',
                       'src/Reflection.js',
                       'src/Compiler.js',
-                      'src/JOII.js'
+                      'src/joii.js'
                 ],
                 // the location of the resulting JS file
                 dest: './dist/<%= pkg.name %>.js'
