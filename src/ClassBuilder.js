@@ -162,7 +162,7 @@
         };
 
         // Store defined interfaces in the metadata.
-        definition.prototype.__joii__.interfaces = parameters.implements;
+        definition.prototype.__joii__.interfaces = parameters['implements'];
 
         // TODO performance can be increased here by storing the parsed
         //      interfaces in the 'interfaces' array in __joii__.

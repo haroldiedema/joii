@@ -173,8 +173,8 @@
         }
 
         // Apply the parent prototype.
-        if (typeof(parameters.extends) !== 'undefined') {
-            var parent = parameters.extends;
+        if (typeof(parameters['extends']) !== 'undefined') {
+            var parent = parameters['extends'];
 
             // If the given parent is a function, use its prototype.
             if (typeof(parent) === 'function') {

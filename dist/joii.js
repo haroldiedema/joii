@@ -525,8 +525,8 @@
         }
 
         // Apply the parent prototype.
-        if (typeof(parameters.extends) !== 'undefined') {
-            var parent = parameters.extends;
+        if (typeof(parameters['extends']) !== 'undefined') {
+            var parent = parameters['extends'];
 
             // If the given parent is a function, use its prototype.
             if (typeof(parent) === 'function') {
@@ -1044,7 +1044,7 @@
         };
 
         // Store defined interfaces in the metadata.
-        definition.prototype.__joii__.interfaces = parameters.implements;
+        definition.prototype.__joii__.interfaces = parameters['implements'];
 
         // TODO performance can be increased here by storing the parsed
         //      interfaces in the 'interfaces' array in __joii__.
@@ -1981,7 +1981,7 @@
      * @return bool
      */
     g.JOII.isInstance = function(c) {
-        return typeof(c.__joii__) !== 'undefined' && typeof(c.instanceOf) === 'function';
+        return typeof(c) === 'object' && typeof(c.__joii__) === 'object' && typeof(c.instanceOf) === 'function';
     };
 
     g.JOII.Publish = g.JOII.Compat.Bind(function(namespace) {
@@ -2007,7 +2007,7 @@
         parseNamespace: function(ns, root)
         {
             var i, len, obj, parts, cur = [];
-            
+
             // If no namespace is specified, return the root (window or global)
             if (typeof(ns) === 'undefined') {
                 return root;

@@ -33,7 +33,7 @@
      * @return bool
      */
     g.JOII.isInstance = function(c) {
-        return typeof(c.__joii__) !== 'undefined' && typeof(c.instanceOf) === 'function';
+        return typeof(c) === 'object' && typeof(c.__joii__) === 'object' && typeof(c.instanceOf) === 'function';
     };
 
     g.JOII.Publish = g.JOII.Compat.Bind(function(namespace) {
@@ -59,7 +59,7 @@
         parseNamespace: function(ns, root)
         {
             var i, len, obj, parts, cur = [];
-            
+
             // If no namespace is specified, return the root (window or global)
             if (typeof(ns) === 'undefined') {
                 return root;
