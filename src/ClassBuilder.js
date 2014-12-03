@@ -142,13 +142,13 @@
         }
 
         // Does the class implement an enumerator?
-        if (typeof(parameters.enum) === 'string') {
-            var e = g.JOII.EnumBuilder(parameters.enum, definition);
+        if (typeof(parameters['enum']) === 'string') {
+            var e = g.JOII.EnumBuilder(parameters['enum'], definition);
             if (parameters.expose_enum === true) {
-                if (typeof(g[parameters.enum]) !== 'undefined') {
-                    throw 'Cannot expose Enum "' + parameters.enum + '" becase it already exists in the global scope.';
+                if (typeof(g[parameters['enum']]) !== 'undefined') {
+                    throw 'Cannot expose Enum "' + parameters['enum'] + '" becase it already exists in the global scope.';
                 }
-                g[parameters.enum] = e;
+                g[parameters['enum']] = e;
             }
         }
 

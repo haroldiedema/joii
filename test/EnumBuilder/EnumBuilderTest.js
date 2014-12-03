@@ -50,7 +50,7 @@ test('EnumBulder:EnumBuilderTest', function(assert) {
     assert.strictEqual(plain.TWO, 2, 'plainObj: plain.TWO exists');
 
     // Class enum
-    var cls = JOII.ClassBuilder({ enum: 'EnumTest2', expose_enum: true }, { 'const ONE' : 1, 'const TWO' : 2 });
+    var cls = JOII.ClassBuilder({ 'enum': 'EnumTest2', expose_enum: true }, { 'const ONE' : 1, 'const TWO' : 2 });
 
     assert.strictEqual(cls.ONE, 1, 'classObj: cls.ONE exists');
     assert.strictEqual(cls.TWO, 2, 'classObj: cls.TWO exists');
@@ -81,7 +81,7 @@ test('EnumBulder:EnumBuilderTest', function(assert) {
     }, 'An enumerator cannot contain objects. "ONE" is an object.');
 
     // Test interface
-    var I1 = JOII.InterfaceBuilder({ enum: 'InterfaceEnum', expose_enum: true }, {
+    var I1 = JOII.InterfaceBuilder({ 'enum': 'InterfaceEnum', expose_enum: true }, {
         'const ONE' : 1,
         'const TWO' : 2
     });
@@ -92,7 +92,7 @@ test('EnumBulder:EnumBuilderTest', function(assert) {
     assert.strictEqual(InterfaceEnum.ONE, 1, 'interfaceObj: InterfaceEnum.ONE exists');
     assert.strictEqual(InterfaceEnum.TWO, 2, 'interfaceObj: InterfaceEnum.TWO exists');
 
-    var I2 = JOII.InterfaceBuilder({ enum: 'InterfaceEnum2', expose_enum: true, 'extends' : I1 }, {
+    var I2 = JOII.InterfaceBuilder({ 'enum': 'InterfaceEnum2', expose_enum: true, 'extends' : I1 }, {
         'const THREE' : 3,
         'const FOUR'  : 4
     });

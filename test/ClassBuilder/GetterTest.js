@@ -33,7 +33,7 @@ test('ClassBuilder:GetterTest', function(assert) {
     var c1 = JOII.ClassBuilder({
         'public string my_name'      : 'Harold',
         'public boolean enabled'     : true,
-        'public boolean is_disabled' : false,
+        'public boolean is_disabled' : false
     });
 
     var c = new c1();
