@@ -91,7 +91,7 @@ var Employee = Class({ extends: Person }, {
     // Override the constructor from "Person".
     'private construct' : function (name, occupation) {
         // invoke the parent constructor
-        this.super('__construct', name);
+        this.super('construct', name);
         
         // Set the given occupation.
         this.setOccupation(occupation);
