@@ -1,6 +1,6 @@
 {
     "name"      : "joii",
-    "version"     : "3.0.6",
+    "version"     : "3.0.7",
     "description" : "Javascript Object Inheritance Implementation",
     "author"      : "Harold Iedema",
     "license"     : "MIT",

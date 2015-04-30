@@ -411,7 +411,6 @@
         g.JOII.CreateProperty(prototype, '__joii__', {
             name            : name,
             parent          : undefined,
-            super_stack     : [],
             metadata        : {},
             constants       : {},
             implementations : [name],
@@ -447,73 +446,6 @@
             // Don't create getters and setters if we are an interface.
             if (is_interface === true) {
                 continue;
-            }
-
-            // Generate getters and setters if we're not dealing with anything
-            // that is a function or declared private.
-            if (typeof(prototype[meta.name]) !== 'function' &&
-                meta.visibility !== 'private') {
-
-                // If the meta type is boolean, prefix the getter with 'is'
-                // rather than 'get'.
-                var getter;
-                if (meta.type === 'boolean') {
-                    if (g.JOII.CamelcaseName(meta.name).substr(0, 2) === 'Is') {
-                        getter = g.JOII.CamelcaseName(meta.name);
-                        getter = getter.substring(0, 1).toLowerCase() + getter.substring(1);
-                    } else {
-                        getter = 'is' + g.JOII.CamelcaseName(meta.name);
-                    }
-                } else {
-                    getter = 'get' + g.JOII.CamelcaseName(meta.name);
-                }
-                var setter = 'set' + g.JOII.CamelcaseName(meta.name);
-
-                // Create a getter
-                if (typeof(deep_copy[getter]) === 'undefined') {
-                    prototype[getter] = new Function('return this["' + meta.name + '"];');
-                    prototype.__joii__.metadata[getter] = g.JOII.ParseClassProperty(meta.visibility + ' function ' + getter);
-                    prototype.__joii__.metadata[getter].visibility = meta.visibility;
-                    prototype.__joii__.metadata[getter].is_abstract = meta.is_abstract;
-                    prototype.__joii__.metadata[getter].is_final = meta.is_final;
-                }
-
-                // Create a setter
-                if (typeof(deep_copy[setter]) === 'undefined' && meta.is_read_only === false) {
-                    var nullable  = meta.is_nullable, validator;
-
-                    // InstanceOf validator (in case of interfaces & classes)
-                    if (typeof(g.JOII.InterfaceRegistry[meta.type]) !== 'undefined' ||
-                        typeof(g.JOII.ClassRegistry[meta.type]) !== 'undefined') {
-                        validator = '\
-                            if (JOII.Compat.findJOIIName(v) === \'' + meta.type + '\') {} else {\n\
-                            if (v !== null && typeof(v.instanceOf) !== \'function\' || (typeof(v) === \'object\' && v !== null && typeof(v.instanceOf) === \'function\' && !v.instanceOf(\'' + meta.type + '\')) || v === null) {\n\
-                                if ('+nullable+' === false || ('+nullable+' === true && v !== null && typeof(v) !== "undefined")) {\n\
-                                    throw "'+setter+' expects an instance of '+meta.type+', " + (v === null ? "null" : typeof(v)) + " given.";\n\
-                                }\n\
-                            }};';
-                    } else {
-                    // Native type validator
-                        validator = '\
-                            if (typeof(JOII.EnumRegistry[\'' + meta.type + '\']) !== \'undefined\') {\
-                                var _e = JOII.EnumRegistry[\'' + meta.type + '\'];\
-                                if (!_e.contains(v)) {\
-                                    throw "'+setter+': \'" + v + "\' is not a member of enum " + _e.getName() + ".";\
-                                }\
-                            } else {\
-                                if (typeof(v) !== \'' + meta.type + '\') {\
-                                    if ('+nullable+' === false || ('+nullable+' === true && v !== null && typeof(v) !== "undefined")) {\
-                                        throw "'+setter+' expects '+meta.type+', " + typeof(v) + " given.";\
-                                    }\
-                                };\
-                            }';
-                    }
-                    prototype[setter] = new Function('v', (meta.type !== null ? validator : '' ) + 'this["' + meta.name + '"] = v; return this;');
-                    prototype.__joii__.metadata[setter] = g.JOII.ParseClassProperty(meta.visibility + ' function ' + setter);
-                    prototype.__joii__.metadata[setter].visibility = meta.visibility;
-                    prototype.__joii__.metadata[setter].is_abstract = meta.is_abstract;
-                    prototype.__joii__.metadata[setter].is_final = meta.is_final;
-                }
             }
         }
 
@@ -585,32 +517,47 @@
                     typeof(property_meta) === 'object' &&
                     typeof(proto_meta) === 'object') {
 
-                    // Check for visibility change.
-                    if (property_meta.visibility !== proto_meta.visibility) {
-                        throw 'Member "' + i + '" must be ' + property_meta.visibility + ' as defined in the parent ' + (is_interface ? 'interface' : 'class') + '.';
-                    }
+                    if (proto_meta.is_generated === false) {
+                        // Check for visibility change.
+                        if (property_meta.visibility !== proto_meta.visibility) {
+                            throw 'Member "' + i + '" must be ' + property_meta.visibility + ' as defined in the parent ' + (is_interface ? 'interface' : 'class') + '.';
+                        }
 
-                    // Check final properties.
-                    if (property_meta.is_final === true) {
-                        throw 'Final member "' + i + '" cannot be overwritten.';
-                    }
+                        // Check final properties.
+                        if (property_meta.is_final === true) {
+                            throw 'Final member "' + i + '" cannot be overwritten.';
+                        }
 
-                    // Is the property read-only?
-                    if (property_meta.is_read_only !== proto_meta.is_read_only) {
-                        throw 'Member "' + i + '" must be read-only as defined in the parent ' + (is_interface ? 'interface' : 'class') + '.';
-                    }
+                        // Is the property read-only?
+                        if (property_meta.is_read_only !== proto_meta.is_read_only) {
+                            throw 'Member "' + i + '" must be read-only as defined in the parent ' + (is_interface ? 'interface' : 'class') + '.';
+                        }
 
-                    // Is the property nullable?
-                    if (property_meta.is_nullable !== proto_meta.is_nullable) {
-                        throw 'Member "' + i + '" must be nullable as defined in the parent ' + (is_interface ? 'interface' : 'class') + '.';
+                        // Is the property nullable?
+                        if (property_meta.is_nullable !== proto_meta.is_nullable) {
+                            throw 'Member "' + i + '" must be nullable as defined in the parent ' + (is_interface ? 'interface' : 'class') + '.';
+                        }
                     }
-
                     continue;
                 }
 
                 // It's safe to apply non-function properties immediatly.
                 if (typeof(property) !== 'function' || is_interface === true) {
                     prototype[i] = property;
+
+                    // Create getters and setters for properties defined in a parent class,
+                    // but only if they aren't declared in the child. (Fixes issue #10)
+                    var gs = g.JOII.CreatePropertyGetterSetter(prototype, property_meta);
+                    if (typeof prototype[gs.getter.name] === 'undefined' && typeof gs.getter.meta !== 'undefined') {
+                        gs.getter.meta.is_generated = true;
+                        prototype[gs.getter.name] = gs.getter.fn;
+                        prototype.__joii__.metadata[gs.getter.name] = gs.getter.meta;
+                    }
+                    if (typeof prototype[gs.setter.name] === 'undefined' && typeof gs.setter.meta !== 'undefined') {
+                        gs.setter.meta.is_generated = true;
+                        prototype[gs.setter.name] = gs.setter.fn;
+                        prototype.__joii__.metadata[gs.setter.name] = gs.setter.meta;
+                    }
                     continue;
                 }
 
@@ -620,7 +567,6 @@
                 // we'll create our own function which calls the function from
                 // the parent object. (Fixes issue #9)
                 // The function "super" is implemented from the ClassBuilder.
-                prototype.__joii__.super_stack.push(i);
                 prototype[i] = Function('\
                     var args = ["'+i+'"];\
                     for (var i in arguments) { args.push(arguments[i]); }\
@@ -628,6 +574,26 @@
                 ');
             }
         }
+
+        // Create getters and setters for properties. We do this _after_ the
+        // copying of the parent object because that prototype doesn't contain
+        // the getter/setter methods yet. (Fixes issue #10)
+        for (var i in deep_copy) {
+            var meta = g.JOII.ParseClassProperty(i);
+            // Generate getters and setters if we're not dealing with anything
+            // that is a function or declared private.
+            if (typeof(prototype[meta.name]) !== 'function' &&
+                meta.visibility !== 'private') {
+
+                var gs = g.JOII.CreatePropertyGetterSetter(deep_copy, meta);
+                prototype[gs.getter.name] = gs.getter.fn;
+                prototype.__joii__.metadata[gs.getter.name] = gs.getter.meta;
+                prototype[gs.setter.name] = gs.setter.fn;
+                prototype.__joii__.metadata[gs.setter.name] = gs.setter.meta;
+            }
+        }
+
+
 
         if (is_interface !== true) {
             /**
@@ -731,7 +697,8 @@
                 'is_nullable'  : false,     // Allow "null" or "undefined" in properties.
                 'is_read_only' : false,     // Don't generate a setter for the property.
                 'is_constant'  : false,     // Is the property publicly accessible?
-                'is_enum'      : false      // Is the property an enumerator?
+                'is_enum'      : false,     // Is the property an enumerator?
+                'is_generated' : false      // Is the property generated?
         }, i;
 
         // Remove the name from the list.
@@ -835,6 +802,76 @@
 
         return metadata;
     };
+
+    g.JOII.CreatePropertyGetterSetter = function(deep_copy, meta)
+    {
+        "use strict";
+        // If the meta type is boolean, prefix the getter with 'is'
+        // rather than 'get'.
+        var getter, getter_meta, getter_fn;
+        if (meta.type === 'boolean') {
+            if (g.JOII.CamelcaseName(meta.name).substr(0, 2) === 'Is') {
+                getter = g.JOII.CamelcaseName(meta.name);
+                getter = getter.substring(0, 1).toLowerCase() + getter.substring(1);
+            } else {
+                getter = 'is' + g.JOII.CamelcaseName(meta.name);
+            }
+        } else {
+            getter = 'get' + g.JOII.CamelcaseName(meta.name);
+        }
+        var setter = 'set' + g.JOII.CamelcaseName(meta.name), setter_meta, setter_fn;
+
+        // Create a getter
+        if (typeof(deep_copy[getter]) === 'undefined') {
+            getter_fn = new Function('return this["' + meta.name + '"];');
+            getter_meta = g.JOII.ParseClassProperty(meta.visibility + ' function ' + getter);
+            getter_meta.visibility = meta.visibility;
+            getter_meta.is_abstract = meta.is_abstract;
+            getter_meta.is_final = meta.is_final;
+        }
+
+        // Create a setter
+        if (typeof(deep_copy[setter]) === 'undefined' && meta.is_read_only === false) {
+            var nullable = meta.is_nullable, validator;
+
+            // InstanceOf validator (in case of interfaces & classes)
+            if (typeof(g.JOII.InterfaceRegistry[meta.type]) !== 'undefined' ||
+                typeof(g.JOII.ClassRegistry[meta.type]) !== 'undefined') {
+                validator = '\
+                            if (JOII.Compat.findJOIIName(v) === \'' + meta.type + '\') {} else {\n\
+                            if (v !== null && typeof(v.instanceOf) !== \'function\' || (typeof(v) === \'object\' && v !== null && typeof(v.instanceOf) === \'function\' && !v.instanceOf(\'' + meta.type + '\')) || v === null) {\n\
+                                if ('+nullable+' === false || ('+nullable+' === true && v !== null && typeof(v) !== "undefined")) {\n\
+                                    throw "'+setter+' expects an instance of '+meta.type+', " + (v === null ? "null" : typeof(v)) + " given.";\n\
+                                }\n\
+                            }};';
+            } else {
+                // Native type validator
+                validator = '\
+                            if (typeof(JOII.EnumRegistry[\'' + meta.type + '\']) !== \'undefined\') {\
+                                var _e = JOII.EnumRegistry[\'' + meta.type + '\'];\
+                                if (!_e.contains(v)) {\
+                                    throw "'+setter+': \'" + v + "\' is not a member of enum " + _e.getName() + ".";\
+                                }\
+                            } else {\
+                                if (typeof(v) !== \'' + meta.type + '\') {\
+                                    if ('+nullable+' === false || ('+nullable+' === true && v !== null && typeof(v) !== "undefined")) {\
+                                        throw "'+setter+' expects '+meta.type+', " + typeof(v) + " given.";\
+                                    }\
+                                };\
+                            }';
+            }
+            setter_fn = new Function('v', (meta.type !== null ? validator : '' ) + 'this["' + meta.name + '"] = v; return this;');
+            setter_meta = g.JOII.ParseClassProperty(meta.visibility + ' function ' + setter);
+            setter_meta.visibility = meta.visibility;
+            setter_meta.is_abstract = meta.is_abstract;
+            setter_meta.is_final = meta.is_final;
+        }
+
+        return {
+            'getter' : { name: getter, fn: getter_fn, meta: getter_meta },
+            'setter' : { name: setter, fn: setter_fn, meta: setter_meta }
+        };
+    }
 
     /**
      * Creates a non-enumerable property in the given object.

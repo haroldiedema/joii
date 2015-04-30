@@ -30,7 +30,6 @@
  */
 var testsuite = {
     code  : "./dist/joii.js",
-    tests2 : ["./test/EnumBulder/EnumBulderTest.js"],
     tests : [
          // PrototypeBuilder
              "./test/PrototypeBuilder/DeepCopyTest.js",
@@ -58,7 +57,8 @@ var testsuite = {
              "./test/Reflection/ReflectionTest.js",
          // GitHub Reported Issues
              "./test/IssueReports/IssueReport4.js",
-             "./test/IssueReports/IssueReport9.js"
+             "./test/IssueReports/IssueReport9.js",
+             "./test/IssueReports/IssueReport10.js"
     ]
 };
 
