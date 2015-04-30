@@ -24,6 +24,7 @@ browser on the market. Therefore, JOII is supported by Internet Explorer
  * [Traits / Mix-ins](http://joii.harold.info/class/traits)
  * [Enums](http://joii.harold.info/enum/introduction)
  * [Reflection](http://joii.harold.info/reflection/introduction)
+ * (since 3.1.0) Custom constructor and callable method names
 
 ## License
 
@@ -76,7 +77,7 @@ var Person = Class({
     'public immutable string name' : null,
     
     // Declare a constructor to be executed upon instantiation.
-    'private __construct': function (name) {
+    'private construct': function (name) {
         this.name = name;
     }
 });
@@ -88,7 +89,7 @@ var Employee = Class({ extends: Person }, {
     'public nullable string occupation' : null,
     
     // Override the constructor from "Person".
-    'private __construct' : function (name, occupation) {
+    'private construct' : function (name, occupation) {
         // invoke the parent constructor
         this.super('__construct', name);
         
@@ -124,3 +125,49 @@ is generated.
 
 Find out more about this in the [getters and setters](http://joii.harold.info/class/getters-and-setters)
 section.
+
+## Custom constructor methods
+
+As of 3.1.0, it's possible to add custom constructor methods. To ensure full
+compatibility with other JOII-based libraries, constructor method names are
+only added and never replaced. When a constructor method is found, no more of
+these will be executed upon instantiation.
+
+You can add custom constructor method names using `JOII.Config.addConstructor('hello');`
+
+For example:
+
+```javascript
+// Add the 'hello' constructor.
+JOII.Config.addConstructor('hello');
+
+
+var Hi = Class({
+    hello: function () {
+        console.log('Hello World!');
+    }
+});
+
+// Outputs: "Hello World!"
+new Hi();
+```
+
+Beware that original / existing constructors are leading, meaning they'll be
+executed first.
+
+```javascript
+var Hi = Class({
+    hello: function () {
+        // I am never executed.
+        console.log('Hello World!');
+    }
+
+    // __construct is the 'original' constructor, so it gets more priority over the
+    // newly added one, 'hello'.
+    __construct: function () {
+        console.log('Hi there.');
+    }
+});
+```
+
+[Full documentation can be found here](http://joii.harold.info/)

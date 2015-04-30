@@ -24,6 +24,7 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ------------------------------------------------------------------------------
  */
+'use strict';
 
 /**
  * The following code is required to provide full support for legacy browsers.

@@ -24,6 +24,7 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ------------------------------------------------------------------------------
  */
+'use strict';
 
 /**
  * The following code is required to provide full support for legacy browsers.
@@ -376,6 +377,8 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ------------------------------------------------------------------------------
 */
+'use strict';
+
 (function(g, undefined) {
 
     // Register JOII 'namespace'.
@@ -943,6 +946,8 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ------------------------------------------------------------------------------
 */
+'use strict';
+
 (function(g, undefined) {
 
     // Register JOII 'namespace'.
@@ -994,10 +999,12 @@
             // types are treated statically throughout all instances.
             scope_in = g.JOII.Compat.extend(true, {}, scope_in);
 
-            g.JOII.CreateProperty(scope_in, '__joii__', (this.__joii__));
-            g.JOII.CreateProperty(scope_out, '__joii__', (this.__joii__));
+            if (typeof this !== 'undefined') {
+                g.JOII.CreateProperty(scope_in, '__joii__', (this.__joii__));
+                g.JOII.CreateProperty(scope_out, '__joii__', (this.__joii__));
+            }
 
-            if (typeof(this.__joii__) === 'object') {
+            if (typeof this !== 'undefined' && typeof(this.__joii__) === 'object') {
 
                 // Can we be instantiated?
                 if (this.__joii__.is_abstract === true) {
@@ -1025,12 +1032,17 @@
             // we've been executed like a function rather than being instantiated.
             if (typeof(this) === 'undefined' || typeof(this.__joii__) === 'undefined') {
                 // If the method __call exists, execute it and return its result.
-                if (typeof(body.__call) === 'function') {
-                    var result = body.__call.apply(body, arguments);
-                    if (result === body) {
-                        throw '__call cannot return itself.';
+
+                for (var c in g.JOII.Config.callables) {
+                    if (g.JOII.Config.callables.hasOwnProperty(c)) {
+                        if (typeof(body[g.JOII.Config.callables[c]]) === 'function') {
+                            var result = body[g.JOII.Config.callables[c]].apply(body, arguments);
+                            if (result === body) {
+                                throw g.JOII.Config.callables[c] + ' cannot return itself.';
+                            }
+                            return result;
+                        }
                     }
-                    return result;
                 }
                 throw 'This class cannot be called as a function because it\'s lacking the __call method.';
             }
@@ -1039,8 +1051,14 @@
             scope_in.__api__ = scope_out;
 
             // Does the class defintion have a constructor? If so, run it.
-            if (typeof(scope_in.__construct) === 'function') {
-                scope_in.__construct.apply(scope_in, arguments);
+            for (var c in g.JOII.Config.constructors) {
+                if (g.JOII.Config.constructors.hasOwnProperty(c)) {
+                    var cc = g.JOII.Config.constructors[c];
+                    if (typeof(scope_in[cc]) === 'function') {
+                        scope_in[cc].apply(scope_in, arguments);
+                        break;
+                    }
+                }
             }
 
             // Are we attempting to instantiate an abstract class?
@@ -1175,6 +1193,8 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ------------------------------------------------------------------------------
 */
+'use strict';
+
 (function(g, undefined) {
 
     // Register JOII 'namespace'.
@@ -1372,6 +1392,8 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ------------------------------------------------------------------------------
 */
+'use strict';
+
 (function(g, undefined) {
 
     g.JOII.EnumRegistry = {};
@@ -1479,6 +1501,7 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ------------------------------------------------------------------------------
  */
+'use strict';
 
 (function(g, undefined) {
 
@@ -2009,6 +2032,76 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ------------------------------------------------------------------------------
  */
+'use strict';
+
+(function (g, undefined) {
+
+    g.JOII.Config = {
+
+        constructors : ['__construct', 'construct', '->', '=>'],
+        callables    : ['__call', '<>'],
+
+        /**
+         * Adds a constructor method name. The first occurance of a function
+         * named like one of these is executed. The rest is ignored to prevent
+         * ambiguous behavior.
+         *
+         * @param {string} name
+         */
+        addConstructor : function (name) {
+            if (g.JOII.Config.constructors.indexOf(name) !== -1) {
+                return;
+            }
+
+            g.JOII.Config.constructors.push(name);
+        },
+
+        /**
+         * Adds a callable method name, like __call. Only one of these is
+         * executed if more than one exist to prevent ambiguous behaviour.
+         *
+         * @param {string} name
+         */
+        addCallable: function (name) {
+            if (g.JOII.Config.callables.indexOf(name) !== -1) {
+                return;
+            }
+
+            g.JOII.Config.callables.push(name);
+        }
+    };
+
+}(
+    typeof window !== 'undefined' ? window : global
+));
+;/*
+ Javascript Object                               ______  ________________
+ Inheritance Implementation                  __ / / __ \/  _/  _/\_____  \
+                                            / // / /_/ // /_/ /    _(__  <
+ Copyright 2014, Harold Iedema.             \___/\____/___/___/   /       \
+ --------------------------------------------------------------- /______  / ---
+ Permission is hereby granted, free of charge, to any person obtaining  \/
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ ------------------------------------------------------------------------------
+ */
+'use strict';
+
 (function(g, undefined) {
 
     /**

@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.0
+- Custom constructor methods. You can now use your own constructor method instead of the default `__construct`.
+- Custom callable methods. Same as constructors, but apply to the __call method (call class as a function).
+
 ## 3.0.7
 - Fixed issue #10
 

@@ -1,6 +1,6 @@
 {
     "name"      : "joii",
-    "version"     : "3.0.7",
+    "version"     : "3.1.0",
     "description" : "Javascript Object Inheritance Implementation",
     "author"      : "Harold Iedema",
     "license"     : "MIT",
@@ -20,6 +20,16 @@
         "url": "https://github.com/haroldiedema/joii.git"
     },
     "keywords": [
+        "javascript",
+        "class",
+        "interface",
+        "enum",
+        "enumerator",
+        "extends",
+        "visibility",
+        "private",
+        "public",
+        "protected",
         "joii",
         "inheritance",
         "oop"

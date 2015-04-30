@@ -91,4 +91,18 @@ test('ClassBuilder:InstantiationTest', function(assert) {
     assert.strictEqual(typeof(f.a().b), 'function', 'f.a.b is a function.');
     assert.strictEqual(typeof(f.a().b().a), 'function', 'f.a.b.a returns a function.');
 
+    // 3.1.0: Custom constructors
+    JOII.Config.addConstructor('main');
+    var xx,xxx;
+
+    xx = Class({ a: 0, main: function () { this.a = 1; }}); xxx = new xx();
+    assert.strictEqual(xxx.getA(), 1, 'Custom constructor "main" called.');
+    xx = Class({ a: 0, construct: function () { this.a = 1; }}); xxx = new xx();
+    assert.strictEqual(xxx.getA(), 1, 'New default constructor "construct" called.');
+    xx = Class({ a: 0, '->': function () { this.a = 1; }}); xxx = new xx();
+    assert.strictEqual(xxx.getA(), 1, 'New default constructor "->" called.');
+    xx = Class({ a: 0, '=>': function () { this.a = 1; }}); xxx = new xx();
+    assert.strictEqual(xxx.getA(), 1, 'New default constructor "=>" called.');
+    xx = Class({ a: 0, __construct: function () { this.a = 1; }}); xxx = new xx();
+    assert.strictEqual(xxx.getA(), 1, 'Original constructor "__construct" called.');
 });

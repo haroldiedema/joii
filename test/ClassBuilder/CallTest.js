@@ -63,4 +63,15 @@ test('ClassBuilder:CallTest', function(assert) {
     assert.strictEqual(C2(), 2, '__call returns this.a (2)');
     assert.strictEqual(c2.getA(), 1, 'c2.getA() returns this.a (2)');
     assert.strictEqual(c2a.getA(), 1, 'c2a.getA() returns this.a (2)');
+
+
+    // 3.1.0: Custom callable method names.
+
+    var C3 = Class({'<>': function() { return 1; } });
+    assert.strictEqual(C3(), 1, 'New default call method "<>" used.');
+
+    JOII.Config.addCallable('execute');
+    var C4 = Class({'execute': function() { return 2; } });
+    assert.strictEqual(C4(), 2, 'Custom call method "execute" used.');
+
 });

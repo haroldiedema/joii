@@ -17,7 +17,7 @@ module.exports = function(grunt) {
                       'src/InterfaceBuilder.js',
                       'src/EnumBuilder.js',
                       'src/Reflection.js',
-                      'src/Compiler.js',
+                      'src/Config.js',
                       'src/joii.js'
                 ],
                 // the location of the resulting JS file
