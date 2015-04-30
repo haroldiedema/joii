@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.0.7
+- Fixed issue #10
+
+## 3.0.6
+- More IE8 (and below) compatibility fixes
+
+## 3.0.5
+- Various IE8 (and below) compatibility fixes
+
+## 3.0.4
+- Fixed initializr casing
+
+## 3.0.3
+- Various bug- and codestyle fixes
+
 ## 3.0.2
 - Added `JOII.isInstance()` to verify if an object is an instance of a JOII class.
 
