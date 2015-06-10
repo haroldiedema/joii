@@ -58,7 +58,8 @@ var testsuite = {
          // GitHub Reported Issues
              "./test/IssueReports/IssueReport4.js",
              "./test/IssueReports/IssueReport9.js",
-             "./test/IssueReports/IssueReport10.js"
+             "./test/IssueReports/IssueReport10.js",
+             "./test/IssueReports/IssueReport11.js"
     ]
 };
 
