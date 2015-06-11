@@ -620,7 +620,11 @@
                     }
 
                     if (typeof(scope.__joii__.parent) === 'undefined') {
-                        throw new Error('Method "' + method + '" does not exist in the parent class. (called using \'super()\')');
+                        if(typeof(scope.__api__.__joii__.parent) !== 'undefined') {
+                            scope.__joii__.parent = scope.__api__.__joii__.parent;
+                        } else {
+                            throw new Error('Method "' + method + '" does not exist in the parent class. (called using \'super()\')');
+                        }
                     }
 
                     var m = scope.__joii__.parent[method];
