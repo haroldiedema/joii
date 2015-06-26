@@ -42,6 +42,7 @@ Load JOII like any other library. JOII does not require any dependencies.
 ```markup
 <script src="/path/to/joii.min.js"></script>
 ```
+> JOII is available as a bower package: `bower install joii`
 
 ### Node
 
