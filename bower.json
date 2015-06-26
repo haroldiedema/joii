@@ -1,0 +1,30 @@
+{
+  "name": "joii",
+  "version": "3.1.2",
+  "homepage": "https://github.com/haroldiedema/joii",
+  "description": "Class based programming in JavaScript",
+  "main": "dist/joii.min.js",
+  "moduleType": [
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "oop",
+    "inheritance",
+    "class",
+    "interface",
+    "extends",
+    "enum"
+  ],
+  "authors": [
+    "Harold Iedema <harold@iedema.me>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
