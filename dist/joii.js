@@ -619,16 +619,17 @@
                         return call(scope.__joii__.parent, method, args);
                     }
 
+                    var parent = scope.__joii__.parent;
                     if (typeof(scope.__joii__.parent) === 'undefined') {
                         if(typeof(scope.__api__.__joii__.parent) !== 'undefined') {
-                            scope.__joii__.parent = scope.__api__.__joii__.parent;
+                            parent = scope.__api__.__joii__.parent;
                         } else {
                             throw new Error('Method "' + method + '" does not exist in the parent class. (called using \'super()\')');
                         }
                     }
 
-                    var m = scope.__joii__.parent[method];
-                    current_scope.__joii__ = scope.__joii__.parent.__joii__;
+                    var m = parent[method];
+                    current_scope.__joii__ = parent.__joii__;
                     var r = m.apply(current_scope, args);
                     current_scope.__joii__ = original_prop;
                     return r;
