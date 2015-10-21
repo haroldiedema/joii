@@ -1,5 +1,7 @@
 [![GitHub version](https://badge.fury.io/gh/haroldiedema%2Fjoii.svg)](http://badge.fury.io/gh/haroldiedema%2Fjoii) [![Build Status](https://scrutinizer-ci.com/g/haroldiedema/joii/badges/build.png?b=master)](https://scrutinizer-ci.com/g/haroldiedema/joii/build-status/master) [![npm version](https://badge.fury.io/js/joii.svg)](http://badge.fury.io/js/joii) 
 
+> Notice: With ES6 around the corner, which solves most of the features provided by JOII, I'm not actively developing new features for this library anymore since it will become obsolete at some point. Feel free to send me pull requests if you have bugs that need fixing or want to add shiny new features.
+
 # What is JOII?
 
 JOII (short for JavaScript Object Inheritance Implementation) brings ***class-
