@@ -61,6 +61,41 @@ test('PrototypeBuilder:PropertyMetaTest', function(assert) {
     assert.equal(meta.i_am_abstract_func.is_abstract, true, 'i_am_abstract_func: is_abstract OK.');
     assert.equal(meta.i_am_abstract_func.is_final, false, 'i_am_abstract_func: is_final OK.');
 
+    // Test property descriptors get trimmed
+    var pX;
+    var px_meta;
+    assert.ok((function() {
+        try {
+            pX = JOII.PrototypeBuilder(undefined, {}, {
+                '          this_should_not_throw_an_error         ' : 'foo',
+                '            thisShouldNotThrowAnError            ' : function() {},
+                'boolean	tab_instead_of_spaces_should_not_fail'  : true
+            });
+            px_meta = pX.__joii__.metadata;
+
+            return true; // test succeeded
+        } catch (e) {
+            console.error('Test "Property descriptors get trimmed" failed:', e);
+            return false; // test failed
+        }
+    })(), 'Property descriptors get trimmed (see console output for error message)');
+
+    assert.equal(px_meta && px_meta.this_should_not_throw_an_error.name,       'this_should_not_throw_an_error', 'this_should_not_throw_an_error: name OK.');
+    assert.equal(px_meta && px_meta.this_should_not_throw_an_error.type,       null,                             'this_should_not_throw_an_error: type OK.');
+    assert.equal(px_meta && px_meta.this_should_not_throw_an_error.visibility, 'public',                         'this_should_not_throw_an_error: is_public OK.');
+    assert.equal(px_meta && px_meta.this_should_not_throw_an_error.is_abstract, false,                           'this_should_not_throw_an_error: is_abstract OK.');
+    assert.equal(px_meta && px_meta.this_should_not_throw_an_error.is_final,    false,                           'this_should_not_throw_an_error: is_final OK.');
+    assert.equal(px_meta && px_meta.thisShouldNotThrowAnError.name,       'thisShouldNotThrowAnError', 'thisShouldNotThrowAnError: name OK.');
+    assert.equal(px_meta && px_meta.thisShouldNotThrowAnError.type,       null,                        'thisShouldNotThrowAnError: type OK.');
+    assert.equal(px_meta && px_meta.thisShouldNotThrowAnError.visibility, 'public',                    'thisShouldNotThrowAnError: is_public OK.');
+    assert.equal(px_meta && px_meta.thisShouldNotThrowAnError.is_abstract, false,                      'thisShouldNotThrowAnError: is_abstract OK.');
+    assert.equal(px_meta && px_meta.thisShouldNotThrowAnError.is_final,    false,                      'thisShouldNotThrowAnError: is_final OK.');
+    assert.equal(px_meta && px_meta.tab_instead_of_spaces_should_not_fail.name,       'tab_instead_of_spaces_should_not_fail', 'this_should_not_throw_an_error: name OK.');
+    assert.equal(px_meta && px_meta.tab_instead_of_spaces_should_not_fail.type,       'boolean',                               'this_should_not_throw_an_error: type OK.');
+    assert.equal(px_meta && px_meta.tab_instead_of_spaces_should_not_fail.visibility, 'public',                                'this_should_not_throw_an_error: is_public OK.');
+    assert.equal(px_meta && px_meta.tab_instead_of_spaces_should_not_fail.is_abstract, false,                                  'this_should_not_throw_an_error: is_abstract OK.');
+    assert.equal(px_meta && px_meta.tab_instead_of_spaces_should_not_fail.is_final,    false,                                  'this_should_not_throw_an_error: is_final OK.');
+
     // Test validation of wrong combination of flags:
 
     // Multiple type definitions are not allowed.

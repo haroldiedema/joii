@@ -693,7 +693,7 @@
      */
     g.JOII.ParseClassProperty = function(str) {
         // Parse the given string and set some defaults.
-        var data     = str.toString().replace(/ +(?= )/g,'').split(' '),
+        var data     = str.toString().replace(/^\s+|\s+(?=\s)|\s+$/g,'').split(/\s/),
             name     = data[data.length - 1],
             types    = g.JOII.InternalTypeNames,
             metadata = {
