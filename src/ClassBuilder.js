@@ -83,7 +83,6 @@
             }
 
             if (typeof this !== 'undefined' && typeof(this.__joii__) === 'object') {
-
                 // Can we be instantiated?
                 if (this.__joii__.is_abstract === true) {
                     throw 'An abstract class cannot be instantiated.';
@@ -127,6 +126,19 @@
 
             // Create a reference to the outer scope for use in fluid interfacing.
             scope_in.__api__ = scope_out;
+
+            // Apply the API object to inherited classes to keep the super() functionality working no matter how deep
+            // the inheritance-chain goes.
+            // This feels really 'hacky' in my opinion, but it fixes issue #19 and doesn't break any other test.
+            // As far as I can tell, there's no real performance impact on this, although I'm running this on a beast
+            // of a computer. If anyone has a more elegant solution, a pull-request would be much appreciated!
+            if (typeof scope_in.__joii__.parent !== 'undefined') {
+                var current = scope_in.__joii__.parent;
+                while (typeof current !== 'undefined') {
+                    current.__api__ = scope_out;
+                    current = current.__joii__.parent;
+                }
+            }
 
             // Does the class defintion have a constructor? If so, run it.
             for (var c in g.JOII.Config.constructors) {

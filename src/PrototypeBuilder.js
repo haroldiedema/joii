@@ -129,7 +129,13 @@
                 throw 'Unable to extend on a final class.';
             }
 
-            prototype.__joii__.implementations.push(parent.__joii__.name);
+            // Iterate over parent classes and apply the implementations for the instanceOf verifications.
+            var current = prototype.__joii__.parent;
+            while (typeof current !== 'undefined') {
+                prototype.__joii__.implementations.push(current.__joii__.name);
+                // Move to the next underlying class.
+                current = current.__joii__.parent;
+            }
 
             // Clone the constants of the parent into this one.
             prototype.__joii__.constants = g.JOII.Compat.extend(true, prototype.__joii__.constants, parent.__joii__.constants);
