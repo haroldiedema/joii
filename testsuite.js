@@ -61,7 +61,8 @@ var testsuite = {
              "./test/IssueReports/IssueReport10.js",
              "./test/IssueReports/IssueReport11.js",
              "./test/IssueReports/IssueReport15.js",
-             "./test/IssueReports/IssueReport16.js"
+             "./test/IssueReports/IssueReport16.js",
+             "./test/IssueReports/IssueReport19.js"
     ]
 };
 
