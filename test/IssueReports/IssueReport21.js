@@ -42,8 +42,6 @@ test('IssueReports:IssueReport21', function(assert) {
     try {
         var myClass = new MyClass();
         myClass.setIa(new InterfaceAImplemented());
-        var interfaceAObject = myClass.getIa();
-        assert.strictEqual(interfaceAObject.instanceOf(InterfaceA), true, 'interfaceAObject is an instance of InterfaceA');
         success = true;
     }
     catch (exception){
