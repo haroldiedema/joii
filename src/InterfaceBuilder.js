@@ -53,7 +53,63 @@
         // The definition will be the resulting function containing all
         // required information about this interface.
         var prototype  = g.JOII.PrototypeBuilder(name, parameters, body, true),
-            definition = g.JOII.InterfaceDefinitionConstruct;
+            definition = function(prototype)
+            {
+                var reflector = new g.JOII.Reflection.Class(prototype),
+                    properties = this.reflector.getProperties(),
+                    methods = this.reflector.getMethods(),
+                    i, p1, p2;
+
+                // If the class is marked as 'abstract', running interface validation
+                // on it is rather useless since the class can't be instantiated.
+                if (reflector.isAbstract()) {
+                    return true;
+                }
+
+                var verifyMeta = function (t, p1, p2, prefix) {
+                    if (p1.getVisibility() !== p2.getVisibility()) {
+                        throw prefix + ' ' + p2.getName() + ' cannot be ' + p2.getVisibility() + ' because the interface declared it ' + p1.getVisibility() + '.';
+                    }
+                    if (p1.getType() !== p2.getType()) {
+                        throw prefix + ' ' + p2.getName() + ' cannot be declared as ' + p2.getType() + ' because the interface declared it as ' + p1.getType() + '.';
+                    }
+                    if (p1.isNullable() !== p2.isNullable()) {
+                        throw prefix + ' ' + p2.getName() + ' must be nullable as defined in the interface ' + t.name + '.';
+                    }
+                    return true;
+                };
+
+
+                // Verify that all properties exist and have the correct metadata.
+                for (i in properties) {
+                    p1 = properties[i];
+
+                    if (!reflector.hasProperty(p1.getName())) {
+                        throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
+                    }
+                    p2 = reflector.getProperty(p1.getName());
+
+                    // Verify meta data
+                    verifyMeta(this, p1, p2, 'Property');
+                }
+
+                // Verify methods.
+                for (i in methods) {
+                    p1 = methods[i];
+                    if (!reflector.hasMethod(p1.getName())) {
+                        throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
+                    }
+                    p2 = reflector.getMethod(p1.getName());
+
+                    // Verify meta data
+                    verifyMeta(this, p1, p2, 'Method');
+
+                    // Verify function signature.
+                    if (p1.getParameters().length !== p2.getParameters().length) {
+                        throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
+                    }
+                }
+            };
 
         // Set our interface specification
         g.JOII.CreateProperty(definition, '__interface__', {
@@ -125,74 +181,6 @@
         g.JOII.InterfaceRegistry[name] = constructor;
 
         return constructor;
-    };
-
-    /**
-     * Template function for an interface constructor.
-     *
-     * This function will validate the requirements from the interface against
-     * the given class or prototype.
-     *
-     * @param object prototype
-     * @return bool
-     */
-    g.JOII.InterfaceDefinitionConstruct = function(prototype)
-    {
-        var reflector  = new g.JOII.Reflection.Class(prototype),
-            properties = this.reflector.getProperties(),
-            methods    = this.reflector.getMethods(),
-            i, p1, p2;
-
-        // If the class is marked as 'abstract', running interface validation
-        // on it is rather useless since the class can't be instantiated.
-        if (reflector.isAbstract()) {
-            return true;
-        }
-
-        var verifyMeta = function(t, p1, p2, prefix) {
-            if (p1.getVisibility() !== p2.getVisibility()) {
-                throw prefix + ' ' + p2.getName() + ' cannot be ' + p2.getVisibility() + ' because the interface declared it ' + p1.getVisibility() + '.';
-            }
-            if (p1.getType() !== p2.getType()) {
-                throw prefix + ' ' + p2.getName() + ' cannot be declared as ' + p2.getType() + ' because the interface declared it as ' + p1.getType() + '.';
-            }
-            if (p1.isNullable() !== p2.isNullable()) {
-                throw prefix + ' ' + p2.getName() + ' must be nullable as defined in the interface ' + t.name + '.';
-            }
-            return true;
-        };
-
-        
-        
-        // Verify that all properties exist and have the correct metadata.
-        for (i in properties) {
-            p1 = properties[i];
-
-            if (!reflector.hasProperty(p1.getName())) {
-                throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
-            }
-            p2 = reflector.getProperty(p1.getName());
-
-            // Verify meta data
-            verifyMeta(this, p1, p2, 'Property');
-        }
-
-        // Verify methods.
-        for (i in methods) {
-            p1 = methods[i];
-            if (!reflector.hasMethod(p1.getName())) {
-                throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
-            }
-            p2 = reflector.getMethod(p1.getName());
-
-            // Verify meta data
-            verifyMeta(this, p1, p2, 'Method');
-
-            // Verify function signature.
-            if (p1.getParameters().length !== p2.getParameters().length) {
-                throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
-            }
-        }
     };
 }(
     typeof(global) !== 'undefined' ? global : window,

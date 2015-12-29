@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.1.0 ~ 3.1.5
+- Various bugfixes: Proper inheritance through multiple levels of parent classes, interface reference issues fixed
+
 ## 3.1.0
 - Custom constructor methods. You can now use your own constructor method instead of the default `__construct`.
 - Custom callable methods. Same as constructors, but apply to the __call method (call class as a function).

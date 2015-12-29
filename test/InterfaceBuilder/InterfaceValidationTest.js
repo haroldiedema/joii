@@ -87,5 +87,5 @@ test('InterfaceBuilder:InterfaceValidationTest', function(assert) {
 
     assert.throws(function() {
         var m = new MyClass(); m.setTi(1);
-    }, function(err) { return err === 'setTi expects an instance of TestInterface2, number given.'; }, 'Exception is thrown when using a setter with a wrong Interface-type.');
+    }, function(err) { return err === 'setTi expects an instance of TestInterface, number given.'; }, 'Exception is thrown when a setter is called and an argument with the wrong type was given.');
 });
