@@ -1,4 +1,4 @@
-[![GitHub version](https://badge.fury.io/gh/haroldiedema%2Fjoii.svg)](http://badge.fury.io/gh/haroldiedema%2Fjoii) [![Build Status](https://scrutinizer-ci.com/g/haroldiedema/joii/badges/build.png?b=master)](https://scrutinizer-ci.com/g/haroldiedema/joii/build-status/master) [![npm version](https://badge.fury.io/js/joii.svg)](http://badge.fury.io/js/joii) 
+[![GitHub version](https://badge.fury.io/gh/haroldiedema%2Fjoii.svg)](https://badge.fury.io/gh/haroldiedema%2Fjoii) [![Build Status](https://scrutinizer-ci.com/g/haroldiedema/joii/badges/build.png?b=master)](https://scrutinizer-ci.com/g/haroldiedema/joii/build-status/master) [![npm version](https://badge.fury.io/js/joii.svg)](https://badge.fury.io/js/joii) 
 
 # What is JOII?
 
@@ -10,25 +10,25 @@ languages. JOII is built with the priciple of being compatible with _any_
 browser on the market. Therefore, JOII is supported by Internet Explorer
 5.5 and anything that came after that.
 
-[Full documentation can be found here](http://joii.harold.info/)
+[Full documentation can be found here](https://joii.harold.info/)
 
 ## Features
 
  * Support Internet Explorer 5.5 and up
- * [Build](http://joii.harold.info/class/introduction) and [extend](http://joii.harold.info/class/inheritance) on classes
- * Support for [interfaces](http://joii.harold.info/interface/introduction)
- * Strong [typehinting](http://joii.harold.info/meta/types) in class properties
- * [Typehinting](http://joii.harold.info/meta/types) for custom object definitions
- * [Visibility setting](http://joii.harold.info/meta/visibility) (public, protected)
- * [Final](http://joii.harold.info/meta/final) & [abstract](http://joii.harold.info/meta/abstract) properties and methods
- * [Traits / Mix-ins](http://joii.harold.info/class/traits)
- * [Enums](http://joii.harold.info/enum/introduction)
- * [Reflection](http://joii.harold.info/reflection/introduction)
+ * [Build](https://joii.harold.info/class/introduction) and [extend](https://joii.harold.info/class/inheritance) on classes
+ * Support for [interfaces](https://joii.harold.info/interface/introduction)
+ * Strong [typehinting](https://joii.harold.info/meta/types) in class properties
+ * [Typehinting](https://joii.harold.info/meta/types) for custom object definitions
+ * [Visibility setting](https://joii.harold.info/meta/visibility) (public, protected)
+ * [Final](https://joii.harold.info/meta/final) & [abstract](https://joii.harold.info/meta/abstract) properties and methods
+ * [Traits / Mix-ins](https://joii.harold.info/class/traits)
+ * [Enums](https://joii.harold.info/enum/introduction)
+ * [Reflection](https://joii.harold.info/reflection/introduction)
  * (since 3.1.0) Custom constructor and callable method names
 
 ## License
 
-Like most other popular JavaScript libraries, JOII is released under the [MIT license](http://en.wikipedia.org/wiki/MIT_License).
+Like most other popular JavaScript libraries, JOII is released under the [MIT license](https://en.wikipedia.org/wiki/MIT_License).
 
 The MIT License is simple and easy to understand and it places almost no restrictions on what you can do with a JOII project.
 You are free to use any JOII-project in any other project (even commercial projects) as long as the copyright header is left intact.
@@ -124,7 +124,7 @@ When a property is declared protected, getters and setters are still generated
 but are not exposed to the public. When a property is declared private, nothing
 is generated.
 
-Find out more about this in the [getters and setters](http://joii.harold.info/class/getters-and-setters)
+Find out more about this in the [getters and setters](https://joii.harold.info/class/getters-and-setters)
 section.
 
 ## Custom constructor methods
@@ -171,4 +171,4 @@ var Hi = Class({
 });
 ```
 
-[Full documentation can be found here](http://joii.harold.info/)
+[Full documentation can be found here](https://joii.harold.info/)
