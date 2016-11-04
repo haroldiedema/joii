@@ -31,7 +31,7 @@
     // Register JOII 'namespace'.
     g.JOII = typeof(g.JOII) !== 'undefined' ? g.JOII : {};
 
-    g.JOII.InternalPropertyNames = ['__joii__', 'super', 'instanceOf', 'Deserialize', 'Serialize'];
+    g.JOII.InternalPropertyNames = ['__joii__', 'super', 'instanceOf', 'deserialize', 'serialize'];
     g.JOII.InternalTypeNames     = [
         'undefined', 'object', 'boolean',
         'number'   , 'string', 'symbol',
@@ -351,7 +351,7 @@
         var data     = str.toString().replace(/^\s+|\s+(?=\s)|\s+$/g,'').split(/\s/),
             name     = data[data.length - 1],
             types    = g.JOII.InternalTypeNames,
-            explicitSerialize = false,
+            explicit_serialize = false,
             metadata = {
                 'name'         : name,
                 'type'         : null,      // Allow all types by default.
@@ -404,7 +404,7 @@
                     metaHas('protected', data, 'Property "' + name + '" cannot be both public and protected at the same time.');
                     metaHas('private', data, 'Property "' + name + '" cannot be both public and private at the same time.');
                     metadata.visibility = 'public';
-                    if (!explicitSerialize)
+                    if (!explicit_serialize)
 {
                         metadata.serializable = true;
                     }
@@ -434,18 +434,13 @@
                 case 'immutable':
                     metadata.is_read_only = true;
                     break;
-                case 'SerializableAttribute':
                 case 'serialize':
-                case 'serializable':
                     metadata.serializable = true;
-                    explicitSerialize = true;
+                    explicit_serialize = true;
                     break;
-                case 'NonSerializedAttribute':
                 case 'noserialize':
-                case 'notserializable':
-                case 'nonserializable':
                     metadata.serializable = false;
-                    explicitSerialize = true;
+                    explicit_serialize = true;
                     break;
                 case 'const':
                     metaHas(['private', 'protected', 'public'], data, 'A constant cannot have visibility modifiers.');
