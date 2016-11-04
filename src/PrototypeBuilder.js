@@ -434,11 +434,11 @@
                 case 'immutable':
                     metadata.is_read_only = true;
                     break;
-                case 'serialize':
+                case 'serializable':
                     metadata.serializable = true;
                     explicit_serialize = true;
                     break;
-                case 'noserialize':
+                case 'notserializable':
                     metadata.serializable = false;
                     explicit_serialize = true;
                     break;

@@ -35,8 +35,8 @@ test('ClassBuilder:SerializeTest', function(assert) {
     // the correct context.
     var BaseClass = JOII.ClassBuilder('BaseClass', {}, {
         'public a': 1,
-        'public noserialize b': 'foo',
-        'protected serialize c': 'bar',
+        'public notserializable b': 'foo',
+        'protected serializable c': 'bar',
         'protected d': '2',
         'public verifyDefaultValues': function (name)
         {
@@ -114,7 +114,6 @@ test('ClassBuilder:SerializeTest', function(assert) {
         'public BaseClass c2': null
     });
 
-    // Verify that getters and setters exist within the instantiated children.
     var base1 = new BaseClass();
     var c1 = new Child1();
     var c2 = new Child2();
@@ -143,7 +142,7 @@ test('ClassBuilder:SerializeTest', function(assert) {
     var json2 = h1.serialize();
     var h3 = HolderClass.deserialize(json2);
 
-    // verify the changed values, for inheritance and expected changes, based on serialized fields
+    // verify the changed values, for inheritance and expected changes based on serialized fields
     h3.getBase().verifyChangedValues();
     h3.getC1().verifyChangedValues();
     h3.getC2().verifyChangedValues();
