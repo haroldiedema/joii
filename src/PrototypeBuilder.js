@@ -332,7 +332,7 @@
                 }
                 return true;
             };
-            
+
 
         }
 
@@ -540,7 +540,7 @@
                                 };\
                             }';
             }
-            setter_fn = new Function('v', (meta.type !== null ? validator : '' ) + 'this["' + meta.name + '"] = v; return this;');
+            setter_fn = new Function('v', (meta.type !== null ? validator : '') + 'this["' + meta.name + '"] = v; return this.__api__;');
             setter_meta = g.JOII.ParseClassProperty(meta.visibility + ' function ' + setter);
             setter_meta.visibility = meta.visibility;
             setter_meta.is_abstract = meta.is_abstract;
