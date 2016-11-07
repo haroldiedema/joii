@@ -151,6 +151,13 @@
                 }
             }
 
+
+
+            // deserialize data
+            if (arguments.length == 1 && typeof arguments[0] == 'object' && '__joii_deserialize_object' in arguments[0]) {
+                scope_in.deserialize(arguments[0].data);
+            }
+
             // Are we attempting to instantiate an abstract class?
             if (this.__joii__.is_abstract) {
                 throw 'Cannot instantiate abstract class ' + this.__joii__.name;
@@ -242,6 +249,90 @@
                 }
             }
         }
+
+
+        /**
+         * Serializes all serializable properties of an object. Public members are serializable by default.
+         *
+         * @return JSON string containing the serialized class
+         */
+        if (typeof definition.prototype.serialize == 'undefined') {
+            definition.prototype.serialize = function () {
+                var obj = { __joii_type: this.__joii__.name };
+
+                for (var key in this.__joii__.metadata) {
+                    var val = this.__joii__.metadata[key];
+
+                    if (val.serializable) {
+                        if (val.is_joii_object && !val.is_enum && typeof this[val.name] == 'object' && this[val.name] != null) {
+                            obj[val.name] = JSON.parse(this[val.name].serialize());
+                        }
+                        else {
+                            obj[val.name] = this[val.name];
+                        }
+                    }
+                }
+
+                return JSON.stringify(obj);
+            };
+        }
+
+
+        /**
+         * Deserializes a class (called on an object instance to populate it)
+         *
+         * @param JSON or object representing an instance of this class
+         * @return void
+         */
+        if (typeof definition.prototype.deserialize == 'undefined') {
+            definition.prototype.deserialize = function (jsonOrRawObject) {
+                var obj = jsonOrRawObject;
+
+                if (typeof jsonOrRawObject == 'string') {
+                    obj = JSON.parse(jsonOrRawObject);
+                }
+
+                for (var key in (this.__joii__.metadata)) {
+                    var val = this.__joii__.metadata[key];
+
+                    if (val.serializable) {
+                        if (val.name in obj && typeof obj[val.name] != 'function') {
+                            if (typeof obj[val.name] == 'object' && obj[val.name] != null && '__joii_type' in (obj[val.name])) {
+                                var name = obj[val.name].__joii_type;
+                                // Check for Interface-types
+                                if (typeof (g.JOII.InterfaceRegistry[name]) !== 'undefined') {
+                                    throw 'Cannot instantiate an interface.';
+                                }
+                                    // Check for Class-types
+                                else if (typeof (g.JOII.ClassRegistry[name]) !== 'undefined') {
+                                    this[val.name] = g.JOII.ClassRegistry[name].deserialize(obj[val.name]);
+                                }
+                                else {
+                                    throw 'Class ' + name + ' not currently in scope!';
+                                }
+                            }
+                            else {
+                                this[val.name] = obj[val.name];
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        /**
+         * Deserializes a class (called as a static method - instantiates a new object and populates it)
+         *
+         * @param JSON or object representing an instance of this class
+         * @return void
+         */
+        definition.deserialize = function (jsonOrRawObject) {
+            var deserializeObject = {
+                '__joii_deserialize_object': true,
+                'data': jsonOrRawObject
+            };
+            return new definition(deserializeObject);
+        };
 
         // Register the class by the given name to make it usable as a type
         // inside property declarations.

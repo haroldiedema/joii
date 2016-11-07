@@ -384,7 +384,7 @@
     // Register JOII 'namespace'.
     g.JOII = typeof(g.JOII) !== 'undefined' ? g.JOII : {};
 
-    g.JOII.InternalPropertyNames = ['__joii__', 'super', 'instanceOf'];
+    g.JOII.InternalPropertyNames = ['__joii__', 'super', 'instanceOf', 'deserialize', 'serialize'];
     g.JOII.InternalTypeNames     = [
         'undefined', 'object', 'boolean',
         'number'   , 'string', 'symbol',
@@ -685,6 +685,8 @@
                 }
                 return true;
             };
+            
+
         }
 
         return prototype;
@@ -702,6 +704,7 @@
         var data     = str.toString().replace(/^\s+|\s+(?=\s)|\s+$/g,'').split(/\s/),
             name     = data[data.length - 1],
             types    = g.JOII.InternalTypeNames,
+            explicit_serialize = false,
             metadata = {
                 'name'         : name,
                 'type'         : null,      // Allow all types by default.
@@ -712,7 +715,9 @@
                 'is_read_only' : false,     // Don't generate a setter for the property.
                 'is_constant'  : false,     // Is the property publicly accessible?
                 'is_enum'      : false,     // Is the property an enumerator?
-                'is_generated' : false      // Is the property generated?
+                'is_generated' : false,     // Is the property generated?
+                'is_joii_object': false,    // Does this represent a joii class/interface ?
+                'serializable' : false      // Is the property serializable?
         }, i;
 
         // Remove the name from the list.
@@ -752,6 +757,10 @@
                     metaHas('protected', data, 'Property "' + name + '" cannot be both public and protected at the same time.');
                     metaHas('private', data, 'Property "' + name + '" cannot be both public and private at the same time.');
                     metadata.visibility = 'public';
+                    if (!explicit_serialize)
+{
+                        metadata.serializable = true;
+                    }
                     break;
                 case 'protected':
                     metaHas('public', data, 'Property "' + name + '" cannot be both protected and public at the same time.');
@@ -778,6 +787,14 @@
                 case 'immutable':
                     metadata.is_read_only = true;
                     break;
+                case 'serializable':
+                    metadata.serializable = true;
+                    explicit_serialize = true;
+                    break;
+                case 'notserializable':
+                    metadata.serializable = false;
+                    explicit_serialize = true;
+                    break;
                 case 'const':
                     metaHas(['private', 'protected', 'public'], data, 'A constant cannot have visibility modifiers.');
                     metaHas('final', data, 'A constant cannot be final.');
@@ -795,11 +812,13 @@
                     }
                     // Check for Interface-types
                     if (typeof(g.JOII.InterfaceRegistry[data[i]]) !== 'undefined') {
+                        metadata.is_joii_object = true;
                         metadata.type = g.JOII.InterfaceRegistry[data[i]].definition.__interface__.name;
                         break;
                     }
                     // Check for Class-types
                     if (typeof(g.JOII.ClassRegistry[data[i]]) !== 'undefined') {
+                        metadata.is_joii_object = true;
                         metadata.type = g.JOII.ClassRegistry[data[i]].prototype.__joii__.name;
                         break;
                     }
@@ -1084,6 +1103,13 @@
                 }
             }
 
+
+
+            // deserialize data
+            if (arguments.length == 1 && typeof arguments[0] == 'object' && '__joii_deserialize_object' in arguments[0]) {
+                scope_in.deserialize(arguments[0].data);
+            }
+
             // Are we attempting to instantiate an abstract class?
             if (this.__joii__.is_abstract) {
                 throw 'Cannot instantiate abstract class ' + this.__joii__.name;
@@ -1175,6 +1201,90 @@
                 }
             }
         }
+
+
+        /**
+         * Serializes all serializable properties of an object. Public members are serializable by default.
+         *
+         * @return JSON string containing the serialized class
+         */
+        if (typeof definition.prototype.serialize == 'undefined') {
+            definition.prototype.serialize = function () {
+                var obj = { __joii_type: this.__joii__.name };
+
+                for (var key in this.__joii__.metadata) {
+                    var val = this.__joii__.metadata[key];
+
+                    if (val.serializable) {
+                        if (val.is_joii_object && !val.is_enum && typeof this[val.name] == 'object' && this[val.name] != null) {
+                            obj[val.name] = JSON.parse(this[val.name].serialize());
+                        }
+                        else {
+                            obj[val.name] = this[val.name];
+                        }
+                    }
+                }
+
+                return JSON.stringify(obj);
+            };
+        }
+
+
+        /**
+         * Deserializes a class (called on an object instance to populate it)
+         *
+         * @param JSON or object representing an instance of this class
+         * @return void
+         */
+        if (typeof definition.prototype.deserialize == 'undefined') {
+            definition.prototype.deserialize = function (jsonOrRawObject) {
+                var obj = jsonOrRawObject;
+
+                if (typeof jsonOrRawObject == 'string') {
+                    obj = JSON.parse(jsonOrRawObject);
+                }
+
+                for (var key in (this.__joii__.metadata)) {
+                    var val = this.__joii__.metadata[key];
+
+                    if (val.serializable) {
+                        if (val.name in obj && typeof obj[val.name] != 'function') {
+                            if (typeof obj[val.name] == 'object' && obj[val.name] != null && '__joii_type' in (obj[val.name])) {
+                                var name = obj[val.name].__joii_type;
+                                // Check for Interface-types
+                                if (typeof (g.JOII.InterfaceRegistry[name]) !== 'undefined') {
+                                    throw 'Cannot instantiate an interface.';
+                                }
+                                    // Check for Class-types
+                                else if (typeof (g.JOII.ClassRegistry[name]) !== 'undefined') {
+                                    this[val.name] = g.JOII.ClassRegistry[name].deserialize(obj[val.name]);
+                                }
+                                else {
+                                    throw 'Class ' + name + ' not currently in scope!';
+                                }
+                            }
+                            else {
+                                this[val.name] = obj[val.name];
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        /**
+         * Deserializes a class (called as a static method - instantiates a new object and populates it)
+         *
+         * @param JSON or object representing an instance of this class
+         * @return void
+         */
+        definition.deserialize = function (jsonOrRawObject) {
+            var deserializeObject = {
+                '__joii_deserialize_object': true,
+                'data': jsonOrRawObject
+            };
+            return new definition(deserializeObject);
+        };
 
         // Register the class by the given name to make it usable as a type
         // inside property declarations.

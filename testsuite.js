@@ -48,6 +48,7 @@ var testsuite = {
              "./test/ClassBuilder/InstanceOfTest.js",
              "./test/ClassBuilder/CallTest.js",
              "./test/ClassBuilder/ConstantTest.js",
+             "./test/ClassBuilder/SerializeTest.js",
          // InterfaceBuilder,
              "./test/InterfaceBuilder/InterfaceBuilderTest.js",
              "./test/InterfaceBuilder/InterfaceValidationTest.js",
