@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.0.0
+- JOII is now a proper AMD/CommonJS Module
+- No more global scope leaking in node environments (can still be done on-demand using `useGlobal()`)
+- Replaced build-tool grunt (concat & uglify-js) with [ISC](https://npmjs.com/packages/isc/).
+
+## 3.2.0
+- Added serialization support (by cjmanca)
+- Fixed scope leaking by generated setters
+
 ## 3.1.0 ~ 3.1.5
 - Various bugfixes: Proper inheritance through multiple levels of parent classes, interface reference issues fixed
 

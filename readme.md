@@ -12,6 +12,17 @@ browser on the market. Therefore, JOII is supported by Internet Explorer
 
 [Full documentation can be found here](https://joii.harold.info/)
 
+> ***UPGRADING TO 4.x***
+>
+> In node environments, JOII no longer exposes anything to the
+> global scope. This means that functions like `Class`, `Interface` and `Enum` are no longer
+> directly available by default. If you want to keep this behavior, use the `useGlobal()`
+> function when requiring JOII.
+> ```javascript
+> require('joii').useGlobal();
+> ```
+
+
 ## Features
 
  * Support Internet Explorer 5.5 and up
@@ -53,10 +64,18 @@ npm install joii --save
 ```
 Somewhere, in your node project:
 ```javascript
-// JOII registers itself in the global namespace once loaded.
-require("joii");
+var JOII = require("joii");
 
-var MyClass = Class({ /* ... /* });
+var MyClass = JOII.Class({ /* ... /* });
+```
+
+#### Node & Global Scope
+Since 4.x, JOII functions, such as `Class` and `Interface` are no longer leaked to the global
+scope by default. To make these functions globally availalbe, use the `useGlobal()` function.
+```javascript
+require("joii").useGlobal();
+
+var MyClass = Class({ /* ... */ });
 ```
 
 ### Running unit tests

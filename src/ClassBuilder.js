@@ -1,36 +1,4 @@
-/*
- Javascript Object                               ______  ________________
- Inheritance Implementation                  __ / / __ \/  _/  _/\_____  \
-                                            / // / /_/ // /_/ /    _(__  <
- Copyright 2014, Harold Iedema.             \___/\____/___/___/   /       \
- --------------------------------------------------------------- /______  / ---
- Permission is hereby granted, free of charge, to any person obtaining  \/
- a copy of this software and associated documentation files (the
- "Software"), to deal in the Software without restriction, including
- without limitation the rights to use, copy, modify, merge, publish,
- distribute, sublicense, and/or sell copies of the Software, and to
- permit persons to whom the Software is furnished to do so, subject to
- the following conditions:
-
- The above copyright notice and this permission notice shall be
- included in all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- ------------------------------------------------------------------------------
-*/
-'use strict';
-
-(function(g, undefined) {
-
-    // Register JOII 'namespace'.
-    g.JOII = typeof(g.JOII) !== 'undefined' ? g.JOII : {};
-    g.JOII.ClassRegistry = {};
+    JOII.ClassRegistry = {};
 
     /**
      * The ClassBuilder is responsible for creating a class definition based
@@ -46,9 +14,9 @@
      * @param object body
      * @return function
      */
-    g.JOII.ClassBuilder = function()
+    JOII.ClassBuilder = function()
     {
-        var args        = g.JOII.Compat.ParseArguments(arguments),
+        var args        = JOII.Compat.ParseArguments(arguments),
             name        = args.name,
             parameters  = args.parameters,
             body        = args.body;
@@ -75,11 +43,11 @@
             // Create a deep copy of the inner scope because we need to
             // dereference object-type properties. If we don't do this, object-
             // types are treated statically throughout all instances.
-            scope_in = g.JOII.Compat.extend(true, {}, scope_in);
+            scope_in = JOII.Compat.extend(true, {}, scope_in);
 
             if (typeof this !== 'undefined') {
-                g.JOII.CreateProperty(scope_in, '__joii__', (this.__joii__));
-                g.JOII.CreateProperty(scope_out, '__joii__', (this.__joii__));
+                JOII.CreateProperty(scope_in, '__joii__', (this.__joii__));
+                JOII.CreateProperty(scope_out, '__joii__', (this.__joii__));
             }
 
             if (typeof this !== 'undefined' && typeof(this.__joii__) === 'object') {
@@ -98,9 +66,9 @@
                     }
                     // Only allow public functions in the outside scope.
                     if (typeof(this[i]) === 'function' &&
-                       (typeof(meta) === 'undefined' || meta.visibility === 'public') &&
-                       (i !== '__call')) {
-                        scope_out[i] = g.JOII.Compat.Bind(scope_in[i], scope_in);
+                        (typeof(meta) === 'undefined' || meta.visibility === 'public') &&
+                        (i !== '__call')) {
+                        scope_out[i] = JOII.Compat.Bind(scope_in[i], scope_in);
                     }
                 }
             }
@@ -110,12 +78,12 @@
             if (typeof(this) === 'undefined' || typeof(this.__joii__) === 'undefined') {
                 // If the method __call exists, execute it and return its result.
 
-                for (var c in g.JOII.Config.callables) {
-                    if (g.JOII.Config.callables.hasOwnProperty(c)) {
-                        if (typeof(body[g.JOII.Config.callables[c]]) === 'function') {
-                            var result = body[g.JOII.Config.callables[c]].apply(body, arguments);
+                for (var c in JOII.Config.callables) {
+                    if (JOII.Config.callables.hasOwnProperty(c)) {
+                        if (typeof(body[JOII.Config.callables[c]]) === 'function') {
+                            var result = body[JOII.Config.callables[c]].apply(body, arguments);
                             if (result === body) {
-                                throw g.JOII.Config.callables[c] + ' cannot return itself.';
+                                throw JOII.Config.callables[c] + ' cannot return itself.';
                             }
                             return result;
                         }
@@ -141,9 +109,9 @@
             }
 
             // Does the class defintion have a constructor? If so, run it.
-            for (var c in g.JOII.Config.constructors) {
-                if (g.JOII.Config.constructors.hasOwnProperty(c)) {
-                    var cc = g.JOII.Config.constructors[c];
+            for (var c in JOII.Config.constructors) {
+                if (JOII.Config.constructors.hasOwnProperty(c)) {
+                    var cc = JOII.Config.constructors[c];
                     if (typeof(scope_in[cc]) === 'function') {
                         scope_in[cc].apply(scope_in, arguments);
                         break;
@@ -168,17 +136,18 @@
 
         // Apply to prototype to the instantiator to allow extending the
         // class definition upon other definitions without instantiation.
-        definition.prototype = g.JOII.PrototypeBuilder(name, parameters, body, false);
+        definition.prototype = JOII.PrototypeBuilder(name, parameters, body, false);
 
         // Apply constants to the definition
         for (var i in definition.prototype.__joii__.constants) {
-            g.JOII.CreateProperty(definition, i, definition.prototype.__joii__.constants[i], false);
+            JOII.CreateProperty(definition, i, definition.prototype.__joii__.constants[i], false);
         }
 
         // Does the class implement an enumerator?
         if (typeof(parameters['enum']) === 'string') {
-            var e = g.JOII.EnumBuilder(parameters['enum'], definition);
+            var e = JOII.EnumBuilder(parameters['enum'], definition);
             if (parameters.expose_enum === true) {
+                var g = typeof window === 'object' ? window : global;
                 if (typeof(g[parameters['enum']]) !== 'undefined') {
                     throw 'Cannot expose Enum "' + parameters['enum'] + '" becase it already exists in the global scope.';
                 }
@@ -203,18 +172,18 @@
 
         // Recursive function for retrieving a list of interfaces from the
         // current class and the rest of the inheritance tree.
-        definition.prototype.__joii__.getInterfaces = g.JOII.Compat.Bind(function() {
+        definition.prototype.__joii__.getInterfaces = JOII.Compat.Bind(function() {
             var interfaces = [],
-                getRealInterface = g.JOII.Compat.Bind(function(i) {
-                if (typeof(i) === 'function') {
-                    return i;
-                } else if (typeof(i) === 'string') {
-                    if (typeof(g.JOII.InterfaceRegistry[i]) === 'undefined') {
-                        throw 'Interface "' + i + '" does not exist.';
+                getRealInterface = JOII.Compat.Bind(function(i) {
+                    if (typeof(i) === 'function') {
+                        return i;
+                    } else if (typeof(i) === 'string') {
+                        if (typeof(JOII.InterfaceRegistry[i]) === 'undefined') {
+                            throw 'Interface "' + i + '" does not exist.';
+                        }
+                        return JOII.InterfaceRegistry[i];
                     }
-                    return g.JOII.InterfaceRegistry[i];
-                }
-            }, this);
+                }, this);
 
             // Fetch interfaces from the parent list - if they exist.
             if (typeof(this.parent) !== 'undefined' && typeof(this.parent.__joii__) !== 'undefined') {
@@ -300,12 +269,12 @@
                             if (typeof obj[val.name] == 'object' && obj[val.name] != null && '__joii_type' in (obj[val.name])) {
                                 var name = obj[val.name].__joii_type;
                                 // Check for Interface-types
-                                if (typeof (g.JOII.InterfaceRegistry[name]) !== 'undefined') {
+                                if (typeof (JOII.InterfaceRegistry[name]) !== 'undefined') {
                                     throw 'Cannot instantiate an interface.';
                                 }
-                                    // Check for Class-types
-                                else if (typeof (g.JOII.ClassRegistry[name]) !== 'undefined') {
-                                    this[val.name] = g.JOII.ClassRegistry[name].deserialize(obj[val.name]);
+                                // Check for Class-types
+                                else if (typeof (JOII.ClassRegistry[name]) !== 'undefined') {
+                                    this[val.name] = JOII.ClassRegistry[name].deserialize(obj[val.name]);
                                 }
                                 else {
                                     throw 'Class ' + name + ' not currently in scope!';
@@ -336,16 +305,12 @@
 
         // Register the class by the given name to make it usable as a type
         // inside property declarations.
-        if (typeof(g.JOII.ClassRegistry[name]) !== 'undefined') {
+        if (typeof(JOII.ClassRegistry[name]) !== 'undefined') {
             throw 'Another class named "' + name + '" already exists.';
         }
-        g.JOII.ClassRegistry[name] = definition;
+        JOII.ClassRegistry[name] = definition;
 
-        definition.prototype = g.JOII.Compat.extend(true, {}, definition.prototype);
+        definition.prototype = JOII.Compat.extend(true, {}, definition.prototype);
 
         return definition;
     };
-}(
-    typeof(global) !== 'undefined' ? global : window,
-    undefined
-));

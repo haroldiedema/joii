@@ -1,41 +1,41 @@
 {
-    "name"      : "joii",
-    "version"     : "3.2.0",
-    "description" : "Javascript Object Inheritance Implementation",
-    "author"      : "Harold Iedema",
-    "license"     : "MIT",
-    "main"        : "dist/joii.js",
-    "dependencies": {},
-    "devDependencies": {
-        "qunit": "^0.9.1",
-        "grunt": "~1.0.1",
-        "grunt-contrib-uglify": "~2.0.0",
-        "grunt-contrib-concat": "~1.0.1"
-    },
-    "scripts": {
-        "test": "grunt && node testsuite"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/haroldiedema/joii.git"
-    },
-    "keywords": [
-        "javascript",
-        "class",
-        "interface",
-        "enum",
-        "enumerator",
-        "extends",
-        "visibility",
-        "private",
-        "public",
-        "protected",
-        "joii",
-        "inheritance",
-        "oop"
-    ],
-    "bugs": {
-        "url": "https://github.com/haroldiedema/joii/issues"
-    },
-    "homepage": "http://joii.harold.info"
+  "name": "joii",
+  "version": "4.0.0",
+  "description": "Javascript Object Inheritance Implementation",
+  "author": "Harold Iedema",
+  "license": "MIT",
+  "main": "dist/joii.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "qunit": "^0.9.1",
+    "isc": "0.0.4"
+  },
+  "scripts": {
+    "test": "node build && node testsuite",
+    "build": "node build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/haroldiedema/joii.git"
+  },
+  "keywords": [
+    "javascript",
+    "class",
+    "interface",
+    "enum",
+    "enumerator",
+    "extends",
+    "visibility",
+    "private",
+    "public",
+    "protected",
+    "joii",
+    "inheritance",
+    "oop"
+  ],
+  "bugs": {
+    "url": "https://github.com/haroldiedema/joii/issues"
+  },
+  "homepage": "http://joii.harold.info"
 }

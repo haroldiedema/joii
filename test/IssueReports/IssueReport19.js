@@ -1,29 +1,8 @@
-/*
- Javascript Object                               ______  ________________
- Inheritance Implementation                  __ / / __ \/  _/  _/\_____  \
-                                            / // / /_/ // /_/ /    _(__  <
- Copyright 2014, Harold Iedema.             \___/\____/___/___/   /       \
- --------------------------------------------------------------- /______  / ---
- Permission is hereby granted, free of charge, to any person obtaining  \/
- a copy of this software and associated documentation files (the
- "Software"), to deal in the Software without restriction, including
- without limitation the rights to use, copy, modify, merge, publish,
- distribute, sublicense, and/or sell copies of the Software, and to
- permit persons to whom the Software is furnished to do so, subject to
- the following conditions:
-
- The above copyright notice and this permission notice shall be
- included in all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- ------------------------------------------------------------------------------
-*/
+/* Javascript Object Inheritance Implementation                ______  ________
+ * (c) 2016 <harold@iedema.me>                             __ / / __ \/  _/  _/
+ * Licensed under MIT.                                    / // / /_/ // /_/ /
+ * ------------------------------------------------------ \___/\____/___/__*/
+var JOII = require('../../dist/joii').JOII;
 
 /**
  * Tests a method call in a 'middle' class.
@@ -39,7 +18,7 @@ test('IssueReports:IssueReport19', function(assert) {
             return this.type();
         }
     });
-    var B = Class({'extends': A}, {
+    var B = JOII.ClassBuilder({'extends': A}, {
         'public function type': function() {
             return this.anotherMethod();
         },
@@ -47,7 +26,7 @@ test('IssueReports:IssueReport19', function(assert) {
             return 'B';
         }
     });
-    var C = Class({'extends': B}, {
+    var C = JOII.ClassBuilder({'extends': B}, {
     });
 
     var b = new B();
@@ -57,17 +36,17 @@ test('IssueReports:IssueReport19', function(assert) {
     assert.equal(c.f2(), 'B');  // Error happens here, it actually returns 'A'
 
     // Harold: We need to go deeper!
-    var DeepA = Class('A', { 'public number a': 1 }),
-        DeepB = Class('B', {extends: DeepA}, { 'public number b': 2 }),
-        DeepC = Class('C', {extends: DeepB}, { 'public number c': 3 }),
-        DeepD = Class('D', {extends: DeepC}, { 'public number d': 4 }),
-        DeepE = Class('E', {extends: DeepD}, { 'public number e': 5 }),
-        DeepF = Class('F', {extends: DeepE}, { 'public number f': 6 }),
-        DeepG = Class('G', {extends: DeepF}, { 'public number g': 7 }),
-        DeepH = Class('H', {extends: DeepG}, { 'public number h': 8 }),
-        DeepI = Class('I', {extends: DeepH}, { 'public number i': 9 }),
-        DeepJ = Class('J', {extends: DeepI}, { 'public number j': 10 }),
-        DeepK = Class('K', {extends: DeepJ}, { 'public number k': 11 });
+    var DeepA = JOII.ClassBuilder('A', { 'public number a': 1 }),
+        DeepB = JOII.ClassBuilder('B', {extends: DeepA}, { 'public number b': 2 }),
+        DeepC = JOII.ClassBuilder('C', {extends: DeepB}, { 'public number c': 3 }),
+        DeepD = JOII.ClassBuilder('D', {extends: DeepC}, { 'public number d': 4 }),
+        DeepE = JOII.ClassBuilder('E', {extends: DeepD}, { 'public number e': 5 }),
+        DeepF = JOII.ClassBuilder('F', {extends: DeepE}, { 'public number f': 6 }),
+        DeepG = JOII.ClassBuilder('G', {extends: DeepF}, { 'public number g': 7 }),
+        DeepH = JOII.ClassBuilder('H', {extends: DeepG}, { 'public number h': 8 }),
+        DeepI = JOII.ClassBuilder('I', {extends: DeepH}, { 'public number i': 9 }),
+        DeepJ = JOII.ClassBuilder('J', {extends: DeepI}, { 'public number j': 10 }),
+        DeepK = JOII.ClassBuilder('K', {extends: DeepJ}, { 'public number k': 11 });
 
     var a = new DeepA(), b = new DeepB(), c = new DeepC(), d = new DeepD(),
         e = new DeepE(), f = new DeepF(), g = new DeepG(), h = new DeepH(),
