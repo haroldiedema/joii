@@ -25,6 +25,7 @@ browser on the market. Therefore, JOII is supported by Internet Explorer
  * [Enums](https://joii.harold.info/enum/introduction)
  * [Reflection](https://joii.harold.info/reflection/introduction)
  * (since 3.1.0) Custom constructor and callable method names
+ * (since 3.2.0) [Serialization support](https://joii.harold.info/class/serialization)
 
 ## License
 
