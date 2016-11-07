@@ -88,4 +88,7 @@ if (typeof(window) === 'undefined') {
     for (var i in testsuite.tests) {
         addScript(testsuite.tests[i]);
     }
+    function require() {
+        return window;
+    }
 }
