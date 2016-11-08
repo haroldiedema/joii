@@ -20,7 +20,7 @@
 } (function (root)
 {
     // allows use as both raw source in the browser and compiled dist
-    // easier to test when raw source
+    // easier to test/debug when using the raw source
     var JOII = typeof (root.JOII) !== 'undefined' ? root.JOII : {};
 
     /**

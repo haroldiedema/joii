@@ -312,25 +312,25 @@ JOII.Compat.flexibleArgumentToArray = function(arg, deep) {
 };
 
 
-JOII.Compat.canTypeBeCastTo = function(val, castToType) {
+JOII.Compat.canTypeBeCastTo = function(val, cast_to_type) {
     // InstanceOf validator (in case of interfaces & classes)
-    if (typeof (JOII.InterfaceRegistry[castToType]) !== 'undefined' ||
-        typeof (JOII.ClassRegistry[castToType]) !== 'undefined') {
+    if (typeof (JOII.InterfaceRegistry[cast_to_type]) !== 'undefined' ||
+        typeof (JOII.ClassRegistry[cast_to_type]) !== 'undefined') {
 
-        if (JOII.Compat.findJOIIName(val) !== castToType) {
-            if (val !== null && (typeof (val.instanceOf) !== 'function' || (typeof (val) === 'object' && typeof (val.instanceOf) === 'function' && !val.instanceOf(castToType)))) {
+        if (JOII.Compat.findJOIIName(val) !== cast_to_type) {
+            if (val !== null && (typeof (val.instanceOf) !== 'function' || (typeof (val) === 'object' && typeof (val.instanceOf) === 'function' && !val.instanceOf(cast_to_type)))) {
                 return false;
             }
         }
     } else {
         // Native val validator
-        if (typeof (JOII.EnumRegistry[castToType]) !== 'undefined') {
-            var _e = JOII.EnumRegistry[castToType];
+        if (typeof (JOII.EnumRegistry[cast_to_type]) !== 'undefined') {
+            var _e = JOII.EnumRegistry[cast_to_type];
             if (!_e.contains(val)) {
                 return false; // Should we really be validating that it fits inside the enum?
             }
         } else {
-            if (typeof (val) !== castToType) {
+            if (typeof (val) !== cast_to_type) {
                 return false;
             }
         }

@@ -67,10 +67,10 @@
                     var meta = scope_in.__joii__.metadata[i];
 
                     if (meta && 'overloads' in meta) {
-                        for (var fnMeta in meta.overloads) {
+                        for (var fn_meta in meta.overloads) {
                             // Test missing abstract implementations...
-                            if (meta.overloads[fnMeta] && meta.overloads[fnMeta].is_abstract === true) {
-                                throw 'Missing abstract member implementation of ' + i + '(' + meta.overloads[fnMeta].parameters.join(', ') + ')';
+                            if (meta.overloads[fn_meta] && meta.overloads[fn_meta].is_abstract === true) {
+                                throw 'Missing abstract member implementation of ' + i + '(' + meta.overloads[fn_meta].parameters.join(', ') + ')';
                             }
                         }
                     } else if (meta && meta.is_abstract === true) {
@@ -240,7 +240,7 @@
              *
              * @return {String}
              */
-            var generatedFn = function(json) {
+            var generated_fn = function(json) {
                 var obj = { __joii_type: this.__joii__.name };
 
                 for (var key in this.__joii__.metadata) {
@@ -259,8 +259,8 @@
                 return JSON.stringify(obj);
             };
             // uses an inheritance style add, so it won't overwrite custom functions with the same signature
-            var serializeMeta = JOII.ParseClassProperty('public function serialize()');
-            JOII.AddFunctionToPrototype(definition.prototype, serializeMeta, generatedFn, true);
+            var serialize_meta = JOII.ParseClassProperty('public function serialize()');
+            JOII.addFunctionToPrototype(definition.prototype, serialize_meta, generated_fn, true);
         }
 
 
@@ -272,19 +272,19 @@
              *
              * @param {String}
              */
-            var generatedFn = function(json) {
+            var generated_fn = function(json) {
                 this.deserialize(JSON.parse(json));
             };
             // uses an inheritance style add, so it won't overwrite custom functions with the same signature
-            var deserializeMeta = JOII.ParseClassProperty('public function deserialize(string)');
-            JOII.AddFunctionToPrototype(definition.prototype, deserializeMeta, generatedFn, true);
+            var deserialize_meta = JOII.ParseClassProperty('public function deserialize(string)');
+            JOII.addFunctionToPrototype(definition.prototype, deserialize_meta, generated_fn, true);
 
             /**
              * Deserializes a class (called on an object instance to populate it)
              *
              * @param {Object}
              */
-            generatedFn = function(obj) {
+            generated_fn = function(obj) {
                 for (var key in (this.__joii__.metadata)) {
                     var val = this.__joii__.metadata[key];
 
@@ -312,24 +312,24 @@
                 }
             };
             // uses an inheritance style add, so it won't overwrite custom functions with the same signature
-            deserializeMeta = JOII.ParseClassProperty('public function deserialize(object)');
-            JOII.AddFunctionToPrototype(definition.prototype, deserializeMeta, generatedFn, true);
+            deserialize_meta = JOII.ParseClassProperty('public function deserialize(object)');
+            JOII.addFunctionToPrototype(definition.prototype, deserialize_meta, generated_fn, true);
 
         };
 
 
         /**
          * Deserializes a class (called as a static method - instantiates a new object and populates it)
-         * TODO: implement "static" attribute, and mix this in via AddFunctionToPrototype
+         * TODO: implement "static" attribute, and mix this in via addFunctionToPrototype
          *
          * @param {String}|{Object}
          */
-        definition.deserialize = function(jsonOrRawObject) {
-            var deserializeObject = {
+        definition.deserialize = function(json_or_raw_object) {
+            var deserialize_object = {
                 '__joii_deserialize_object': true,
-                'data': jsonOrRawObject
+                'data': json_or_raw_object
             };
-            return new definition(deserializeObject);
+            return new definition(deserialize_object);
         };
 
 

@@ -74,7 +74,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface) {
                 throw 'Member ' + meta.name + ' overloads an existing property, but the previous property isn\'t a function.';
             }
 
-            JOII.AddFunctionToPrototype(prototype, meta, deep_copy[i]);
+            JOII.addFunctionToPrototype(prototype, meta, deep_copy[i]);
 
         } else if (meta.is_constant) {
             prototype.__joii__.constants[meta.name] = deep_copy[i];
@@ -228,7 +228,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface) {
             // the parent object. (Fixes issue #9)
             // The function "super" is implemented from the ClassBuilder.
 
-            var generatedFn = Function('\
+            var generated_fn = Function('\
                 var args = ["' + i + '"];\
                 for (var i in arguments) { args.push(arguments[i]); }\
                 return this[\'super\'].apply(this, args);\
@@ -237,20 +237,20 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface) {
             if (typeof (property) === 'function' || property_meta.parameters.length > 0 || 'overloads' in proto_meta || 'overloads' in property_meta) {
                 if ('overloads' in property_meta && typeof (property_meta.overloads) === 'object' && property_meta.overloads.length > 1) {
 
-                    var tmpMeta = JOII.Compat.extend(true, {}, property_meta);
+                    var tmp_meta = JOII.Compat.extend(true, {}, property_meta);
 
                     // parent has multiple overloads specified. Loop through them, and apply each.
                     for (var idx = 0; idx < property_meta.overloads.length; idx++) {
-                        tmpMeta.parameters = property_meta.overloads[idx].parameters;
-                        tmpMeta.is_abstract = property_meta.overloads[idx].is_abstract;
-                        JOII.AddFunctionToPrototype(prototype, tmpMeta, generatedFn, true);
+                        tmp_meta.parameters = property_meta.overloads[idx].parameters;
+                        tmp_meta.is_abstract = property_meta.overloads[idx].is_abstract;
+                        JOII.addFunctionToPrototype(prototype, tmp_meta, generated_fn, true);
                     }
                 } else {
-                    JOII.AddFunctionToPrototype(prototype, property_meta, generatedFn, true);
+                    JOII.addFunctionToPrototype(prototype, property_meta, generated_fn, true);
                 }
 
             } else {
-                prototype[i] = generatedFn;
+                prototype[i] = generated_fn;
             }
         }
     }
@@ -373,14 +373,14 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface) {
  */
 JOII.ParseClassProperty = function(str) {
     // Parse the given string and set some defaults.
-    var functionParameters = (/\(.*\)/).exec(str.toString());
-    if (functionParameters == null) {
-        functionParameters = [];
+    var function_parameters = (/\(.*\)/).exec(str.toString());
+    if (function_parameters == null) {
+        function_parameters = [];
     } else {
-        functionParameters = functionParameters[0].match(/[^\(,\s\)]+/g);
+        function_parameters = function_parameters[0].match(/[^\(,\s\)]+/g);
     }
-    if (typeof (functionParameters) != 'object' || functionParameters === null) {
-        functionParameters = [];
+    if (typeof (function_parameters) != 'object' || function_parameters === null) {
+        function_parameters = [];
     }
 
     var data = str.toString().replace(/\s?\(.*\)\s?|^\s+|\s+(?=\s)|\s+$/g, '').split(/\s/),
@@ -400,7 +400,7 @@ JOII.ParseClassProperty = function(str) {
             'is_generated'  : false,     // Is the property generated?
             'is_joii_object': false,    // Does this represent a joii class/interface ?
             'serializable'  : false,      // Is the property serializable?
-            'parameters'    : functionParameters
+            'parameters'    : function_parameters
         }, i;
 
 
@@ -628,12 +628,12 @@ JOII.CreateProperty = function(obj, name, val, writable) {
  * @param {Object}   prototype
  * @param {Object}   meta
  * @param {Function} fn
- * @param {Boolean}  ignoreDuplicate
+ * @param {Boolean}  ignore_duplicate
  */
-JOII.AddFunctionToPrototype = function(prototype, meta, fn, ignoreDuplicate) {
+JOII.addFunctionToPrototype = function(prototype, meta, fn, ignore_duplicate) {
 
-    if (typeof (ignoreDuplicate) === 'undefined') {
-        ignoreDuplicate = false;
+    if (typeof (ignore_duplicate) === 'undefined') {
+        ignore_duplicate = false;
     }
     if (typeof (prototype.__joii__.metadata[meta.name]) !== 'object') {
         prototype.__joii__.metadata[meta.name] = JOII.Compat.extend(true, {}, meta);
@@ -659,30 +659,30 @@ JOII.AddFunctionToPrototype = function(prototype, meta, fn, ignoreDuplicate) {
     }
 
     for (var idx = 0; idx < proto_meta.overloads.length; idx++) {
-        var functionParametersMeta = proto_meta.overloads[idx];
+        var function_parameters_meta = proto_meta.overloads[idx];
 
-        var foundAbstractThisLoop = false;
-        if (functionParametersMeta.is_abstract) {
-            foundAbstractThisLoop = true;
+        var found_abstract_this_loop = false;
+        if (function_parameters_meta.is_abstract) {
+            found_abstract_this_loop = true;
         }
 
-        if (functionParametersMeta.parameters.length === meta.parameters.length) {
+        if (function_parameters_meta.parameters.length === meta.parameters.length) {
             // this signature has the same number of types as the new signature
             // check to see if the types are the same (duplicate signature)
             var different = false;
 
-            for (var j = 0; j < functionParametersMeta.parameters.length; j++) {
-                if (functionParametersMeta.parameters[j] != meta.parameters[j]) {
+            for (var j = 0; j < function_parameters_meta.parameters.length; j++) {
+                if (function_parameters_meta.parameters[j] != meta.parameters[j]) {
                     different = true;
                 }
             }
             if (!different) {
-                if (functionParametersMeta.is_abstract) {
+                if (function_parameters_meta.is_abstract) {
                     proto_meta.overloads.splice(idx, 1); // remove the abstract version, since we're about to add a non-abstract
                     idx--; // adjust the idx for the changed array
-                    foundAbstractThisLoop = false; // we're removing this, so don't count it for abstract check
+                    found_abstract_this_loop = false; // we're removing this, so don't count it for abstract check
                 } else {
-                    if (!ignoreDuplicate) {
+                    if (!ignore_duplicate) {
                         throw 'Member ' + meta.name + '(' + meta.parameters.join(', ') + ') is defined twice.';
                     } else {
                         return false;
@@ -691,25 +691,25 @@ JOII.AddFunctionToPrototype = function(prototype, meta, fn, ignoreDuplicate) {
             }
         }
 
-        if (foundAbstractThisLoop) {
+        if (found_abstract_this_loop) {
             proto_meta.is_abstract = true;
         }
     }
 
-    var functionMeta = {
+    var function_meta = {
         fn: fn,
         parameters: meta.parameters,
         is_abstract: meta.is_abstract
     };
 
-    prototype.__joii__.metadata[meta.name].overloads.push(functionMeta);
+    prototype.__joii__.metadata[meta.name].overloads.push(function_meta);
 
-    if (functionMeta.is_abstract) {
+    if (function_meta.is_abstract) {
         prototype.__joii__.metadata[meta.name].is_abstract = true;
     }
     // create function shim to validate the parameters, and allow overloading
     //if (typeof (prototype[meta.name]) !== 'function') { // this test was preventing it from overriding toString
-    prototype[meta.name] = JOII.CreateFunctionShim(meta.name, prototype.__joii__.metadata[meta.name].overloads);
+    prototype[meta.name] = JOII.createFunctionShim(meta.name, prototype.__joii__.metadata[meta.name].overloads);
     //}
 
     return true;
@@ -722,7 +722,7 @@ JOII.AddFunctionToPrototype = function(prototype, meta, fn, ignoreDuplicate) {
  * @param {String}   name
  * @param {Object}   overloads
  */
-JOII.CreateFunctionShim = function(name, overloads) {
+JOII.createFunctionShim = function(name, overloads) {
 
     return function() {
 
@@ -731,11 +731,11 @@ JOII.CreateFunctionShim = function(name, overloads) {
             return overloads[0].fn.apply(this, arguments);
         }
 
-        var closestVariadic = null;
-        var closestVariadicParameterCount = 0;
+        var closest_variadic = null;
+        var closest_variadic_parameter_count = 0;
 
-        for (var overloadIndex = 0; overloadIndex < overloads.length; overloadIndex++) {
-            var func = overloads[overloadIndex];
+        for (var overload_index = 0; overload_index < overloads.length; overload_index++) {
+            var func = overloads[overload_index];
             var parameters = func.parameters;
 
             var valid = true;
@@ -759,7 +759,7 @@ JOII.CreateFunctionShim = function(name, overloads) {
             if (parameters[parameters.length - 1] == '...') {
                 // test for variadic
                 valid = null;
-                var variadicParameterCount = 0;
+                var variadic_parameter_count = 0;
                 for (var i = 0; i < parameters.length; i++) {
 
                     if (parameters[i] === '...') {
@@ -769,48 +769,48 @@ JOII.CreateFunctionShim = function(name, overloads) {
                             valid = false;
                             break;
                         }
-                        variadicParameterCount++;
+                        variadic_parameter_count++;
                     }
                 }
 
                 if (valid) {
 
-                    if (variadicParameterCount > closestVariadicParameterCount) {
-                        closestVariadic = func;
-                        closestVariadicParameterCount = variadicParameterCount;
+                    if (variadic_parameter_count > closest_variadic_parameter_count) {
+                        closest_variadic = func;
+                        closest_variadic_parameter_count = variadic_parameter_count;
                     }
                 }
             }
         }
 
-        if (closestVariadic != null) {
+        if (closest_variadic != null) {
             // extract the variadic portion of the call to an array
             var args = []; // arguments.splice(closestVariadic.parameters.length -1);
 
-            for (var i = closestVariadic.parameters.length - 1; i < arguments.length; i++) {
+            for (var i = closest_variadic.parameters.length - 1; i < arguments.length; i++) {
                 args.push(arguments[i]);
             }
 
-            arguments.length = closestVariadic.parameters.length;
+            arguments.length = closest_variadic.parameters.length;
 
-            arguments[closestVariadic.parameters.length - 1] = args;
+            arguments[closest_variadic.parameters.length - 1] = args;
 
 
             // found an overload that matches the inputs - call it
-            return closestVariadic.fn.apply(this, arguments);
+            return closest_variadic.fn.apply(this, arguments);
         }
 
         // create a type list of the arguments for error handling purposes
-        var parameterTypes = [];
+        var parameter_types = [];
         for (var i = 0; i < arguments.length; i++) {
             var JOIIName = JOII.Compat.findJOIIName(arguments[i]);
             if (!JOIIName) {
                 JOIIName = typeof (arguments[i]);
             }
-            parameterTypes.push(JOIIName === null ? typeof (arguments[i]) : JOIIName);
+            parameter_types.push(JOIIName === null ? typeof (arguments[i]) : JOIIName);
         }
 
-        throw 'Couldn\'t find a function handler to match: ' + name + '(' + parameterTypes.join(', ') + ').';
+        throw 'Couldn\'t find a function handler to match: ' + name + '(' + parameter_types.join(', ') + ').';
     };
 };
 

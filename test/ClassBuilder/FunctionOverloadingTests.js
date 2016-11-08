@@ -9,15 +9,14 @@ var JOII = require('../../dist/joii').JOII;
 */
 test('ClassBuilder:FunctionOverloadingTests', function(assert) {
 
-    try
-    {
+    try {
         // ***************************
         // Abstract tests
         // ***************************
 
         // An abstract property must also have a functional one in the same class.
         assert.throws(function() {
-            var a = JOII.ClassBuilder({}, { 'abstract public function test(string)' : function() {} }); new a();
+            var a = JOII.ClassBuilder({}, { 'abstract public function test(string)': function() { } }); new a();
         }, function(err) { return err === 'Missing abstract member implementation of test(string)'; }, 'Validate: Missing implementation of abstract properties.');
 
         // An abstract property must be implemented by a child class.
@@ -74,9 +73,9 @@ test('ClassBuilder:FunctionOverloadingTests', function(assert) {
 
         // Implement abstract property in the middle of the inheritance chain.
         var c1 = JOII.ClassBuilder({}, { 'abstract public function test(string)': function() { } });
-        var c2 = JOII.ClassBuilder({ 'extends' : c1 }, {});
+        var c2 = JOII.ClassBuilder({ 'extends': c1 }, {});
         var c3 = JOII.ClassBuilder({ 'extends': c2 }, { 'public function test(string)': function() { } });
-        var c4 = JOII.ClassBuilder({ 'extends' : c3 }, {});
+        var c4 = JOII.ClassBuilder({ 'extends': c3 }, {});
 
         // Should not throw exception for missing an abstract implementation.
         new c4();
@@ -103,7 +102,7 @@ test('ClassBuilder:FunctionOverloadingTests', function(assert) {
         var C2 = JOII.ClassBuilder({
             a: 1,
             b: "test",
-            
+
             '__call(number)': function(val) {
                 this.a = val;
             },
@@ -159,7 +158,11 @@ test('ClassBuilder:FunctionOverloadingTests', function(assert) {
 
 
 
-        // Test the context of a static call.
+        var UniqueTestClass = JOII.ClassBuilder('UniqueTestClass', {
+            x: 6,
+            y: "something else"
+        });
+
         var SuperClass = JOII.ClassBuilder('SuperClass', {
             a: 1,
             b: "test",
@@ -169,6 +172,10 @@ test('ClassBuilder:FunctionOverloadingTests', function(assert) {
             },
             'test(string)': function(val) {
                 this.b = val;
+            },
+            'test(UniqueTestClass)': function(val) {
+                this.a = val.getX();
+                this.b = val.getY();
             },
             'test(object)': function(val) {
                 if ('a' in val) {
@@ -193,9 +200,13 @@ test('ClassBuilder:FunctionOverloadingTests', function(assert) {
         assert.strictEqual(sc.getB(), "passed", 'sc.getB() returns this.b ("passed")');
 
 
+        var testClass = new UniqueTestClass();
+        sc.test(testClass);
+        assert.strictEqual(sc.getA(), 6, 'sc.getA() returns this.a (6)');
+        assert.strictEqual(sc.getB(), "something else", 'sc.getB() returns this.b ("something else")');
 
 
-        var SubClass1 = JOII.ClassBuilder('SubClass1', {'extends': SuperClass}, {
+        var SubClass1 = JOII.ClassBuilder('SubClass1', { 'extends': SuperClass }, {
             'test(number)': function(val) {
                 this.a = val * 2;
             },
@@ -277,7 +288,7 @@ test('ClassBuilder:FunctionOverloadingTests', function(assert) {
         assert.throws(function() {
             custom2.test(1, 2, 3, 4);
         }, function(err) { return err === 'Couldn\'t find a function handler to match: test(number, number, number, number).'; }, 'Validate: No matching overload.');
-        
+
         assert.throws(function() {
             var c5 = JOII.ClassBuilder({
                 'construct( number )': function(num) { },
@@ -357,8 +368,7 @@ test('ClassBuilder:FunctionOverloadingTests', function(assert) {
 
 
     }
-    catch (e)
-    {
+    catch (e) {
         QUnit.pushFailure(e);
     }
 

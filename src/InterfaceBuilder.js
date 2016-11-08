@@ -78,31 +78,31 @@ JOII.InterfaceBuilder = function() {
                 verifyMeta(this, p1, p2, 'Method');
 
                 // Verify function signature.
-                var argsInterface = p1.getParameters();
-                var argsClass = p2.getParameters();
+                var args_interface = p1.getParameters();
+                var args_class = p2.getParameters();
 
-                if (argsInterface.length == 0 || typeof (argsInterface[0]) !== 'object') {
+                if (args_interface.length == 0 || typeof (args_interface[0]) !== 'object') {
                     // fallback for backwards compatibility
-                    if (p1.getParameters().length !== p2.getParameters().length) {
+                    if (args_interface.length !== args_class.length) {
                         throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
                     }
                 }
                 else {
-                    for (var idx = 0; idx < argsInterface.length; idx++) {
-                        var interfaceParametersMeta = argsInterface[idx];
+                    for (var idx = 0; idx < args_interface.length; idx++) {
+                        var interface_parameters_meta = args_interface[idx];
 
                         var different = true;
 
-                        for (var x = 0; x < argsClass.length; x++) {
-                            var classParametersMeta = argsClass[x];
+                        for (var x = 0; x < args_class.length; x++) {
+                            var class_parameters_meta = args_class[x];
 
-                            if (interfaceParametersMeta.parameters.length === classParametersMeta.parameters.length) {
+                            if (interface_parameters_meta.parameters.length === class_parameters_meta.parameters.length) {
                                 // this signature has the same number of types as the new signature
                                 // check to see if the types are the same (duplicate signature)
                                 different = false;
 
-                                for (var y = 0; y < functionParametersMeta.parameters.length; y++) {
-                                    if (functionParametersMeta.parameters[j] != classParametersMeta.parameters[y]) {
+                                for (var y = 0; y < interface_parameters_meta.parameters.length; y++) {
+                                    if (interface_parameters_meta.parameters[y] != class_parameters_meta.parameters[y]) {
                                         different = true;
                                     }
                                 }

@@ -456,17 +456,17 @@ JOII.Reflection.Method = JOII.ClassBuilder({ 'extends': JOII.Reflection.Property
             var ret = [];
 
             for (var idx = 0; idx < overloads.length; idx++) {
-                var fnMeta = [];
-                var functionParametersMeta = overloads[idx];
-                var parsedParams = getParams(functionParametersMeta.fn);
-                for (var j = 0; j < functionParametersMeta.parameters.length; j++) {
+                var fn_meta = [];
+                var function_parameters_meta = overloads[idx];
+                var parsed_params = getParams(function_parameters_meta.fn);
+                for (var j = 0; j < function_parameters_meta.parameters.length; j++) {
                     var param = {
-                        name: parsedParams.length > j ? parsedParams[j] : null,
-                        type: functionParametersMeta.parameters[j]
+                        name: parsed_params.length > j ? parsed_params[j] : null,
+                        type: function_parameters_meta.parameters[j]
                     };
-                    fnMeta.push(param);
+                    fn_meta.push(param);
                 }
-                ret.push(fnMeta);
+                ret.push(fn_meta);
             }
             return ret;
         }
@@ -515,19 +515,19 @@ JOII.Reflection.Method = JOII.ClassBuilder({ 'extends': JOII.Reflection.Property
             // right now, this is spitting out every overload's signature one after another, each on a new line.
             // should probably find a better way to do this
             for (var idx = 0; idx < args.length; idx++) {
-                var functionParametersMeta = args[idx];
+                var function_parameters_meta = args[idx];
 
                 body += ' (';
 
-                var firstTime = true;
-                for (var i = 0; i < functionParametersMeta.length; i++) {
-                    if (!firstTime) {
+                var first_time = true;
+                for (var i = 0; i < function_parameters_meta.length; i++) {
+                    if (!first_time) {
                         body += ', ';
                     }
-                    firstTime = false;
-                    body += functionParametersMeta[i].type;
-                    if (functionParametersMeta[i].name !== null) {
-                        body += " " + functionParametersMeta[i].name;
+                    first_time = false;
+                    body += function_parameters_meta[i].type;
+                    if (function_parameters_meta[i].name !== null) {
+                        body += " " + function_parameters_meta[i].name;
                         is_var = true;
                     }
                 }
