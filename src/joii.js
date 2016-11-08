@@ -17,8 +17,11 @@
         factory(window);
     }
 
-} (function (root) {
-    var JOII = {};
+} (function (root)
+{
+    // allows use as both raw source in the browser and compiled dist
+    // easier to test when raw source
+    var JOII = typeof (root.JOII) !== 'undefined' ? root.JOII : {};
 
     /**
      * Source code combined/packaged using ISC to prevent scope bleeding.

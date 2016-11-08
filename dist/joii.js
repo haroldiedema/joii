@@ -17,13 +17,18 @@
         factory(window);
     }
 
-} (function (root) {
-    var JOII = {};
+} (function (root)
+{
+    // allows use as both raw source in the browser and compiled dist
+    // easier to test when raw source
+    var JOII = typeof (root.JOII) !== 'undefined' ? root.JOII : {};
 
     /* Javascript Object Inheritance Implementation                ______  ________
  * (c) 2016 <harold@iedema.me>                             __ / / __ \/  _/  _/
  * Licensed under MIT.                                    / // / /_/ // /_/ /
  * ------------------------------------------------------ \___/\____/___/__*/
+
+JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 JOII.Compat = {};
 
 /**
@@ -33,42 +38,41 @@ JOII.Compat = {};
  * @param  {Object|Function} e
  * @return {String|Boolean}
  */
-JOII.Compat.findJOIIName = function(e)
-{
+JOII.Compat.findJOIIName = function(e) {
     var i, r;
 
-    if (typeof(e) === 'string' ||
-        typeof(e) === 'number' ||
-        typeof(e) === 'undefined' ||
+    if (typeof (e) === 'string' ||
+        typeof (e) === 'number' ||
+        typeof (e) === 'undefined' ||
         e === null
     ) {
         return false;
     }
 
-    if (typeof(e.__joii__) !== 'undefined') {
+    if (typeof (e.__joii__) !== 'undefined') {
         return e.__joii__.name;
     }
-    if (typeof(e.prototype) !== 'undefined' && typeof(e.prototype.__joii__) !== 'undefined') {
+    if (typeof (e.prototype) !== 'undefined' && typeof (e.prototype.__joii__) !== 'undefined') {
         return e.prototype.__joii__.name;
     }
 
     // Chrome / FF // IE 11+
-    if (typeof(e.__proto__) !== 'undefined') {
+    if (typeof (e.__proto__) !== 'undefined') {
         r = JOII.Compat.findJOIIName(e.__proto__);
-        if (typeof(r) === 'string') {
+        if (typeof (r) === 'string') {
             return r;
         }
     }
 
-    if (typeof(e) === 'function') {
+    if (typeof (e) === 'function') {
         e = e.prototype;
     }
 
     for (i in e) {
         if (e.hasOwnProperty(i) === false) continue;
-        if (typeof(e[i]) === 'function' || typeof(e[i]) === 'object') {
+        if (typeof (e[i]) === 'function' || typeof (e[i]) === 'object') {
             r = JOII.Compat.findJOIIName(e[i]);
-            if (typeof(r) === 'string') {
+            if (typeof (r) === 'string') {
                 return r;
             }
         }
@@ -86,11 +90,11 @@ JOII.Compat.findJOIIName = function(e)
  */
 JOII.Compat.indexOf = function(array, elt) {
 
-    if (typeof(array.indexOf) === 'function') {
+    if (typeof (array.indexOf) === 'function') {
         return array.indexOf(elt);
     }
 
-    var len  = array.length >>> 0,
+    var len = array.length >>> 0,
         from = Number(arguments[1]) || 0;
 
     from = (from < 0) ? Math.ceil(from) : Math.floor(from);
@@ -110,32 +114,32 @@ JOII.Compat.indexOf = function(array, elt) {
  *
  * - original by jQuery (http://jquery.com/)
  */
-JOII.Compat.extend = function()
-{
+JOII.Compat.extend = function() {
     var options, src, copy, copyIsArray = false, clone,
         target = arguments[0] || {},
         i = 1,
         length = arguments.length,
         deep = false;
     if (typeof target === "boolean") {
-        deep = target; target = arguments[ i ] || {}; i++;
+        deep = target; target = arguments[i] || {}; i++;
     }
-    if (typeof target !== "object" && typeof(target) !== "function") {
+    if (typeof target !== "object" && typeof (target) !== "function") {
         target = {};
     }
-    for (;i < length; i++) {
-        if ((options = arguments[i]) !== null && arguments[i] !== undefined) {
+    for (; i < length; i++) {
+        options = arguments[i];
+        if (options !== null && arguments[i] !== undefined) {
 
-            if (typeof(options.__joii__) !== 'undefined') {
+            if (typeof (options.__joii__) !== 'undefined') {
                 JOII.CreateProperty(target, '__joii__', options.__joii__);
             }
 
             for (var name in options) {
                 // Do NOT check 'hasOwnProperty' here. The universe will implode.
-                src  = target[name];
+                src = target[name];
                 copy = options[name];
                 if (target === copy) { continue; }
-                if (deep && copy && (JOII.Compat.isPlainObject(copy) || (copyIsArray = JOII.Compat.isArray(copy)) ) ) {
+                if (deep && copy && (JOII.Compat.isPlainObject(copy) || (copyIsArray = JOII.Compat.isArray(copy)))) {
                     if (copyIsArray) {
                         copyIsArray = false;
                         clone = src && JOII.Compat.isArray(src) ? src : [];
@@ -158,12 +162,11 @@ JOII.Compat.extend = function()
  * @param  {Object} obj
  * @return {Boolean}
  */
-JOII.Compat.isArray = function(obj)
-{
+JOII.Compat.isArray = function(obj) {
     var length = obj.length,
-        type = typeof(obj);
+        type = typeof (obj);
 
-    if (type === "function" || (typeof(window) !== 'undefined' && obj === window)) {
+    if (type === "function" || (typeof (window) !== 'undefined' && obj === window)) {
         return false;
     }
     if (obj.nodeType === 1 && length) {
@@ -176,11 +179,11 @@ JOII.Compat.isArray = function(obj)
  * Returns true if the given object is a plain object (not an array).
  *
  * @param  {Object} obj
- * @return bool
+ * @return {Boolean}
  */
 JOII.Compat.isPlainObject = function(obj) {
     var hasOwn = ({}).hasOwnProperty;
-    if (typeof(obj) !== "object" || obj.nodeType || (typeof(window) !== 'undefined' && obj === window)) {
+    if (typeof (obj) !== "object" || obj.nodeType || (typeof (window) !== 'undefined' && obj === window)) {
         return false;
     }
 
@@ -195,13 +198,13 @@ JOII.Compat.isPlainObject = function(obj) {
  */
 JOII.Compat.CreateObject = function(o) {
 
-    if (typeof(Object.create) === 'function') {
+    if (typeof (Object.create) === 'function') {
         return Object.create(o);
     }
 
     var c = (function() {
-        function Class(){}
-        return function(o){
+        function Class() { }
+        return function(o) {
             if (arguments.length != 1) {
                 throw new Error('JOII.Compat.CreateObject implementation only accepts one parameter.');
             }
@@ -264,29 +267,29 @@ JOII.Compat.GenerateUUID = function() {
  * @return {Object}
  */
 JOII.Compat.ParseArguments = function(args) {
-    var result = {name: '', parameters: {}, body: {}};
+    var result = { name: '', parameters: {}, body: {} };
 
-    switch(args.length) {
+    switch (args.length) {
         // Zero-arguments. Unlikely, but valid for classes and interfaces.
         case 0:
             result.name = JOII.Compat.GenerateUUID();
             break;
         // One argument. Name or body.
         case 1:
-            if (typeof(args[0]) === 'string') {
+            if (typeof (args[0]) === 'string') {
                 result.name = args[0];
             }
-            if (typeof(args[0]) === 'object') {
+            if (typeof (args[0]) === 'object') {
                 result.name = JOII.Compat.GenerateUUID();
                 result.body = args[0];
             }
             break;
         // Two arguments: Name & Body or Parameters & Body
         case 2:
-            if (typeof(args[0]) === 'string') {
+            if (typeof (args[0]) === 'string') {
                 result.name = args[0];
             }
-            if (typeof(args[0]) === 'object') {
+            if (typeof (args[0]) === 'object') {
                 result.name = JOII.Compat.GenerateUUID();
                 result.parameters = args[0];
             }
@@ -300,9 +303,9 @@ JOII.Compat.ParseArguments = function(args) {
     }
 
     // Validate the results.
-    if (typeof(result.name) !== 'string' ||
-        typeof(result.parameters) !== 'object' ||
-        typeof(result.body) !== 'object') {
+    if (typeof (result.name) !== 'string' ||
+        typeof (result.parameters) !== 'object' ||
+        typeof (result.body) !== 'object') {
         throw 'Invalid parameter types given. Expected: ([[[string], object], <object>]).';
     }
 
@@ -317,26 +320,54 @@ JOII.Compat.ParseArguments = function(args) {
  * @param  {Boolean} deep
  * @return {Object}
  */
-JOII.Compat.flexibleArgumentToArray = function(arg, deep)
-{
-    if (typeof(arg) === 'object' && !JOII.Compat.isArray(arg) && typeof(arg[0]) === 'undefined') {
+JOII.Compat.flexibleArgumentToArray = function(arg, deep) {
+    if (typeof (arg) === 'object' && !JOII.Compat.isArray(arg) && typeof (arg[0]) === 'undefined') {
         return [deep ? JOII.Compat.extend(true, {}, arg) : arg];
-    } else if (typeof(arg) === 'function') {
+    } else if (typeof (arg) === 'function') {
         return [deep ? JOII.Compat.extend(true, {}, arg.prototype) : arg.prototype];
-    } else if (typeof(arg) === 'object' && JOII.Compat.isArray(arg)) {
+    } else if (typeof (arg) === 'object' && JOII.Compat.isArray(arg)) {
         var result = [];
         for (var i in arg) {
             result.push(JOII.Compat.flexibleArgumentToArray(arg[i], false)[0]);
         }
         return result;
     } else {
-        throw 'Unable to read ' + typeof(arg) + '. Object, function or array expected.';
+        throw 'Unable to read ' + typeof (arg) + '. Object, function or array expected.';
     }
 };
-/* Javascript Object Inheritance Implementation                ______  ________
+
+
+JOII.Compat.canTypeBeCastTo = function(val, castToType) {
+    // InstanceOf validator (in case of interfaces & classes)
+    if (typeof (JOII.InterfaceRegistry[castToType]) !== 'undefined' ||
+        typeof (JOII.ClassRegistry[castToType]) !== 'undefined') {
+
+        if (JOII.Compat.findJOIIName(val) !== castToType) {
+            if (val !== null && (typeof (val.instanceOf) !== 'function' || (typeof (val) === 'object' && typeof (val.instanceOf) === 'function' && !val.instanceOf(castToType)))) {
+                return false;
+            }
+        }
+    } else {
+        // Native val validator
+        if (typeof (JOII.EnumRegistry[castToType]) !== 'undefined') {
+            var _e = JOII.EnumRegistry[castToType];
+            if (!_e.contains(val)) {
+                return false; // Should we really be validating that it fits inside the enum?
+            }
+        } else {
+            if (typeof (val) !== castToType) {
+                return false;
+            }
+        }
+    }
+    // nothing failed, so should be compatible
+    return true;
+};/* Javascript Object Inheritance Implementation                ______  ________
  * (c) 2016 <harold@iedema.me>                             __ / / __ \/  _/  _/
  * Licensed under MIT.                                    / // / /_/ // /_/ /
  * ------------------------------------------------------ \___/\____/___/__*/
+
+JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 JOII.Config = {
     constructors : ['__construct', 'construct', '->', '=>'],
     callables    : ['__call', '<>'],
@@ -357,6 +388,21 @@ JOII.Config = {
     },
 
     /**
+     * Removes a constructor method name. The first occurance of a function
+     * named like one of these is executed. The rest is ignored to prevent
+     * ambiguous behavior.
+     *
+     * @param {string} name
+     */
+    removeConstructor: function(name) {
+        if (JOII.Config.constructors.indexOf(name) === -1) {
+            return;
+        }
+
+        JOII.Config.constructors.splice(JOII.Config.constructors.indexOf(name), 1);
+    },
+
+    /**
      * Adds a callable method name, like __call. Only one of these is
      * executed if more than one exist to prevent ambiguous behaviour.
      *
@@ -368,12 +414,29 @@ JOII.Config = {
         }
 
         JOII.Config.callables.push(name);
+    },
+
+    /**
+     * Removes a callable method name, like __call. Only one of these is
+     * executed if more than one exist to prevent ambiguous behaviour.
+     *
+     * @param {string} name
+     */
+    removeCallable: function(name) {
+        if (JOII.Config.callables.indexOf(name) === -1) {
+            return;
+        }
+
+        JOII.Config.callables.splice(JOII.Config.callables.indexOf(name), 1);
     }
 };
 /* Javascript Object Inheritance Implementation                ______  ________
  * (c) 2016 <harold@iedema.me>                             __ / / __ \/  _/  _/
  * Licensed under MIT.                                    / // / /_/ // /_/ /
  * ------------------------------------------------------ \___/\____/___/__*/
+
+JOII = typeof (JOII) !== 'undefined' ? JOII : {};
+
 JOII.InternalPropertyNames = ['__joii__', 'super', 'instanceOf', 'deserialize', 'serialize'];
 JOII.InternalTypeNames     = [
     'undefined', 'object', 'boolean',
@@ -395,7 +458,8 @@ JOII.InternalTypeNames     = [
  * @param  {Boolean} is_interface
  * @return {Object}
  */
-JOII.PrototypeBuilder = function (name, parameters, body, is_interface) {
+JOII.PrototypeBuilder = function(name, parameters, body, is_interface) {
+
 
     // Create a clean prototype of the class body.
     var prototype = {},
@@ -413,7 +477,7 @@ JOII.PrototypeBuilder = function (name, parameters, body, is_interface) {
     });
 
     // Apply traits / mix-ins
-    if (typeof(parameters.uses) !== 'undefined') {
+    if (typeof (parameters.uses) !== 'undefined') {
         var traits = JOII.Compat.flexibleArgumentToArray(parameters.uses);
         for (var t in traits) {
             deep_copy = JOII.Compat.extend(true, deep_copy, traits[t]);
@@ -430,16 +494,36 @@ JOII.PrototypeBuilder = function (name, parameters, body, is_interface) {
         if (deep_copy.hasOwnProperty(i) === false) continue;
         var meta = JOII.ParseClassProperty(i);
 
-        if (meta.is_constant) {
+        if (typeof (deep_copy[i]) === 'function' || meta.parameters.length > 0 || (meta.name in prototype.__joii__.metadata && 'overloads' in prototype.__joii__.metadata[meta.name])) {
+            if (typeof (deep_copy[i]) !== 'function') {
+                if (meta.parameters.length > 0) {
+                    throw 'Member ' + meta.name + ' specifies parameters, but it\'s value isn\'t a function.';
+                } else {
+                    throw 'Member ' + meta.name + ' overloads an existing function, but it\'s value isn\'t a function.';
+                }
+            }
+            if (meta.name in prototype && typeof (prototype[meta.name]) !== 'function') {
+                throw 'Member ' + meta.name + ' overloads an existing property, but the previous property isn\'t a function.';
+            }
+
+            JOII.AddFunctionToPrototype(prototype, meta, deep_copy[i]);
+
+        } else if (meta.is_constant) {
             prototype.__joii__.constants[meta.name] = deep_copy[i];
             JOII.CreateProperty(prototype, meta.name, deep_copy[i], false);
+            prototype.__joii__.metadata[meta.name] = meta;
         } else {
             prototype[meta.name] = deep_copy[i];
+            prototype.__joii__.metadata[meta.name] = meta;
         }
-        prototype.__joii__.metadata[meta.name] = meta;
+
+        // Don't create getters and setters if we are an interface.
+        if (is_interface === true) {
+            continue;
+        }
     }
 
-    if (typeof(parameters.abstract) !== 'undefined') {
+    if (typeof (parameters.abstract) !== 'undefined') {
         prototype.__joii__.is_abstract = true;
         if (is_interface) {
             throw 'An interface cannot be declared abstract.';
@@ -447,16 +531,16 @@ JOII.PrototypeBuilder = function (name, parameters, body, is_interface) {
     }
 
     // Apply the parent prototype.
-    if (typeof(parameters['extends']) !== 'undefined') {
+    if (typeof (parameters['extends']) !== 'undefined') {
         var parent = parameters['extends'];
 
         // If the given parent is a function, use its prototype.
-        if (typeof(parent) === 'function') {
+        if (typeof (parent) === 'function') {
             parent = parent.prototype;
         }
 
         // Only Object-types can be used as a parent object.
-        if (typeof(parent) !== 'object') {
+        if (typeof (parent) !== 'object') {
             throw (is_interface ? 'An interface' : 'A class') + ' may only extend on functions or object-types.';
         }
 
@@ -503,15 +587,18 @@ JOII.PrototypeBuilder = function (name, parameters, body, is_interface) {
             var property_meta = prototype.__joii__.parent.__joii__.metadata[i];
             var proto_meta    = prototype.__joii__.metadata[i];
 
-            if (typeof(proto_meta) === 'undefined') {
-                proto_meta = prototype.__joii__.metadata[i] = property_meta;
+            if (typeof (proto_meta) === 'undefined') {
+                proto_meta = prototype.__joii__.metadata[i] = JOII.Compat.extend(true, {}, property_meta);
+                if ('overloads' in proto_meta) {
+                    delete proto_meta.overloads;
+                }
             }
 
             // If another property with the same name already exists within
             // our own prototype, skip its inherited implementation.
-            if (typeof(prototype[i]) !== 'undefined' &&
-                typeof(property_meta) === 'object' &&
-                typeof(proto_meta) === 'object') {
+            if (typeof (prototype[i]) !== 'undefined' &&
+                typeof (property_meta) === 'object' &&
+                typeof (proto_meta) === 'object') {
 
                 if (proto_meta.is_generated === false) {
                     // Check for visibility change.
@@ -533,28 +620,37 @@ JOII.PrototypeBuilder = function (name, parameters, body, is_interface) {
                     if (property_meta.is_nullable !== proto_meta.is_nullable) {
                         throw 'Member "' + i + '" must be nullable as defined in the parent ' + (is_interface ? 'interface' : 'class') + '.';
                     }
+
                 }
-                continue;
+                if (typeof (property) === 'function' || property_meta.parameters.length > 0 || 'overloads' in proto_meta || 'overloads' in property_meta) {
+                    // if it's a function, we still want to proceed
+                } else {
+                    continue;
+                }
             }
 
-            // It's safe to apply non-function properties immediatly.
-            if (typeof(property) !== 'function' || is_interface === true) {
-                prototype[i] = property;
+            if (typeof (property) === 'function' || property_meta.parameters.length > 0 || 'overloads' in proto_meta || 'overloads' in property_meta) {
+                // if it's a function, we still want to proceed
+            } else {
+                // It's safe to apply non-function properties immediatly.
+                if (typeof (property) !== 'function' || is_interface === true) {
+                    prototype[i] = property;
 
-                // Create getters and setters for properties defined in a parent class,
-                // but only if they aren't declared in the child. (Fixes issue #10)
-                var gs = JOII.CreatePropertyGetterSetter(prototype, property_meta);
-                if (typeof prototype[gs.getter.name] === 'undefined' && typeof gs.getter.meta !== 'undefined') {
-                    gs.getter.meta.is_generated = true;
-                    prototype[gs.getter.name] = gs.getter.fn;
-                    prototype.__joii__.metadata[gs.getter.name] = gs.getter.meta;
+                    // Create getters and setters for properties defined in a parent class,
+                    // but only if they aren't declared in the child. (Fixes issue #10)
+                    var gs = JOII.CreatePropertyGetterSetter(prototype, property_meta);
+                    if (typeof prototype[gs.getter.name] === 'undefined' && typeof gs.getter.meta !== 'undefined') {
+                        gs.getter.meta.is_generated = true;
+                        prototype[gs.getter.name] = gs.getter.fn;
+                        prototype.__joii__.metadata[gs.getter.name] = gs.getter.meta;
+                    }
+                    if (typeof prototype[gs.setter.name] === 'undefined' && typeof gs.setter.meta !== 'undefined') {
+                        gs.setter.meta.is_generated = true;
+                        prototype[gs.setter.name] = gs.setter.fn;
+                        prototype.__joii__.metadata[gs.setter.name] = gs.setter.meta;
+                    }
+                    continue;
                 }
-                if (typeof prototype[gs.setter.name] === 'undefined' && typeof gs.setter.meta !== 'undefined') {
-                    gs.setter.meta.is_generated = true;
-                    prototype[gs.setter.name] = gs.setter.fn;
-                    prototype.__joii__.metadata[gs.setter.name] = gs.setter.meta;
-                }
-                continue;
             }
 
             // From this point on, the 'property' variable only contains
@@ -563,26 +659,46 @@ JOII.PrototypeBuilder = function (name, parameters, body, is_interface) {
             // we'll create our own function which calls the function from
             // the parent object. (Fixes issue #9)
             // The function "super" is implemented from the ClassBuilder.
-            prototype[i] = Function('\
-                var args = ["'+i+'"];\
+
+            var generatedFn = Function('\
+                var args = ["' + i + '"];\
                 for (var i in arguments) { args.push(arguments[i]); }\
                 return this[\'super\'].apply(this, args);\
             ');
+
+            if (typeof (property) === 'function' || property_meta.parameters.length > 0 || 'overloads' in proto_meta || 'overloads' in property_meta) {
+                if ('overloads' in property_meta && typeof (property_meta.overloads) === 'object' && property_meta.overloads.length > 1) {
+
+                    var tmpMeta = JOII.Compat.extend(true, {}, property_meta);
+
+                    // parent has multiple overloads specified. Loop through them, and apply each.
+                    for (var idx = 0; idx < property_meta.overloads.length; idx++) {
+                        tmpMeta.parameters = property_meta.overloads[idx].parameters;
+                        tmpMeta.is_abstract = property_meta.overloads[idx].is_abstract;
+                        JOII.AddFunctionToPrototype(prototype, tmpMeta, generatedFn, true);
+                    }
+                } else {
+                    JOII.AddFunctionToPrototype(prototype, property_meta, generatedFn, true);
+                }
+
+            } else {
+                prototype[i] = generatedFn;
+            }
         }
     }
 
     // Create getters and setters for properties. We do this _after_ the
     // copying of the parent object because that prototype doesn't contain
     // the getter/setter methods yet. (Fixes issue #10)
-    for (i in deep_copy) {
+    for (var i in deep_copy) {
         if (deep_copy.hasOwnProperty(i) === false) continue;
-        meta = JOII.ParseClassProperty(i);
+        var meta = JOII.ParseClassProperty(i);
         // Generate getters and setters if we're not dealing with anything
         // that is a function or declared private.
-        if (typeof(prototype[meta.name]) !== 'function' &&
+        if (typeof (prototype[meta.name]) !== 'function' &&
             meta.visibility !== 'private') {
 
-            gs = JOII.CreatePropertyGetterSetter(deep_copy, meta);
+            var gs = JOII.CreatePropertyGetterSetter(deep_copy, meta);
             prototype[gs.getter.name] = gs.getter.fn;
             prototype.__joii__.metadata[gs.getter.name] = gs.getter.meta;
             prototype[gs.setter.name] = gs.setter.fn;
@@ -600,33 +716,33 @@ JOII.PrototypeBuilder = function (name, parameters, body, is_interface) {
          * @return {*}
          */
         prototype['super'] = function(method) {
-            var args          = Array.prototype.slice.call(arguments, 1),
+            var args = Array.prototype.slice.call(arguments, 1),
                 current_scope = this,
                 original_prop = this.__joii__,
                 call          = function(scope, method, args) {
-                if (typeof(scope) === 'undefined') {
-                    throw new Error('Parent method "' + method + '" does not exist.');
-                }
-                if (typeof(scope.__joii__.parent) !== 'undefined' &&
-                    typeof(scope.__joii__.parent[method]) === 'undefined') {
-                    return call(scope.__joii__.parent, method, args);
-                }
-
-                var parent = scope.__joii__.parent;
-                if (typeof(scope.__joii__.parent) === 'undefined') {
-                    if(typeof(scope.__api__.__joii__.parent) !== 'undefined') {
-                        parent = scope.__api__.__joii__.parent;
-                    } else {
-                        throw new Error('Method "' + method + '" does not exist in the parent class. (called using \'super()\')');
+                    if (typeof (scope) === 'undefined') {
+                        throw new Error('Parent method "' + method + '" does not exist.');
                     }
-                }
+                    if (typeof (scope.__joii__.parent) !== 'undefined' &&
+                        typeof (scope.__joii__.parent[method]) === 'undefined') {
+                        return call(scope.__joii__.parent, method, args);
+                    }
 
-                var m = parent[method];
-                current_scope.__joii__ = parent.__joii__;
-                var r = m.apply(current_scope, args);
-                current_scope.__joii__ = original_prop;
-                return r;
-            };
+                    var parent = scope.__joii__.parent;
+                    if (typeof (scope.__joii__.parent) === 'undefined') {
+                        if (typeof (scope.__api__.__joii__.parent) !== 'undefined') {
+                            parent = scope.__api__.__joii__.parent;
+                        } else {
+                            throw new Error('Method "' + method + '" does not exist in the parent class. (called using \'super()\')');
+                        }
+                    }
+
+                    var m = parent[method];
+                    current_scope.__joii__ = parent.__joii__;
+                    var r = m.apply(current_scope, args);
+                    current_scope.__joii__ = original_prop;
+                    return r;
+                };
 
             return call(this, method, args);
         };
@@ -640,9 +756,9 @@ JOII.PrototypeBuilder = function (name, parameters, body, is_interface) {
         prototype.instanceOf = function(name) {
 
             // Find the JOII scope of the given object.
-            if (typeof(name) === 'function') {
+            if (typeof (name) === 'function') {
                 name = name.prototype.__joii__.name;
-            } else if (typeof(name) === 'object') {
+            } else if (typeof (name) === 'object') {
                 name = name.__joii__.name;
             }
 
@@ -659,7 +775,7 @@ JOII.PrototypeBuilder = function (name, parameters, body, is_interface) {
             }
             if (this.__joii__.name !== name) {
                 // Attempt to validate by parent.
-                if (typeof(this.__joii__.parent) !== 'undefined') {
+                if (typeof (this.__joii__.parent) !== 'undefined') {
                     // Temporarily bind instanceOf to the parent scope.
                     var cur_scope = this;
                     var par_scope = this.__joii__.parent;
@@ -673,6 +789,8 @@ JOII.PrototypeBuilder = function (name, parameters, body, is_interface) {
             }
             return true;
         };
+
+
     }
 
     return prototype;
@@ -683,13 +801,23 @@ JOII.PrototypeBuilder = function (name, parameters, body, is_interface) {
  * metadata such as 'final', 'abstract', 'protected', etc.
  *
  * @param  {String} str
- * @return object
+ * @return {Object}
  */
 JOII.ParseClassProperty = function(str) {
     // Parse the given string and set some defaults.
-    var data     = str.toString().replace(/^\s+|\s+(?=\s)|\s+$/g,'').split(/\s/),
-        name     = data[data.length - 1],
-        types    = JOII.InternalTypeNames,
+    var functionParameters = (/\(.*\)/).exec(str.toString());
+    if (functionParameters == null) {
+        functionParameters = [];
+    } else {
+        functionParameters = functionParameters[0].match(/[^\(,\s\)]+/g);
+    }
+    if (typeof (functionParameters) != 'object' || functionParameters === null) {
+        functionParameters = [];
+    }
+
+    var data = str.toString().replace(/\s?\(.*\)\s?|^\s+|\s+(?=\s)|\s+$/g, '').split(/\s/),
+        name = data[data.length - 1],
+        types = JOII.InternalTypeNames,
         explicit_serialize = false,
         metadata = {
             'name'          : name,
@@ -703,8 +831,10 @@ JOII.ParseClassProperty = function(str) {
             'is_enum'       : false,     // Is the property an enumerator?
             'is_generated'  : false,     // Is the property generated?
             'is_joii_object': false,    // Does this represent a joii class/interface ?
-            'serializable'  : false      // Is the property serializable?
-    }, i;
+            'serializable'  : false,      // Is the property serializable?
+            'parameters'    : functionParameters
+        }, i;
+
 
     // Remove the name from the list.
     data.pop();
@@ -717,8 +847,8 @@ JOII.ParseClassProperty = function(str) {
     // Make sure all property flags are lowercase. We don't use Array.map
     // for this because Internet Explorer 8 (and below) doesn't know it.
     for (i in data) {
-        if (typeof(JOII.InterfaceRegistry[data[i]]) === 'undefined' &&
-            typeof(JOII.ClassRegistry[data[i]]) === 'undefined') {
+        if (typeof (JOII.InterfaceRegistry[data[i]]) === 'undefined' &&
+            typeof (JOII.ClassRegistry[data[i]]) === 'undefined') {
             data[i] = data[i].toString().toLowerCase();
         }
     }
@@ -726,7 +856,7 @@ JOII.ParseClassProperty = function(str) {
     // Shorthand for validating other flags within the same declaration.
     // If args exists in data, msg is thrown.
     var metaHas = function(args, data, msg) {
-        if (typeof(args) !== 'object') {
+        if (typeof (args) !== 'object') {
             args = [args];
         }
 
@@ -744,8 +874,7 @@ JOII.ParseClassProperty = function(str) {
                 metaHas('protected', data, 'Property "' + name + '" cannot be both public and protected at the same time.');
                 metaHas('private', data, 'Property "' + name + '" cannot be both public and private at the same time.');
                 metadata.visibility = 'public';
-                if (!explicit_serialize)
-{
+                if (!explicit_serialize) {
                     metadata.serializable = true;
                 }
                 break;
@@ -760,7 +889,7 @@ JOII.ParseClassProperty = function(str) {
                 metadata.visibility = 'private';
                 break;
             case 'abstract':
-                    metaHas('final', data, 'Property "' + name + '" cannot be both abstract and final at the same time.');
+                metaHas('final', data, 'Property "' + name + '" cannot be both abstract and final at the same time.');
                 metadata.is_abstract = true;
                 break;
             case 'final':
@@ -798,19 +927,19 @@ JOII.ParseClassProperty = function(str) {
                     break;
                 }
                 // Check for Interface-types
-                if (typeof(JOII.InterfaceRegistry[data[i]]) !== 'undefined') {
+                if (typeof (JOII.InterfaceRegistry[data[i]]) !== 'undefined') {
                     metadata.is_joii_object = true;
                     metadata.type = JOII.InterfaceRegistry[data[i]].definition.__interface__.name;
                     break;
                 }
                 // Check for Class-types
-                if (typeof(JOII.ClassRegistry[data[i]]) !== 'undefined') {
+                if (typeof (JOII.ClassRegistry[data[i]]) !== 'undefined') {
                     metadata.is_joii_object = true;
                     metadata.type = JOII.ClassRegistry[data[i]].prototype.__joii__.name;
                     break;
                 }
                 // Check for enumerators
-                if (typeof(JOII.EnumRegistry[data[i]]) !== 'undefined') {
+                if (typeof (JOII.EnumRegistry[data[i]]) !== 'undefined') {
                     metadata.is_enum = true;
                     metadata.type    = data[i];
                     break;
@@ -823,8 +952,7 @@ JOII.ParseClassProperty = function(str) {
     return metadata;
 };
 
-JOII.CreatePropertyGetterSetter = function(deep_copy, meta)
-{
+JOII.CreatePropertyGetterSetter = function(deep_copy, meta) {
     "use strict";
     // If the meta type is boolean, prefix the getter with 'is'
     // rather than 'get'.
@@ -842,7 +970,7 @@ JOII.CreatePropertyGetterSetter = function(deep_copy, meta)
     var setter = 'set' + JOII.CamelcaseName(meta.name), setter_meta, setter_fn;
 
     // Create a getter
-    if (typeof(deep_copy[getter]) === 'undefined') {
+    if (typeof (deep_copy[getter]) === 'undefined') {
         getter_fn = new Function('return this["' + meta.name + '"];');
         getter_meta = JOII.ParseClassProperty(meta.visibility + ' function ' + getter);
         getter_meta.visibility = meta.visibility;
@@ -851,31 +979,31 @@ JOII.CreatePropertyGetterSetter = function(deep_copy, meta)
     }
 
     // Create a setter
-    if (typeof(deep_copy[setter]) === 'undefined' && meta.is_read_only === false) {
+    if (typeof (deep_copy[setter]) === 'undefined' && meta.is_read_only === false) {
         var nullable = meta.is_nullable, validator;
 
         // InstanceOf validator (in case of interfaces & classes)
-        if (typeof(JOII.InterfaceRegistry[meta.type]) !== 'undefined' ||
-            typeof(JOII.ClassRegistry[meta.type]) !== 'undefined') {
+        if (typeof (JOII.InterfaceRegistry[meta.type]) !== 'undefined' ||
+            typeof (JOII.ClassRegistry[meta.type]) !== 'undefined') {
             validator = '\
                         if (JOII.Compat.findJOIIName(v) === \'' + meta.type + '\') {} else {\n\
-                        if (v !== null && typeof(v.instanceOf) !== \'function\' || (typeof(v) === \'object\' && v !== null && typeof(v.instanceOf) === \'function\' && !v.instanceOf(\'' + meta.type + '\')) || v === null) {\n\
-                            if ('+nullable+' === false || ('+nullable+' === true && v !== null && typeof(v) !== "undefined")) {\n\
-                                throw "'+setter+' expects an instance of '+meta.type+', " + (v === null ? "null" : typeof(v)) + " given.";\n\
+                        if (v !== null && typeof (v.instanceOf) !== \'function\' || (typeof (v) === \'object\' && v !== null && typeof (v.instanceOf) === \'function\' && !v.instanceOf(\'' + meta.type + '\')) || v === null) {\n\
+                            if ('+ nullable + ' === false || (' + nullable + ' === true && v !== null && typeof (v) !== "undefined")) {\n\
+                                throw "'+ setter + ' expects an instance of ' + meta.type + ', " + (v === null ? "null" : typeof (v)) + " given.";\n\
                             }\n\
                         }};';
         } else {
             // Native type validator
             validator = '\
-                        if (typeof(JOII.EnumRegistry[\'' + meta.type + '\']) !== \'undefined\') {\
+                        if (typeof (JOII.EnumRegistry[\'' + meta.type + '\']) !== \'undefined\') {\
                             var _e = JOII.EnumRegistry[\'' + meta.type + '\'];\
                             if (!_e.contains(v)) {\
-                                throw "'+setter+': \'" + v + "\' is not a member of enum " + _e.getName() + ".";\
+                                throw "'+ setter + ': \'" + v + "\' is not a member of enum " + _e.getName() + ".";\
                             }\
                         } else {\
-                            if (typeof(v) !== \'' + meta.type + '\') {\
-                                if ('+nullable+' === false || ('+nullable+' === true && v !== null && typeof(v) !== "undefined")) {\
-                                    throw "'+setter+' expects '+meta.type+', " + typeof(v) + " given.";\
+                            if (typeof (v) !== \'' + meta.type + '\') {\
+                                if ('+ nullable + ' === false || (' + nullable + ' === true && v !== null && typeof (v) !== "undefined")) {\
+                                    throw "'+ setter + ' expects ' + meta.type + ', " + typeof (v) + " given.";\
                                 }\
                             };\
                         }';
@@ -907,7 +1035,7 @@ JOII.CreatePropertyGetterSetter = function(deep_copy, meta)
  */
 JOII.CreateProperty = function(obj, name, val, writable) {
     try {
-        if (typeof(Object.defineProperty) !== 'undefined') {
+        if (typeof (Object.defineProperty) !== 'undefined') {
             Object.defineProperty(obj, name, {
                 value        : val,
                 enumerable   : (writable === false),
@@ -922,11 +1050,208 @@ JOII.CreateProperty = function(obj, name, val, writable) {
     }
 };
 
+
+
+/**
+ * Adds a function to the prototype. 
+ *
+ * Meta.parameters should include the types in order to support overloading.
+ *
+ * @param {Object}   prototype
+ * @param {Object}   meta
+ * @param {Function} fn
+ * @param {Boolean}  ignoreDuplicate
+ */
+JOII.AddFunctionToPrototype = function(prototype, meta, fn, ignoreDuplicate) {
+
+    if (typeof (ignoreDuplicate) === 'undefined') {
+        ignoreDuplicate = false;
+    }
+    if (typeof (prototype.__joii__.metadata[meta.name]) !== 'object') {
+        prototype.__joii__.metadata[meta.name] = JOII.Compat.extend(true, {}, meta);
+        prototype.__joii__.metadata[meta.name].overloads = [];
+    }
+
+    var proto_meta = prototype.__joii__.metadata[meta.name];
+
+    if (typeof (proto_meta.overloads) !== 'object') {
+        proto_meta.overloads = [];
+    }
+
+    if (proto_meta.visibility !== meta.visibility) {
+        throw 'Member ' + meta.name + ': inconsistent visibility.';
+    }
+
+    proto_meta.is_abstract = false;
+
+    for (var i = 0; i < meta.parameters.length - 1; i++) {
+        if (meta.parameters[i] == '...') {
+            throw 'Member ' + meta.name + ': Variadic parameter (...) must be the last in the function parameter list.';
+        }
+    }
+
+    for (var idx = 0; idx < proto_meta.overloads.length; idx++) {
+        var functionParametersMeta = proto_meta.overloads[idx];
+
+        var foundAbstractThisLoop = false;
+        if (functionParametersMeta.is_abstract) {
+            foundAbstractThisLoop = true;
+        }
+
+        if (functionParametersMeta.parameters.length === meta.parameters.length) {
+            // this signature has the same number of types as the new signature
+            // check to see if the types are the same (duplicate signature)
+            var different = false;
+
+            for (var j = 0; j < functionParametersMeta.parameters.length; j++) {
+                if (functionParametersMeta.parameters[j] != meta.parameters[j]) {
+                    different = true;
+                }
+            }
+            if (!different) {
+                if (functionParametersMeta.is_abstract) {
+                    proto_meta.overloads.splice(idx, 1); // remove the abstract version, since we're about to add a non-abstract
+                    idx--; // adjust the idx for the changed array
+                    foundAbstractThisLoop = false; // we're removing this, so don't count it for abstract check
+                } else {
+                    if (!ignoreDuplicate) {
+                        throw 'Member ' + meta.name + '(' + meta.parameters.join(', ') + ') is defined twice.';
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if (foundAbstractThisLoop) {
+            proto_meta.is_abstract = true;
+        }
+    }
+
+    var functionMeta = {
+        fn: fn,
+        parameters: meta.parameters,
+        is_abstract: meta.is_abstract
+    };
+
+    prototype.__joii__.metadata[meta.name].overloads.push(functionMeta);
+
+    if (functionMeta.is_abstract) {
+        prototype.__joii__.metadata[meta.name].is_abstract = true;
+    }
+    // create function shim to validate the parameters, and allow overloading
+    //if (typeof (prototype[meta.name]) !== 'function') { // this test was preventing it from overriding toString
+    prototype[meta.name] = JOII.CreateFunctionShim(meta.name, prototype.__joii__.metadata[meta.name].overloads);
+    //}
+
+    return true;
+};
+
+
+/**
+ * Creates a function detour which checks type parameters, then dispatches to the appropriate overloaded function.
+ *
+ * @param {String}   name
+ * @param {Object}   overloads
+ */
+JOII.CreateFunctionShim = function(name, overloads) {
+
+    return function() {
+
+        // If there's only one function, and it has no parameters, we'll assume it's old-style to preserve backwards compatibility, so just pass the list of parameters
+        if (overloads.length === 1 && overloads[0].parameters.length === 0) {
+            return overloads[0].fn.apply(this, arguments);
+        }
+
+        var closestVariadic = null;
+        var closestVariadicParameterCount = 0;
+
+        for (var overloadIndex = 0; overloadIndex < overloads.length; overloadIndex++) {
+            var func = overloads[overloadIndex];
+            var parameters = func.parameters;
+
+            var valid = true;
+
+            // test exact matches
+            if (parameters.length == arguments.length) {
+                for (var i = 0; i < parameters.length; i++) {
+
+                    if (!JOII.Compat.canTypeBeCastTo(arguments[i], parameters[i])) {
+                        valid = false;
+                        break;
+                    }
+                }
+
+                if (valid) {
+                    // found an overload that matches the inputs - call it
+                    return func.fn.apply(this, arguments);
+                }
+            }
+
+            if (parameters[parameters.length - 1] == '...') {
+                // test for variadic
+                valid = null;
+                var variadicParameterCount = 0;
+                for (var i = 0; i < parameters.length; i++) {
+
+                    if (parameters[i] === '...') {
+                        valid = true;
+                    } else {
+                        if (!JOII.Compat.canTypeBeCastTo(arguments[i], parameters[i])) {
+                            valid = false;
+                            break;
+                        }
+                        variadicParameterCount++;
+                    }
+                }
+
+                if (valid) {
+
+                    if (variadicParameterCount > closestVariadicParameterCount) {
+                        closestVariadic = func;
+                        closestVariadicParameterCount = variadicParameterCount;
+                    }
+                }
+            }
+        }
+
+        if (closestVariadic != null) {
+            // extract the variadic portion of the call to an array
+            var args = []; // arguments.splice(closestVariadic.parameters.length -1);
+
+            for (var i = closestVariadic.parameters.length - 1; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+
+            arguments.length = closestVariadic.parameters.length;
+
+            arguments[closestVariadic.parameters.length - 1] = args;
+
+
+            // found an overload that matches the inputs - call it
+            return closestVariadic.fn.apply(this, arguments);
+        }
+
+        // create a type list of the arguments for error handling purposes
+        var parameterTypes = [];
+        for (var i = 0; i < arguments.length; i++) {
+            var JOIIName = JOII.Compat.findJOIIName(arguments[i]);
+            if (!JOIIName) {
+                JOIIName = typeof (arguments[i]);
+            }
+            parameterTypes.push(JOIIName === null ? typeof (arguments[i]) : JOIIName);
+        }
+
+        throw 'Couldn\'t find a function handler to match: ' + name + '(' + parameterTypes.join(', ') + ').';
+    };
+};
+
+
 /**
  * Camelcase a name.
  *
- * @param {String} input
- * @return string
+ * @param  {String} input
+ * @return {String}
  */
 JOII.CamelcaseName = function(input) {
     input = input.toLowerCase().replace(/_(.)/g, function(match, group1) {
@@ -934,6 +1259,14 @@ JOII.CamelcaseName = function(input) {
     });
     return input.charAt(0).toUpperCase() + input.slice(1);
 };
+/* Javascript Object Inheritance Implementation                ______  ________
+ * (c) 2016 <harold@iedema.me>                             __ / / __ \/  _/  _/
+ * Licensed under MIT.                                    / // / /_/ // /_/ /
+ * ------------------------------------------------------ \___/\____/___/__*/
+
+'use strict';
+
+    JOII = typeof (JOII) !== 'undefined' ? JOII : {};
     JOII.ClassRegistry = {};
 
     /**
@@ -950,8 +1283,7 @@ JOII.CamelcaseName = function(input) {
      * @param object body
      * @return function
      */
-    JOII.ClassBuilder = function()
-    {
+    JOII.ClassBuilder = function() {
         var args        = JOII.Compat.ParseArguments(arguments),
             name        = args.name,
             parameters  = args.parameters,
@@ -966,12 +1298,11 @@ JOII.CamelcaseName = function(input) {
          *
          * @return object The outer (public) class scope.
          */
-        function definition()
-        {
+        function definition() {
             // Create an inner and outer scope. The inner scope refers to the
             // 'this' variable, where the outer scope contains references to
             // all objects and functions accessible from the outside.
-            var func_in       = function() {};
+            var func_in       = function() { };
             func_in.prototype = this;
             var scope_in      = new func_in(),
                 scope_out     = {};
@@ -986,7 +1317,7 @@ JOII.CamelcaseName = function(input) {
                 JOII.CreateProperty(scope_out, '__joii__', (this.__joii__));
             }
 
-            if (typeof this !== 'undefined' && typeof(this.__joii__) === 'object') {
+            if (typeof this !== 'undefined' && typeof (this.__joii__) === 'object') {
                 // Can we be instantiated?
                 if (this.__joii__.is_abstract === true) {
                     throw 'An abstract class cannot be instantiated.';
@@ -994,15 +1325,21 @@ JOII.CamelcaseName = function(input) {
 
                 // The outside scope.
                 for (var i in this) {
-                    var meta = this.__joii__.metadata[i];
+                    var meta = scope_in.__joii__.metadata[i];
 
-                    // Test missing abstract implementations...
-                    if (meta && meta.is_abstract === true) {
+                    if (meta && 'overloads' in meta) {
+                        for (var fnMeta in meta.overloads) {
+                            // Test missing abstract implementations...
+                            if (meta.overloads[fnMeta] && meta.overloads[fnMeta].is_abstract === true) {
+                                throw 'Missing abstract member implementation of ' + i + '(' + meta.overloads[fnMeta].parameters.join(', ') + ')';
+                            }
+                        }
+                    } else if (meta && meta.is_abstract === true) {
                         throw 'Missing abstract member implementation of "' + i + '".';
                     }
                     // Only allow public functions in the outside scope.
-                    if (typeof(this[i]) === 'function' &&
-                        (typeof(meta) === 'undefined' || meta.visibility === 'public') &&
+                    if (typeof (scope_in[i]) === 'function' &&
+                        (typeof (meta) === 'undefined' || meta.visibility === 'public') &&
                         (i !== '__call')) {
                         scope_out[i] = JOII.Compat.Bind(scope_in[i], scope_in);
                     }
@@ -1011,13 +1348,13 @@ JOII.CamelcaseName = function(input) {
 
             // If 'this.__joii__' is not available, that would indicate that
             // we've been executed like a function rather than being instantiated.
-            if (typeof(this) === 'undefined' || typeof(this.__joii__) === 'undefined') {
+            if (typeof (this) === 'undefined' || typeof (this.__joii__) === 'undefined') {
                 // If the method __call exists, execute it and return its result.
 
                 for (var c in JOII.Config.callables) {
                     if (JOII.Config.callables.hasOwnProperty(c)) {
-                        if (typeof(body[JOII.Config.callables[c]]) === 'function') {
-                            var result = body[JOII.Config.callables[c]].apply(body, arguments);
+                        if (typeof (definition.prototype[JOII.Config.callables[c]]) === 'function') {
+                            var result = definition.prototype[JOII.Config.callables[c]].apply(body, arguments);
                             if (result === body) {
                                 throw JOII.Config.callables[c] + ' cannot return itself.';
                             }
@@ -1048,7 +1385,7 @@ JOII.CamelcaseName = function(input) {
             for (var c in JOII.Config.constructors) {
                 if (JOII.Config.constructors.hasOwnProperty(c)) {
                     var cc = JOII.Config.constructors[c];
-                    if (typeof(scope_in[cc]) === 'function') {
+                    if (typeof (scope_in[cc]) === 'function') {
                         scope_in[cc].apply(scope_in, arguments);
                         break;
                     }
@@ -1080,11 +1417,11 @@ JOII.CamelcaseName = function(input) {
         }
 
         // Does the class implement an enumerator?
-        if (typeof(parameters['enum']) === 'string') {
+        if (typeof (parameters['enum']) === 'string') {
             var e = JOII.EnumBuilder(parameters['enum'], definition);
             if (parameters.expose_enum === true) {
                 var g = typeof window === 'object' ? window : global;
-                if (typeof(g[parameters['enum']]) !== 'undefined') {
+                if (typeof (g[parameters['enum']]) !== 'undefined') {
                     throw 'Cannot expose Enum "' + parameters['enum'] + '" becase it already exists in the global scope.';
                 }
                 g[parameters['enum']] = e;
@@ -1094,7 +1431,7 @@ JOII.CamelcaseName = function(input) {
         // Override toString to return a class symbol.
         var n = arguments[0];
         definition.toString = function() {
-            if (typeof(n) === 'string') {
+            if (typeof (n) === 'string') {
                 return '[class ' + n + ']';
             }
             return '[class Class]';
@@ -1111,10 +1448,10 @@ JOII.CamelcaseName = function(input) {
         definition.prototype.__joii__.getInterfaces = JOII.Compat.Bind(function() {
             var interfaces = [],
                 getRealInterface = JOII.Compat.Bind(function(i) {
-                    if (typeof(i) === 'function') {
+                    if (typeof (i) === 'function') {
                         return i;
-                    } else if (typeof(i) === 'string') {
-                        if (typeof(JOII.InterfaceRegistry[i]) === 'undefined') {
+                    } else if (typeof (i) === 'string') {
+                        if (typeof (JOII.InterfaceRegistry[i]) === 'undefined') {
                             throw 'Interface "' + i + '" does not exist.';
                         }
                         return JOII.InterfaceRegistry[i];
@@ -1122,12 +1459,12 @@ JOII.CamelcaseName = function(input) {
                 }, this);
 
             // Fetch interfaces from the parent list - if they exist.
-            if (typeof(this.parent) !== 'undefined' && typeof(this.parent.__joii__) !== 'undefined') {
+            if (typeof (this.parent) !== 'undefined' && typeof (this.parent.__joii__) !== 'undefined') {
                 interfaces = this.parent.__joii__.getInterfaces();
             }
 
-            if (typeof(this.interfaces) !== 'undefined') {
-                if (typeof(this.interfaces) === 'object') {
+            if (typeof (this.interfaces) !== 'undefined') {
+                if (typeof (this.interfaces) === 'object') {
                     for (var i in this.interfaces) {
                         if (!this.interfaces.hasOwnProperty(i)) {
                             continue;
@@ -1149,20 +1486,22 @@ JOII.CamelcaseName = function(input) {
         if (parameters.abstract !== true) {
             var interfaces = definition.prototype.__joii__.getInterfaces();
             for (var ii in interfaces) {
-                if (interfaces.hasOwnProperty(ii) && typeof(interfaces[ii]) === 'function') {
+                if (interfaces.hasOwnProperty(ii) && typeof (interfaces[ii]) === 'function') {
                     interfaces[ii](definition);
                 }
             }
         }
 
 
-        /**
-         * Serializes all serializable properties of an object. Public members are serializable by default.
-         *
-         * @return JSON string containing the serialized class
-         */
-        if (typeof definition.prototype.serialize == 'undefined') {
-            definition.prototype.serialize = function () {
+        // check to make sure serialize doesn't exist yet, or if it does - it's capable of being overloaded without breaking BC
+        if ((!('serialize' in definition.prototype.__joii__.metadata)) || (('overloads' in definition.prototype.__joii__.metadata['serialize']) && (definition.prototype.__joii__.metadata['serialize']['overloads'][0].parameters.length > 0 || definition.prototype.__joii__.metadata['serialize']['overloads'].length > 1))) {
+
+            /**
+             * Serializes all serializable properties of an object. Public members are serializable by default.
+             *
+             * @return {String}
+             */
+            var generatedFn = function(json) {
                 var obj = { __joii_type: this.__joii__.name };
 
                 for (var key in this.__joii__.metadata) {
@@ -1180,23 +1519,33 @@ JOII.CamelcaseName = function(input) {
 
                 return JSON.stringify(obj);
             };
+            // uses an inheritance style add, so it won't overwrite custom functions with the same signature
+            var serializeMeta = JOII.ParseClassProperty('public function serialize()');
+            JOII.AddFunctionToPrototype(definition.prototype, serializeMeta, generatedFn, true);
         }
 
 
-        /**
-         * Deserializes a class (called on an object instance to populate it)
-         *
-         * @param JSON or object representing an instance of this class
-         * @return void
-         */
-        if (typeof definition.prototype.deserialize == 'undefined') {
-            definition.prototype.deserialize = function (jsonOrRawObject) {
-                var obj = jsonOrRawObject;
 
-                if (typeof jsonOrRawObject == 'string') {
-                    obj = JSON.parse(jsonOrRawObject);
-                }
+        // check to make sure deserialize doesn't exist yet, or if it does - it's capable of being overloaded without breaking BC
+        if ((!('deserialize' in definition.prototype.__joii__.metadata)) || (('overloads' in definition.prototype.__joii__.metadata['deserialize']) && (definition.prototype.__joii__.metadata['deserialize']['overloads'][0].parameters.length > 0 || definition.prototype.__joii__.metadata['deserialize']['overloads'].length > 1))) {
+            /**
+             * Deserializes a class (called on an object instance to populate it)
+             *
+             * @param {String}
+             */
+            var generatedFn = function(json) {
+                this.deserialize(JSON.parse(json));
+            };
+            // uses an inheritance style add, so it won't overwrite custom functions with the same signature
+            var deserializeMeta = JOII.ParseClassProperty('public function deserialize(string)');
+            JOII.AddFunctionToPrototype(definition.prototype, deserializeMeta, generatedFn, true);
 
+            /**
+             * Deserializes a class (called on an object instance to populate it)
+             *
+             * @param {Object}
+             */
+            generatedFn = function(obj) {
                 for (var key in (this.__joii__.metadata)) {
                     var val = this.__joii__.metadata[key];
 
@@ -1223,15 +1572,20 @@ JOII.CamelcaseName = function(input) {
                     }
                 }
             };
-        }
+            // uses an inheritance style add, so it won't overwrite custom functions with the same signature
+            deserializeMeta = JOII.ParseClassProperty('public function deserialize(object)');
+            JOII.AddFunctionToPrototype(definition.prototype, deserializeMeta, generatedFn, true);
+
+        };
+
 
         /**
          * Deserializes a class (called as a static method - instantiates a new object and populates it)
+         * TODO: implement "static" attribute, and mix this in via AddFunctionToPrototype
          *
-         * @param JSON or object representing an instance of this class
-         * @return void
+         * @param {String}|{Object}
          */
-        definition.deserialize = function (jsonOrRawObject) {
+        definition.deserialize = function(jsonOrRawObject) {
             var deserializeObject = {
                 '__joii_deserialize_object': true,
                 'data': jsonOrRawObject
@@ -1239,9 +1593,10 @@ JOII.CamelcaseName = function(input) {
             return new definition(deserializeObject);
         };
 
+
         // Register the class by the given name to make it usable as a type
         // inside property declarations.
-        if (typeof(JOII.ClassRegistry[name]) !== 'undefined') {
+        if (typeof (JOII.ClassRegistry[name]) !== 'undefined') {
             throw 'Another class named "' + name + '" already exists.';
         }
         JOII.ClassRegistry[name] = definition;
@@ -1255,7 +1610,7 @@ JOII.CamelcaseName = function(input) {
  * Licensed under MIT.                                    / // / /_/ // /_/ /
  * ------------------------------------------------------ \___/\____/___/__*/
 
-// The registry contains a set of interfaces indexed by a GUID.
+JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 JOII.InterfaceRegistry = {};
 
 /**
@@ -1275,8 +1630,7 @@ JOII.InterfaceBuilder = function() {
     // The definition will be the resulting function containing all
     // required information about this interface.
     var prototype  = JOII.PrototypeBuilder(name, parameters, body, true),
-        definition = function(prototype)
-        {
+        definition = function(prototype) {
             var reflector = new JOII.Reflection.Class(prototype),
                 properties = this.reflector.getProperties(),
                 methods = this.reflector.getMethods(),
@@ -1288,15 +1642,17 @@ JOII.InterfaceBuilder = function() {
                 return true;
             }
 
-            var verifyMeta = function (t, p1, p2, prefix) {
+            var verifyMeta = function(t, p1, p2, prefix) {
                 if (p1.getVisibility() !== p2.getVisibility()) {
                     throw prefix + ' ' + p2.getName() + ' cannot be ' + p2.getVisibility() + ' because the interface declared it ' + p1.getVisibility() + '.';
                 }
-                if (p1.getType() !== p2.getType()) {
-                    throw prefix + ' ' + p2.getName() + ' cannot be declared as ' + p2.getType() + ' because the interface declared it as ' + p1.getType() + '.';
-                }
-                if (p1.isNullable() !== p2.isNullable()) {
-                    throw prefix + ' ' + p2.getName() + ' must be nullable as defined in the interface ' + t.name + '.';
+                if (prefix != 'Method') {
+                    if (p1.getType() !== p2.getType()) {
+                        throw prefix + ' ' + p2.getName() + ' cannot be declared as ' + p2.getType() + ' because the interface declared it as ' + p1.getType() + '.';
+                    }
+                    if (p1.isNullable() !== p2.isNullable()) {
+                        throw prefix + ' ' + p2.getName() + ' must be nullable as defined in the interface ' + t.name + '.';
+                    }
                 }
                 return true;
             };
@@ -1329,8 +1685,43 @@ JOII.InterfaceBuilder = function() {
                 verifyMeta(this, p1, p2, 'Method');
 
                 // Verify function signature.
-                if (p1.getParameters().length !== p2.getParameters().length) {
-                    throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
+                var argsInterface = p1.getParameters();
+                var argsClass = p2.getParameters();
+
+                if (argsInterface.length == 0 || typeof (argsInterface[0]) !== 'object') {
+                    // fallback for backwards compatibility
+                    if (p1.getParameters().length !== p2.getParameters().length) {
+                        throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
+                    }
+                }
+                else {
+                    for (var idx = 0; idx < argsInterface.length; idx++) {
+                        var interfaceParametersMeta = argsInterface[idx];
+
+                        var different = true;
+
+                        for (var x = 0; x < argsClass.length; x++) {
+                            var classParametersMeta = argsClass[x];
+
+                            if (interfaceParametersMeta.parameters.length === classParametersMeta.parameters.length) {
+                                // this signature has the same number of types as the new signature
+                                // check to see if the types are the same (duplicate signature)
+                                different = false;
+
+                                for (var y = 0; y < functionParametersMeta.parameters.length; y++) {
+                                    if (functionParametersMeta.parameters[j] != classParametersMeta.parameters[y]) {
+                                        different = true;
+                                    }
+                                }
+                                if (!different) {
+                                    break;
+                                }
+                            }
+                        }
+                        if (different) {
+                            throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
+                        }
+                    }
                 }
             }
         };
@@ -1379,7 +1770,7 @@ JOII.InterfaceBuilder = function() {
 
     // Register the interface, making it available in the PrototypeBuilder
     // to use as a type in property definitions.
-    if (typeof(JOII.InterfaceRegistry[name]) !== 'undefined') {
+    if (typeof (JOII.InterfaceRegistry[name]) !== 'undefined') {
         throw 'Another interface with the name "' + name + '" already exists.';
     }
     if (JOII.Compat.indexOf(JOII.InternalTypeNames, name) !== -1) {
@@ -1395,11 +1786,11 @@ JOII.InterfaceBuilder = function() {
     }
 
     // Does the class implement an enumerator?
-    if (typeof(parameters['enum']) === 'string') {
+    if (typeof (parameters['enum']) === 'string') {
         var e = JOII.EnumBuilder(parameters['enum'], constants);
         if (parameters.expose_enum === true) {
             var g = typeof window === 'object' ? window : global;
-            if (typeof(g[parameters['enum']]) !== 'undefined') {
+            if (typeof (g[parameters['enum']]) !== 'undefined') {
                 throw 'Cannot expose Enum "' + parameters['enum'] + '" becase it already exists in the global scope.';
             }
             g[parameters['enum']] = e;
@@ -1414,6 +1805,7 @@ JOII.InterfaceBuilder = function() {
  * Licensed under MIT.                                    / // / /_/ // /_/ /
  * ------------------------------------------------------ \___/\____/___/__*/
 
+JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 JOII.EnumRegistry = {};
 
 /**
@@ -1461,28 +1853,28 @@ JOII.EnumBuilder = JOII.ClassBuilder({ 'final' : true }, {
      * @return JOII.EnumBuilder
      */
     __call: function(name, obj) {
-        if (typeof(name) !== 'string') {
-            throw 'Argument #1 of Enum must be a string, ' + typeof(name) + ' given.';
+        if (typeof (name) !== 'string') {
+            throw 'Argument #1 of Enum must be a string, ' + typeof (name) + ' given.';
         }
-        if (typeof(obj) === 'function' &&
-            typeof(obj.prototype.__joii__) !== 'undefined') {
+        if (typeof (obj) === 'function' &&
+            typeof (obj.prototype.__joii__) !== 'undefined') {
             obj = obj.prototype.__joii__.constants;
         }
 
-        if (typeof(obj) !== 'object') {
-            throw 'Argument #2 of Enum must be an object or definition, ' + typeof(obj) + ' given.';
+        if (typeof (obj) !== 'object') {
+            throw 'Argument #2 of Enum must be an object or definition, ' + typeof (obj) + ' given.';
         }
 
-        if (typeof(JOII.EnumRegistry[name.toLowerCase()]) !== 'undefined') {
+        if (typeof (JOII.EnumRegistry[name.toLowerCase()]) !== 'undefined') {
             throw 'Enumerator "' + name + '" already exists.';
         }
 
         var enumerator = new JOII.EnumBuilder(name, obj);
         for (var i in obj) {
-            if (typeof(obj[i]) === 'function') {
+            if (typeof (obj[i]) === 'function') {
                 throw 'An enumerator cannot contain functions. "' + i + '" is a function.';
             }
-            if (typeof(obj[i]) === 'object') {
+            if (typeof (obj[i]) === 'object') {
                 throw 'An enumerator cannot contain objects. "' + i + '" is an object.';
             }
             JOII.CreateProperty(enumerator, i, obj[i], false);
@@ -1497,7 +1889,7 @@ JOII.EnumBuilder = JOII.ClassBuilder({ 'final' : true }, {
  * ------------------------------------------------------ \___/\____/___/__*/
 
 // Register JOII 'namespace'.
-JOII = typeof(JOII) !== 'undefined' ? JOII : {};
+JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 JOII.Reflection = {};
 
 /**
@@ -1522,21 +1914,21 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
      *
      * @var object
      */
-    'protected immutable object meta'  : null,
+    'protected immutable object meta': null,
 
     /**
      * Contains the prototype of the class.
      *
      * @var object
      */
-    'protected immutable object proto' : null,
+    'protected immutable object proto': null,
 
     /**
      * Represents the Reflection.Class instance of the parent definition.
      *
      * @var JOII.Reflection.Class
      */
-    'public immutable object parent'   : null,
+    'public immutable object parent': null,
 
     /**
      * Constructor
@@ -1545,21 +1937,21 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
      */
     'protected __construct': function(definition) {
 
-        if (typeof(definition) === 'function') {
+        if (typeof (definition) === 'function') {
             definition = definition.prototype;
         }
 
         // Is the passed argument an actual JOII class?
-        if (typeof(definition) !== 'object' ||
-            typeof(definition.__joii__) !== 'object') {
+        if (typeof (definition) !== 'object' ||
+            typeof (definition.__joii__) !== 'object') {
             throw 'Reflection.Class requires a JOII-created definition.';
         }
 
         this.proto = definition;
-        this.meta  = definition.__joii__;
+        this.meta = definition.__joii__;
 
         // Does the class definition have a parent?
-        if (typeof(this.meta.parent) !== 'undefined') {
+        if (typeof (this.meta.parent) !== 'undefined') {
             this.parent = new JOII.Reflection.Class(this.meta.parent);
         }
     },
@@ -1625,7 +2017,7 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
     'public getMethods': function(filter) {
         var result = [];
         for (var i in this.proto) {
-            if (typeof(this.proto[i]) === 'function' && JOII.Compat.indexOf(JOII.InternalPropertyNames, i) === -1) {
+            if (typeof (this.proto[i]) === 'function' && JOII.Compat.indexOf(JOII.InternalPropertyNames, i) === -1) {
                 result.push(new JOII.Reflection.Method(this, i));
             }
         }
@@ -1654,7 +2046,7 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
      * @param  string name
      * @return JOII.Reflection.Method
      */
-    'public getMethod' : function(name) {
+    'public getMethod': function(name) {
         var list = this.getMethods();
         for (var i in list) {
             if (list[i].getName() === name) {
@@ -1671,10 +2063,10 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
      * @param  string filter Optional filter for 'private' or 'public'.
      * @return JOII.Reflection.Property[]
      */
-    'public getProperties' : function(filter) {
+    'public getProperties': function(filter) {
         var result = [];
         for (var i in this.proto) {
-            if (typeof(this.proto[i]) !== 'function' && JOII.Compat.indexOf(JOII.InternalPropertyNames, i) === -1) {
+            if (typeof (this.proto[i]) !== 'function' && JOII.Compat.indexOf(JOII.InternalPropertyNames, i) === -1) {
                 result.push(new JOII.Reflection.Property(this, i));
             }
         }
@@ -1688,7 +2080,7 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
      * @param  string name
      * @return JOII.Reflection.Property
      */
-    'public getProperty' : function(name) {
+    'public getProperty': function(name) {
         var list = this.getProperties();
         for (var i in list) {
             if (list[i].getName() === name) {
@@ -1710,21 +2102,21 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
      *
      * @var JOII.Reflection.Class
      */
-    'protected nullable object reflector' : null,
+    'protected nullable object reflector': null,
 
     /**
      * Represents the metadata of this property.
      *
      * @var object
      */
-    'protected nullable object meta' : null,
+    'protected nullable object meta': null,
 
     /**
      * Represents the name of the property.
      *
      * @var string
      */
-    'public read string name' : null,
+    'public read string name': null,
 
     /**
      * Constructor.
@@ -1732,15 +2124,14 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
      * @param JOII.Reflection.Class reflector
      * @param string property_name
      */
-    'protected __construct': function(reflector, property_name)
-    {
+    'protected __construct': function(reflector, property_name) {
         this.reflector = reflector;
-        this.name      = property_name;
-        this.meta      = reflector.getMeta().metadata[property_name];
+        this.name = property_name;
+        this.meta = reflector.getMeta().metadata[property_name];
 
         // If we, for some strange reason don't have metadata, fill it in
         // with some default values.
-        if (typeof(this.meta) === 'undefined') {
+        if (typeof (this.meta) === 'undefined') {
             this.meta = {
                 name        : this.name,
                 type        : null,
@@ -1756,7 +2147,7 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
         // However, only do this for non-nullable types to avoid type
         // mismatching exceptions in setters.
         if (this.meta.type === null && this.meta.is_nullable === false) {
-            this.meta.type = typeof(this.reflector.getProto()[this.meta.name]);
+            this.meta.type = typeof (this.reflector.getProto()[this.meta.name]);
         }
     },
 
@@ -1884,7 +2275,7 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
             if (proto_ref === null) {
                 name_parts.push('mixed');
             } else {
-                name_parts.push(typeof(proto_ref));
+                name_parts.push(typeof (proto_ref));
             }
         } else {
             name_parts.push(this.meta.type);
@@ -1893,11 +2284,11 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
         name_parts.push('"' + this.meta.name + '"');
         name = name_parts.join(' ');
 
-        if (typeof(proto_ref) === 'function') {
+        if (typeof (proto_ref) === 'function') {
             body = '[Function]';
-        } else if(typeof(proto_ref) === 'object' && proto_ref !== null) {
+        } else if (typeof (proto_ref) === 'object' && proto_ref !== null) {
             body = '[Object (' + proto_ref.length + ')]';
-        } else if (typeof(proto_ref) === 'string') {
+        } else if (typeof (proto_ref) === 'string') {
             body = '"' + proto_ref + '"';
         } else {
             body = proto_ref;
@@ -1920,23 +2311,50 @@ JOII.Reflection.Method = JOII.ClassBuilder({ 'extends': JOII.Reflection.Property
             FN_ARG         = /^\s*(_?)(\S+?)\1\s*$/,
             STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg,
             getParams      = function(fn) {
-            var fnText, argDecl;
-            var args=[];
-            fnText  = fn.toString().replace(STRIP_COMMENTS, '');
-            argDecl = fnText.match(FN_ARGS);
+                var fnText, argDecl;
+                var args = [];
+                fnText = fn.toString().replace(STRIP_COMMENTS, '');
+                argDecl = fnText.match(FN_ARGS);
 
-            var r = argDecl[1].split(FN_ARG_SPLIT), repl = function(all, underscore, name) {
-                args.push(name);
+                var r = argDecl[1].split(FN_ARG_SPLIT), repl = function(all, underscore, name) {
+                    args.push(name);
+                };
+                for (var a in r) {
+                    var arg = r[a];
+                    arg.replace(FN_ARG, repl);
+                }
+
+                return args;
             };
-            for (var a in r) {
-                var arg = r[a];
-                arg.replace(FN_ARG, repl);
+
+        var prototype = this.reflector.getProto();
+        var overloads = prototype.__joii__.metadata[this.name].overloads;
+
+        if (!overloads || overloads.length === 0) {
+            // old method for BC (wasn't recognized as a function when prototyping)
+            return getParams(this.reflector.getProto()[this.name]);
+        } else if (overloads.length === 1 && overloads[0].parameters.length === 0) {
+            // old method for BC (was recognized when prototyping, but old style)
+            return getParams(overloads[0].fn);
+        }
+        else {
+            var ret = [];
+
+            for (var idx = 0; idx < overloads.length; idx++) {
+                var fnMeta = [];
+                var functionParametersMeta = overloads[idx];
+                var parsedParams = getParams(functionParametersMeta.fn);
+                for (var j = 0; j < functionParametersMeta.parameters.length; j++) {
+                    var param = {
+                        name: parsedParams.length > j ? parsedParams[j] : null,
+                        type: functionParametersMeta.parameters[j]
+                    };
+                    fnMeta.push(param);
+                }
+                ret.push(fnMeta);
             }
-
-            return args;
-        };
-
-        return getParams(this.reflector.getProto()[this.name]);
+            return ret;
+        }
     },
 
     /**
@@ -1944,12 +2362,11 @@ JOII.Reflection.Method = JOII.ClassBuilder({ 'extends': JOII.Reflection.Property
      *
      * @return string
      */
-    'public getBodyAsString': function(f)
-    {
+    'public getBodyAsString': function(f) {
         var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg,
             fn_text        = this.reflector.getProto()[this.name].toString().replace(STRIP_COMMENTS, '');
 
-        return fn_text.substr(fn_text.indexOf('{') + 1, fn_text.lastIndexOf('}') - 4).replace(/}([^}]*)$/,'$1');
+        return fn_text.substr(fn_text.indexOf('{') + 1, fn_text.lastIndexOf('}') - 4).replace(/}([^}]*)$/, '$1');
     },
 
     /**
@@ -1979,7 +2396,37 @@ JOII.Reflection.Method = JOII.ClassBuilder({ 'extends': JOII.Reflection.Property
             args   = this.getParameters(),
             is_var = this.usesVariadicArguments();
 
-        if (args.length > 0) {
+        if (args.length > 0 && typeof (args[0]) === 'object') {
+            // right now, this is spitting out every overload's signature one after another, each on a new line.
+            // should probably find a better way to do this
+            for (var idx = 0; idx < args.length; idx++) {
+                var functionParametersMeta = args[idx];
+
+                body += ' (';
+
+                var firstTime = true;
+                for (var i = 0; i < functionParametersMeta.length; i++) {
+                    if (!firstTime) {
+                        body += ', ';
+                    }
+                    firstTime = false;
+                    body += functionParametersMeta[i].type;
+                    if (functionParametersMeta[i].name !== null) {
+                        body += " " + functionParametersMeta[i].name;
+                        is_var = true;
+                    }
+                }
+
+
+                var data = this.reflector.getProto().__joii__.metadata[this.name].overloads[idx].fn.toString();
+                is_var = data.match(/[\(|\.|\ ](arguments)[\)|\.|\,|\ |]/g);
+
+                if (is_var) {
+                    body += ', ...';
+                }
+                body += ')\n';
+            }
+        } else if (args.length > 0) {
             body += ' (' + args.join(', ');
             if (is_var) {
                 body += ', ...';

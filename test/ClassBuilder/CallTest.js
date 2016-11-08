@@ -40,7 +40,7 @@ test('ClassBuilder:CallTest', function(assert) {
     C2(2);
     var c2a = new C2();
     assert.strictEqual(C2(), 2, '__call returns this.a (2)');
-    assert.strictEqual(c2.getA(), 1, 'c2.getA() returns this.a (2)');
+    assert.strictEqual(c2.getA(), 1, 'c2.getA() returns this.a (2)'); // these are inconsistent. Either the output comment is wrong (2), or the test is wrong (1). Which was intended?
     assert.strictEqual(c2a.getA(), 1, 'c2a.getA() returns this.a (2)');
 
 

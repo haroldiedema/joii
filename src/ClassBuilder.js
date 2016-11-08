@@ -1,3 +1,11 @@
+/* Javascript Object Inheritance Implementation                ______  ________
+ * (c) 2016 <harold@iedema.me>                             __ / / __ \/  _/  _/
+ * Licensed under MIT.                                    / // / /_/ // /_/ /
+ * ------------------------------------------------------ \___/\____/___/__*/
+
+'use strict';
+
+    JOII = typeof (JOII) !== 'undefined' ? JOII : {};
     JOII.ClassRegistry = {};
 
     /**
@@ -14,8 +22,7 @@
      * @param object body
      * @return function
      */
-    JOII.ClassBuilder = function()
-    {
+    JOII.ClassBuilder = function() {
         var args        = JOII.Compat.ParseArguments(arguments),
             name        = args.name,
             parameters  = args.parameters,
@@ -30,12 +37,11 @@
          *
          * @return object The outer (public) class scope.
          */
-        function definition()
-        {
+        function definition() {
             // Create an inner and outer scope. The inner scope refers to the
             // 'this' variable, where the outer scope contains references to
             // all objects and functions accessible from the outside.
-            var func_in       = function() {};
+            var func_in       = function() { };
             func_in.prototype = this;
             var scope_in      = new func_in(),
                 scope_out     = {};
@@ -50,7 +56,7 @@
                 JOII.CreateProperty(scope_out, '__joii__', (this.__joii__));
             }
 
-            if (typeof this !== 'undefined' && typeof(this.__joii__) === 'object') {
+            if (typeof this !== 'undefined' && typeof (this.__joii__) === 'object') {
                 // Can we be instantiated?
                 if (this.__joii__.is_abstract === true) {
                     throw 'An abstract class cannot be instantiated.';
@@ -58,15 +64,21 @@
 
                 // The outside scope.
                 for (var i in this) {
-                    var meta = this.__joii__.metadata[i];
+                    var meta = scope_in.__joii__.metadata[i];
 
-                    // Test missing abstract implementations...
-                    if (meta && meta.is_abstract === true) {
+                    if (meta && 'overloads' in meta) {
+                        for (var fnMeta in meta.overloads) {
+                            // Test missing abstract implementations...
+                            if (meta.overloads[fnMeta] && meta.overloads[fnMeta].is_abstract === true) {
+                                throw 'Missing abstract member implementation of ' + i + '(' + meta.overloads[fnMeta].parameters.join(', ') + ')';
+                            }
+                        }
+                    } else if (meta && meta.is_abstract === true) {
                         throw 'Missing abstract member implementation of "' + i + '".';
                     }
                     // Only allow public functions in the outside scope.
-                    if (typeof(this[i]) === 'function' &&
-                        (typeof(meta) === 'undefined' || meta.visibility === 'public') &&
+                    if (typeof (scope_in[i]) === 'function' &&
+                        (typeof (meta) === 'undefined' || meta.visibility === 'public') &&
                         (i !== '__call')) {
                         scope_out[i] = JOII.Compat.Bind(scope_in[i], scope_in);
                     }
@@ -75,13 +87,13 @@
 
             // If 'this.__joii__' is not available, that would indicate that
             // we've been executed like a function rather than being instantiated.
-            if (typeof(this) === 'undefined' || typeof(this.__joii__) === 'undefined') {
+            if (typeof (this) === 'undefined' || typeof (this.__joii__) === 'undefined') {
                 // If the method __call exists, execute it and return its result.
 
                 for (var c in JOII.Config.callables) {
                     if (JOII.Config.callables.hasOwnProperty(c)) {
-                        if (typeof(body[JOII.Config.callables[c]]) === 'function') {
-                            var result = body[JOII.Config.callables[c]].apply(body, arguments);
+                        if (typeof (definition.prototype[JOII.Config.callables[c]]) === 'function') {
+                            var result = definition.prototype[JOII.Config.callables[c]].apply(body, arguments);
                             if (result === body) {
                                 throw JOII.Config.callables[c] + ' cannot return itself.';
                             }
@@ -112,7 +124,7 @@
             for (var c in JOII.Config.constructors) {
                 if (JOII.Config.constructors.hasOwnProperty(c)) {
                     var cc = JOII.Config.constructors[c];
-                    if (typeof(scope_in[cc]) === 'function') {
+                    if (typeof (scope_in[cc]) === 'function') {
                         scope_in[cc].apply(scope_in, arguments);
                         break;
                     }
@@ -144,11 +156,11 @@
         }
 
         // Does the class implement an enumerator?
-        if (typeof(parameters['enum']) === 'string') {
+        if (typeof (parameters['enum']) === 'string') {
             var e = JOII.EnumBuilder(parameters['enum'], definition);
             if (parameters.expose_enum === true) {
                 var g = typeof window === 'object' ? window : global;
-                if (typeof(g[parameters['enum']]) !== 'undefined') {
+                if (typeof (g[parameters['enum']]) !== 'undefined') {
                     throw 'Cannot expose Enum "' + parameters['enum'] + '" becase it already exists in the global scope.';
                 }
                 g[parameters['enum']] = e;
@@ -158,7 +170,7 @@
         // Override toString to return a class symbol.
         var n = arguments[0];
         definition.toString = function() {
-            if (typeof(n) === 'string') {
+            if (typeof (n) === 'string') {
                 return '[class ' + n + ']';
             }
             return '[class Class]';
@@ -175,10 +187,10 @@
         definition.prototype.__joii__.getInterfaces = JOII.Compat.Bind(function() {
             var interfaces = [],
                 getRealInterface = JOII.Compat.Bind(function(i) {
-                    if (typeof(i) === 'function') {
+                    if (typeof (i) === 'function') {
                         return i;
-                    } else if (typeof(i) === 'string') {
-                        if (typeof(JOII.InterfaceRegistry[i]) === 'undefined') {
+                    } else if (typeof (i) === 'string') {
+                        if (typeof (JOII.InterfaceRegistry[i]) === 'undefined') {
                             throw 'Interface "' + i + '" does not exist.';
                         }
                         return JOII.InterfaceRegistry[i];
@@ -186,12 +198,12 @@
                 }, this);
 
             // Fetch interfaces from the parent list - if they exist.
-            if (typeof(this.parent) !== 'undefined' && typeof(this.parent.__joii__) !== 'undefined') {
+            if (typeof (this.parent) !== 'undefined' && typeof (this.parent.__joii__) !== 'undefined') {
                 interfaces = this.parent.__joii__.getInterfaces();
             }
 
-            if (typeof(this.interfaces) !== 'undefined') {
-                if (typeof(this.interfaces) === 'object') {
+            if (typeof (this.interfaces) !== 'undefined') {
+                if (typeof (this.interfaces) === 'object') {
                     for (var i in this.interfaces) {
                         if (!this.interfaces.hasOwnProperty(i)) {
                             continue;
@@ -213,20 +225,22 @@
         if (parameters.abstract !== true) {
             var interfaces = definition.prototype.__joii__.getInterfaces();
             for (var ii in interfaces) {
-                if (interfaces.hasOwnProperty(ii) && typeof(interfaces[ii]) === 'function') {
+                if (interfaces.hasOwnProperty(ii) && typeof (interfaces[ii]) === 'function') {
                     interfaces[ii](definition);
                 }
             }
         }
 
 
-        /**
-         * Serializes all serializable properties of an object. Public members are serializable by default.
-         *
-         * @return JSON string containing the serialized class
-         */
-        if (typeof definition.prototype.serialize == 'undefined') {
-            definition.prototype.serialize = function () {
+        // check to make sure serialize doesn't exist yet, or if it does - it's capable of being overloaded without breaking BC
+        if ((!('serialize' in definition.prototype.__joii__.metadata)) || (('overloads' in definition.prototype.__joii__.metadata['serialize']) && (definition.prototype.__joii__.metadata['serialize']['overloads'][0].parameters.length > 0 || definition.prototype.__joii__.metadata['serialize']['overloads'].length > 1))) {
+
+            /**
+             * Serializes all serializable properties of an object. Public members are serializable by default.
+             *
+             * @return {String}
+             */
+            var generatedFn = function(json) {
                 var obj = { __joii_type: this.__joii__.name };
 
                 for (var key in this.__joii__.metadata) {
@@ -244,23 +258,33 @@
 
                 return JSON.stringify(obj);
             };
+            // uses an inheritance style add, so it won't overwrite custom functions with the same signature
+            var serializeMeta = JOII.ParseClassProperty('public function serialize()');
+            JOII.AddFunctionToPrototype(definition.prototype, serializeMeta, generatedFn, true);
         }
 
 
-        /**
-         * Deserializes a class (called on an object instance to populate it)
-         *
-         * @param JSON or object representing an instance of this class
-         * @return void
-         */
-        if (typeof definition.prototype.deserialize == 'undefined') {
-            definition.prototype.deserialize = function (jsonOrRawObject) {
-                var obj = jsonOrRawObject;
 
-                if (typeof jsonOrRawObject == 'string') {
-                    obj = JSON.parse(jsonOrRawObject);
-                }
+        // check to make sure deserialize doesn't exist yet, or if it does - it's capable of being overloaded without breaking BC
+        if ((!('deserialize' in definition.prototype.__joii__.metadata)) || (('overloads' in definition.prototype.__joii__.metadata['deserialize']) && (definition.prototype.__joii__.metadata['deserialize']['overloads'][0].parameters.length > 0 || definition.prototype.__joii__.metadata['deserialize']['overloads'].length > 1))) {
+            /**
+             * Deserializes a class (called on an object instance to populate it)
+             *
+             * @param {String}
+             */
+            var generatedFn = function(json) {
+                this.deserialize(JSON.parse(json));
+            };
+            // uses an inheritance style add, so it won't overwrite custom functions with the same signature
+            var deserializeMeta = JOII.ParseClassProperty('public function deserialize(string)');
+            JOII.AddFunctionToPrototype(definition.prototype, deserializeMeta, generatedFn, true);
 
+            /**
+             * Deserializes a class (called on an object instance to populate it)
+             *
+             * @param {Object}
+             */
+            generatedFn = function(obj) {
                 for (var key in (this.__joii__.metadata)) {
                     var val = this.__joii__.metadata[key];
 
@@ -287,15 +311,20 @@
                     }
                 }
             };
-        }
+            // uses an inheritance style add, so it won't overwrite custom functions with the same signature
+            deserializeMeta = JOII.ParseClassProperty('public function deserialize(object)');
+            JOII.AddFunctionToPrototype(definition.prototype, deserializeMeta, generatedFn, true);
+
+        };
+
 
         /**
          * Deserializes a class (called as a static method - instantiates a new object and populates it)
+         * TODO: implement "static" attribute, and mix this in via AddFunctionToPrototype
          *
-         * @param JSON or object representing an instance of this class
-         * @return void
+         * @param {String}|{Object}
          */
-        definition.deserialize = function (jsonOrRawObject) {
+        definition.deserialize = function(jsonOrRawObject) {
             var deserializeObject = {
                 '__joii_deserialize_object': true,
                 'data': jsonOrRawObject
@@ -303,9 +332,10 @@
             return new definition(deserializeObject);
         };
 
+
         // Register the class by the given name to make it usable as a type
         // inside property declarations.
-        if (typeof(JOII.ClassRegistry[name]) !== 'undefined') {
+        if (typeof (JOII.ClassRegistry[name]) !== 'undefined') {
             throw 'Another class named "' + name + '" already exists.';
         }
         JOII.ClassRegistry[name] = definition;

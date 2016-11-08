@@ -3,3 +3,9 @@ node_modules/*
 .buildpath
 .project
 .settings
+*.suo
+*.njsproj
+*.sln
+bin
+obj
+typings
