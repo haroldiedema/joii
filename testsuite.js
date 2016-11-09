@@ -2,8 +2,7 @@
  * TestSuite Definition
  */
 var testsuite = {
-    code:
-    "./dist/joii.js",
+    code: "./dist/joii.js",
     tests: [
         // PrototypeBuilder
         "./test/PrototypeBuilder/DeepCopyTest.js",
