@@ -4,7 +4,7 @@
  * ------------------------------------------------------ \___/\____/___/__*/
 
 // Register JOII 'namespace'.
-JOII = typeof(JOII) !== 'undefined' ? JOII : {};
+JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 JOII.Reflection = {};
 
 /**
@@ -29,21 +29,21 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
      *
      * @var object
      */
-    'protected immutable object meta'  : null,
+    'protected immutable object meta': null,
 
     /**
      * Contains the prototype of the class.
      *
      * @var object
      */
-    'protected immutable object proto' : null,
+    'protected immutable object proto': null,
 
     /**
      * Represents the Reflection.Class instance of the parent definition.
      *
      * @var JOII.Reflection.Class
      */
-    'public immutable object parent'   : null,
+    'public immutable object parent': null,
 
     /**
      * Constructor
@@ -52,21 +52,21 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
      */
     'protected __construct': function(definition) {
 
-        if (typeof(definition) === 'function') {
+        if (typeof (definition) === 'function') {
             definition = definition.prototype;
         }
 
         // Is the passed argument an actual JOII class?
-        if (typeof(definition) !== 'object' ||
-            typeof(definition.__joii__) !== 'object') {
+        if (typeof (definition) !== 'object' ||
+            typeof (definition.__joii__) !== 'object') {
             throw 'Reflection.Class requires a JOII-created definition.';
         }
 
         this.proto = definition;
-        this.meta  = definition.__joii__;
+        this.meta = definition.__joii__;
 
         // Does the class definition have a parent?
-        if (typeof(this.meta.parent) !== 'undefined') {
+        if (typeof (this.meta.parent) !== 'undefined') {
             this.parent = new JOII.Reflection.Class(this.meta.parent);
         }
     },
@@ -132,7 +132,7 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
     'public getMethods': function(filter) {
         var result = [];
         for (var i in this.proto) {
-            if (typeof(this.proto[i]) === 'function' && JOII.Compat.indexOf(JOII.InternalPropertyNames, i) === -1) {
+            if (typeof (this.proto[i]) === 'function' && JOII.Compat.indexOf(JOII.InternalPropertyNames, i) === -1) {
                 result.push(new JOII.Reflection.Method(this, i));
             }
         }
@@ -161,7 +161,7 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
      * @param  string name
      * @return JOII.Reflection.Method
      */
-    'public getMethod' : function(name) {
+    'public getMethod': function(name) {
         var list = this.getMethods();
         for (var i in list) {
             if (list[i].getName() === name) {
@@ -178,10 +178,10 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
      * @param  string filter Optional filter for 'private' or 'public'.
      * @return JOII.Reflection.Property[]
      */
-    'public getProperties' : function(filter) {
+    'public getProperties': function(filter) {
         var result = [];
         for (var i in this.proto) {
-            if (typeof(this.proto[i]) !== 'function' && JOII.Compat.indexOf(JOII.InternalPropertyNames, i) === -1) {
+            if (typeof (this.proto[i]) !== 'function' && JOII.Compat.indexOf(JOII.InternalPropertyNames, i) === -1) {
                 result.push(new JOII.Reflection.Property(this, i));
             }
         }
@@ -195,7 +195,7 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
      * @param  string name
      * @return JOII.Reflection.Property
      */
-    'public getProperty' : function(name) {
+    'public getProperty': function(name) {
         var list = this.getProperties();
         for (var i in list) {
             if (list[i].getName() === name) {
@@ -217,21 +217,21 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
      *
      * @var JOII.Reflection.Class
      */
-    'protected nullable object reflector' : null,
+    'protected nullable object reflector': null,
 
     /**
      * Represents the metadata of this property.
      *
      * @var object
      */
-    'protected nullable object meta' : null,
+    'protected nullable object meta': null,
 
     /**
      * Represents the name of the property.
      *
      * @var string
      */
-    'public read string name' : null,
+    'public read string name': null,
 
     /**
      * Constructor.
@@ -239,15 +239,14 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
      * @param JOII.Reflection.Class reflector
      * @param string property_name
      */
-    'protected __construct': function(reflector, property_name)
-    {
+    'protected __construct': function(reflector, property_name) {
         this.reflector = reflector;
-        this.name      = property_name;
-        this.meta      = reflector.getMeta().metadata[property_name];
+        this.name = property_name;
+        this.meta = reflector.getMeta().metadata[property_name];
 
         // If we, for some strange reason don't have metadata, fill it in
         // with some default values.
-        if (typeof(this.meta) === 'undefined') {
+        if (typeof (this.meta) === 'undefined') {
             this.meta = {
                 name        : this.name,
                 type        : null,
@@ -263,7 +262,7 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
         // However, only do this for non-nullable types to avoid type
         // mismatching exceptions in setters.
         if (this.meta.type === null && this.meta.is_nullable === false) {
-            this.meta.type = typeof(this.reflector.getProto()[this.meta.name]);
+            this.meta.type = typeof (this.reflector.getProto()[this.meta.name]);
         }
     },
 
@@ -391,7 +390,7 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
             if (proto_ref === null) {
                 name_parts.push('mixed');
             } else {
-                name_parts.push(typeof(proto_ref));
+                name_parts.push(typeof (proto_ref));
             }
         } else {
             name_parts.push(this.meta.type);
@@ -400,11 +399,11 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
         name_parts.push('"' + this.meta.name + '"');
         name = name_parts.join(' ');
 
-        if (typeof(proto_ref) === 'function') {
+        if (typeof (proto_ref) === 'function') {
             body = '[Function]';
-        } else if(typeof(proto_ref) === 'object' && proto_ref !== null) {
+        } else if (typeof (proto_ref) === 'object' && proto_ref !== null) {
             body = '[Object (' + proto_ref.length + ')]';
-        } else if (typeof(proto_ref) === 'string') {
+        } else if (typeof (proto_ref) === 'string') {
             body = '"' + proto_ref + '"';
         } else {
             body = proto_ref;
@@ -427,23 +426,50 @@ JOII.Reflection.Method = JOII.ClassBuilder({ 'extends': JOII.Reflection.Property
             FN_ARG         = /^\s*(_?)(\S+?)\1\s*$/,
             STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg,
             getParams      = function(fn) {
-            var fnText, argDecl;
-            var args=[];
-            fnText  = fn.toString().replace(STRIP_COMMENTS, '');
-            argDecl = fnText.match(FN_ARGS);
+                var fnText, argDecl;
+                var args = [];
+                fnText = fn.toString().replace(STRIP_COMMENTS, '');
+                argDecl = fnText.match(FN_ARGS);
 
-            var r = argDecl[1].split(FN_ARG_SPLIT), repl = function(all, underscore, name) {
-                args.push(name);
+                var r = argDecl[1].split(FN_ARG_SPLIT), repl = function(all, underscore, name) {
+                    args.push(name);
+                };
+                for (var a in r) {
+                    var arg = r[a];
+                    arg.replace(FN_ARG, repl);
+                }
+
+                return args;
             };
-            for (var a in r) {
-                var arg = r[a];
-                arg.replace(FN_ARG, repl);
+
+        var prototype = this.reflector.getProto();
+        var overloads = prototype.__joii__.metadata[this.name].overloads;
+
+        if (!overloads || overloads.length === 0) {
+            // old method for BC (wasn't recognized as a function when prototyping)
+            return getParams(this.reflector.getProto()[this.name]);
+        } else if (overloads.length === 1 && overloads[0].parameters.length === 0) {
+            // old method for BC (was recognized when prototyping, but old style)
+            return getParams(overloads[0].fn);
+        }
+        else {
+            var ret = [];
+
+            for (var idx = 0; idx < overloads.length; idx++) {
+                var fn_meta = [];
+                var function_parameters_meta = overloads[idx];
+                var parsed_params = getParams(function_parameters_meta.fn);
+                for (var j = 0; j < function_parameters_meta.parameters.length; j++) {
+                    var param = {
+                        name: parsed_params.length > j ? parsed_params[j] : null,
+                        type: function_parameters_meta.parameters[j]
+                    };
+                    fn_meta.push(param);
+                }
+                ret.push(fn_meta);
             }
-
-            return args;
-        };
-
-        return getParams(this.reflector.getProto()[this.name]);
+            return ret;
+        }
     },
 
     /**
@@ -451,12 +477,11 @@ JOII.Reflection.Method = JOII.ClassBuilder({ 'extends': JOII.Reflection.Property
      *
      * @return string
      */
-    'public getBodyAsString': function(f)
-    {
+    'public getBodyAsString': function(f) {
         var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg,
             fn_text        = this.reflector.getProto()[this.name].toString().replace(STRIP_COMMENTS, '');
 
-        return fn_text.substr(fn_text.indexOf('{') + 1, fn_text.lastIndexOf('}') - 4).replace(/}([^}]*)$/,'$1');
+        return fn_text.substr(fn_text.indexOf('{') + 1, fn_text.lastIndexOf('}') - 4).replace(/}([^}]*)$/, '$1');
     },
 
     /**
@@ -486,7 +511,37 @@ JOII.Reflection.Method = JOII.ClassBuilder({ 'extends': JOII.Reflection.Property
             args   = this.getParameters(),
             is_var = this.usesVariadicArguments();
 
-        if (args.length > 0) {
+        if (args.length > 0 && typeof (args[0]) === 'object') {
+            // right now, this is spitting out every overload's signature one after another, each on a new line.
+            // should probably find a better way to do this
+            for (var idx = 0; idx < args.length; idx++) {
+                var function_parameters_meta = args[idx];
+
+                body += ' (';
+
+                var first_time = true;
+                for (var i = 0; i < function_parameters_meta.length; i++) {
+                    if (!first_time) {
+                        body += ', ';
+                    }
+                    first_time = false;
+                    body += function_parameters_meta[i].type;
+                    if (function_parameters_meta[i].name !== null) {
+                        body += " " + function_parameters_meta[i].name;
+                        is_var = true;
+                    }
+                }
+
+
+                var data = this.reflector.getProto().__joii__.metadata[this.name].overloads[idx].fn.toString();
+                is_var = data.match(/[\(|\.|\ ](arguments)[\)|\.|\,|\ |]/g);
+
+                if (is_var) {
+                    body += ', ...';
+                }
+                body += ')\n';
+            }
+        } else if (args.length > 0) {
             body += ' (' + args.join(', ');
             if (is_var) {
                 body += ', ...';

@@ -2,6 +2,8 @@
  * (c) 2016 <harold@iedema.me>                             __ / / __ \/  _/  _/
  * Licensed under MIT.                                    / // / /_/ // /_/ /
  * ------------------------------------------------------ \___/\____/___/__*/
+
+JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 JOII.Compat = {};
 
 /**
@@ -11,42 +13,41 @@ JOII.Compat = {};
  * @param  {Object|Function} e
  * @return {String|Boolean}
  */
-JOII.Compat.findJOIIName = function(e)
-{
+JOII.Compat.findJOIIName = function(e) {
     var i, r;
 
-    if (typeof(e) === 'string' ||
-        typeof(e) === 'number' ||
-        typeof(e) === 'undefined' ||
+    if (typeof (e) === 'string' ||
+        typeof (e) === 'number' ||
+        typeof (e) === 'undefined' ||
         e === null
     ) {
         return false;
     }
 
-    if (typeof(e.__joii__) !== 'undefined') {
+    if (typeof (e.__joii__) !== 'undefined') {
         return e.__joii__.name;
     }
-    if (typeof(e.prototype) !== 'undefined' && typeof(e.prototype.__joii__) !== 'undefined') {
+    if (typeof (e.prototype) !== 'undefined' && typeof (e.prototype.__joii__) !== 'undefined') {
         return e.prototype.__joii__.name;
     }
 
     // Chrome / FF // IE 11+
-    if (typeof(e.__proto__) !== 'undefined') {
+    if (typeof (e.__proto__) !== 'undefined') {
         r = JOII.Compat.findJOIIName(e.__proto__);
-        if (typeof(r) === 'string') {
+        if (typeof (r) === 'string') {
             return r;
         }
     }
 
-    if (typeof(e) === 'function') {
+    if (typeof (e) === 'function') {
         e = e.prototype;
     }
 
     for (i in e) {
         if (e.hasOwnProperty(i) === false) continue;
-        if (typeof(e[i]) === 'function' || typeof(e[i]) === 'object') {
+        if (typeof (e[i]) === 'function' || typeof (e[i]) === 'object') {
             r = JOII.Compat.findJOIIName(e[i]);
-            if (typeof(r) === 'string') {
+            if (typeof (r) === 'string') {
                 return r;
             }
         }
@@ -64,11 +65,11 @@ JOII.Compat.findJOIIName = function(e)
  */
 JOII.Compat.indexOf = function(array, elt) {
 
-    if (typeof(array.indexOf) === 'function') {
+    if (typeof (array.indexOf) === 'function') {
         return array.indexOf(elt);
     }
 
-    var len  = array.length >>> 0,
+    var len = array.length >>> 0,
         from = Number(arguments[1]) || 0;
 
     from = (from < 0) ? Math.ceil(from) : Math.floor(from);
@@ -88,32 +89,32 @@ JOII.Compat.indexOf = function(array, elt) {
  *
  * - original by jQuery (http://jquery.com/)
  */
-JOII.Compat.extend = function()
-{
+JOII.Compat.extend = function() {
     var options, src, copy, copyIsArray = false, clone,
         target = arguments[0] || {},
         i = 1,
         length = arguments.length,
         deep = false;
     if (typeof target === "boolean") {
-        deep = target; target = arguments[ i ] || {}; i++;
+        deep = target; target = arguments[i] || {}; i++;
     }
-    if (typeof target !== "object" && typeof(target) !== "function") {
+    if (typeof target !== "object" && typeof (target) !== "function") {
         target = {};
     }
-    for (;i < length; i++) {
-        if ((options = arguments[i]) !== null && arguments[i] !== undefined) {
+    for (; i < length; i++) {
+        options = arguments[i];
+        if (options !== null && arguments[i] !== undefined) {
 
-            if (typeof(options.__joii__) !== 'undefined') {
+            if (typeof (options.__joii__) !== 'undefined') {
                 JOII.CreateProperty(target, '__joii__', options.__joii__);
             }
 
             for (var name in options) {
                 // Do NOT check 'hasOwnProperty' here. The universe will implode.
-                src  = target[name];
+                src = target[name];
                 copy = options[name];
                 if (target === copy) { continue; }
-                if (deep && copy && (JOII.Compat.isPlainObject(copy) || (copyIsArray = JOII.Compat.isArray(copy)) ) ) {
+                if (deep && copy && (JOII.Compat.isPlainObject(copy) || (copyIsArray = JOII.Compat.isArray(copy)))) {
                     if (copyIsArray) {
                         copyIsArray = false;
                         clone = src && JOII.Compat.isArray(src) ? src : [];
@@ -136,12 +137,11 @@ JOII.Compat.extend = function()
  * @param  {Object} obj
  * @return {Boolean}
  */
-JOII.Compat.isArray = function(obj)
-{
+JOII.Compat.isArray = function(obj) {
     var length = obj.length,
-        type = typeof(obj);
+        type = typeof (obj);
 
-    if (type === "function" || (typeof(window) !== 'undefined' && obj === window)) {
+    if (type === "function" || (typeof (window) !== 'undefined' && obj === window)) {
         return false;
     }
     if (obj.nodeType === 1 && length) {
@@ -154,11 +154,11 @@ JOII.Compat.isArray = function(obj)
  * Returns true if the given object is a plain object (not an array).
  *
  * @param  {Object} obj
- * @return bool
+ * @return {Boolean}
  */
 JOII.Compat.isPlainObject = function(obj) {
     var hasOwn = ({}).hasOwnProperty;
-    if (typeof(obj) !== "object" || obj.nodeType || (typeof(window) !== 'undefined' && obj === window)) {
+    if (typeof (obj) !== "object" || obj.nodeType || (typeof (window) !== 'undefined' && obj === window)) {
         return false;
     }
 
@@ -173,13 +173,13 @@ JOII.Compat.isPlainObject = function(obj) {
  */
 JOII.Compat.CreateObject = function(o) {
 
-    if (typeof(Object.create) === 'function') {
+    if (typeof (Object.create) === 'function') {
         return Object.create(o);
     }
 
     var c = (function() {
-        function Class(){}
-        return function(o){
+        function Class() { }
+        return function(o) {
             if (arguments.length != 1) {
                 throw new Error('JOII.Compat.CreateObject implementation only accepts one parameter.');
             }
@@ -242,29 +242,29 @@ JOII.Compat.GenerateUUID = function() {
  * @return {Object}
  */
 JOII.Compat.ParseArguments = function(args) {
-    var result = {name: '', parameters: {}, body: {}};
+    var result = { name: '', parameters: {}, body: {} };
 
-    switch(args.length) {
+    switch (args.length) {
         // Zero-arguments. Unlikely, but valid for classes and interfaces.
         case 0:
             result.name = JOII.Compat.GenerateUUID();
             break;
         // One argument. Name or body.
         case 1:
-            if (typeof(args[0]) === 'string') {
+            if (typeof (args[0]) === 'string') {
                 result.name = args[0];
             }
-            if (typeof(args[0]) === 'object') {
+            if (typeof (args[0]) === 'object') {
                 result.name = JOII.Compat.GenerateUUID();
                 result.body = args[0];
             }
             break;
         // Two arguments: Name & Body or Parameters & Body
         case 2:
-            if (typeof(args[0]) === 'string') {
+            if (typeof (args[0]) === 'string') {
                 result.name = args[0];
             }
-            if (typeof(args[0]) === 'object') {
+            if (typeof (args[0]) === 'object') {
                 result.name = JOII.Compat.GenerateUUID();
                 result.parameters = args[0];
             }
@@ -278,9 +278,9 @@ JOII.Compat.ParseArguments = function(args) {
     }
 
     // Validate the results.
-    if (typeof(result.name) !== 'string' ||
-        typeof(result.parameters) !== 'object' ||
-        typeof(result.body) !== 'object') {
+    if (typeof (result.name) !== 'string' ||
+        typeof (result.parameters) !== 'object' ||
+        typeof (result.body) !== 'object') {
         throw 'Invalid parameter types given. Expected: ([[[string], object], <object>]).';
     }
 
@@ -295,19 +295,46 @@ JOII.Compat.ParseArguments = function(args) {
  * @param  {Boolean} deep
  * @return {Object}
  */
-JOII.Compat.flexibleArgumentToArray = function(arg, deep)
-{
-    if (typeof(arg) === 'object' && !JOII.Compat.isArray(arg) && typeof(arg[0]) === 'undefined') {
+JOII.Compat.flexibleArgumentToArray = function(arg, deep) {
+    if (typeof (arg) === 'object' && !JOII.Compat.isArray(arg) && typeof (arg[0]) === 'undefined') {
         return [deep ? JOII.Compat.extend(true, {}, arg) : arg];
-    } else if (typeof(arg) === 'function') {
+    } else if (typeof (arg) === 'function') {
         return [deep ? JOII.Compat.extend(true, {}, arg.prototype) : arg.prototype];
-    } else if (typeof(arg) === 'object' && JOII.Compat.isArray(arg)) {
+    } else if (typeof (arg) === 'object' && JOII.Compat.isArray(arg)) {
         var result = [];
         for (var i in arg) {
             result.push(JOII.Compat.flexibleArgumentToArray(arg[i], false)[0]);
         }
         return result;
     } else {
-        throw 'Unable to read ' + typeof(arg) + '. Object, function or array expected.';
+        throw 'Unable to read ' + typeof (arg) + '. Object, function or array expected.';
     }
+};
+
+
+JOII.Compat.canTypeBeCastTo = function(val, cast_to_type) {
+    // InstanceOf validator (in case of interfaces & classes)
+    if (typeof (JOII.InterfaceRegistry[cast_to_type]) !== 'undefined' ||
+        typeof (JOII.ClassRegistry[cast_to_type]) !== 'undefined') {
+
+        if (JOII.Compat.findJOIIName(val) !== cast_to_type) {
+            if (val !== null && (typeof (val.instanceOf) !== 'function' || (typeof (val) === 'object' && typeof (val.instanceOf) === 'function' && !val.instanceOf(cast_to_type)))) {
+                return false;
+            }
+        }
+    } else {
+        // Native val validator
+        if (typeof (JOII.EnumRegistry[cast_to_type]) !== 'undefined') {
+            var _e = JOII.EnumRegistry[cast_to_type];
+            if (!_e.contains(val)) {
+                return false; // Should we really be validating that it fits inside the enum?
+            }
+        } else {
+            if (typeof (val) !== cast_to_type) {
+                return false;
+            }
+        }
+    }
+    // nothing failed, so should be compatible
+    return true;
 };

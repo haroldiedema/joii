@@ -12,13 +12,13 @@ test('ClassBuilder:AbstractImplementationTest', function(assert) {
     // An abstract property must also have a functional one in the same class.
     assert.throws(function() {
         var a = JOII.ClassBuilder({}, { 'abstract public function test' : function() {} }); new a();
-    }, function(err) { return err === 'Missing abstract member implementation of "test".'; }, 'Validate: Missing implementation of abstract properties.');
+    }, function(err) { return err === 'Missing abstract member implementation of test()'; }, 'Validate: Missing implementation of abstract properties.');
 
     // An abstract property must be implemented by a child class.
     assert.throws(function() {
         var a = JOII.ClassBuilder({}, { 'abstract public function test' : function() {} });
         var b = JOII.ClassBuilder({ 'extends': a }, {}); new b();
-    }, function(err) { return err === 'Missing abstract member implementation of "test".'; }, 'Validate: Missing implementation of abstract properties.');
+    }, function(err) { return err === 'Missing abstract member implementation of test()'; }, 'Validate: Missing implementation of abstract properties.');
 
     // Visibility of an abstract property may not change.
     assert.throws(function() {

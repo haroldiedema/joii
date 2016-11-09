@@ -3,7 +3,7 @@
  * Licensed under MIT.                                    / // / /_/ // /_/ /
  * ------------------------------------------------------ \___/\____/___/__*/
 
-// The registry contains a set of interfaces indexed by a GUID.
+JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 JOII.InterfaceRegistry = {};
 
 /**
@@ -23,8 +23,7 @@ JOII.InterfaceBuilder = function() {
     // The definition will be the resulting function containing all
     // required information about this interface.
     var prototype  = JOII.PrototypeBuilder(name, parameters, body, true),
-        definition = function(prototype)
-        {
+        definition = function(prototype) {
             var reflector = new JOII.Reflection.Class(prototype),
                 properties = this.reflector.getProperties(),
                 methods = this.reflector.getMethods(),
@@ -36,15 +35,17 @@ JOII.InterfaceBuilder = function() {
                 return true;
             }
 
-            var verifyMeta = function (t, p1, p2, prefix) {
+            var verifyMeta = function(t, p1, p2, prefix) {
                 if (p1.getVisibility() !== p2.getVisibility()) {
                     throw prefix + ' ' + p2.getName() + ' cannot be ' + p2.getVisibility() + ' because the interface declared it ' + p1.getVisibility() + '.';
                 }
-                if (p1.getType() !== p2.getType()) {
-                    throw prefix + ' ' + p2.getName() + ' cannot be declared as ' + p2.getType() + ' because the interface declared it as ' + p1.getType() + '.';
-                }
-                if (p1.isNullable() !== p2.isNullable()) {
-                    throw prefix + ' ' + p2.getName() + ' must be nullable as defined in the interface ' + t.name + '.';
+                if (prefix != 'Method') {
+                    if (p1.getType() !== p2.getType()) {
+                        throw prefix + ' ' + p2.getName() + ' cannot be declared as ' + p2.getType() + ' because the interface declared it as ' + p1.getType() + '.';
+                    }
+                    if (p1.isNullable() !== p2.isNullable()) {
+                        throw prefix + ' ' + p2.getName() + ' must be nullable as defined in the interface ' + t.name + '.';
+                    }
                 }
                 return true;
             };
@@ -77,8 +78,42 @@ JOII.InterfaceBuilder = function() {
                 verifyMeta(this, p1, p2, 'Method');
 
                 // Verify function signature.
-                if (p1.getParameters().length !== p2.getParameters().length) {
-                    throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
+                var args_interface = p1.getParameters();
+                var args_class = p2.getParameters();
+
+                if (args_interface.length == 0 || typeof (args_interface[0]) !== 'object') {
+                    // fallback for backwards compatibility
+                    if (args_interface.length !== args_class.length) {
+                        throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
+                    }
+                } else {
+                    for (var idx = 0; idx < args_interface.length; idx++) {
+                        var interface_parameters_meta = args_interface[idx];
+
+                        var different = true;
+
+                        for (var x = 0; x < args_class.length; x++) {
+                            var class_parameters_meta = args_class[x];
+
+                            if (interface_parameters_meta.parameters.length === class_parameters_meta.parameters.length) {
+                                // this signature has the same number of types as the new signature
+                                // check to see if the types are the same (duplicate signature)
+                                different = false;
+
+                                for (var y = 0; y < interface_parameters_meta.parameters.length; y++) {
+                                    if (interface_parameters_meta.parameters[y] != class_parameters_meta.parameters[y]) {
+                                        different = true;
+                                    }
+                                }
+                                if (!different) {
+                                    break;
+                                }
+                            }
+                        }
+                        if (different) {
+                            throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
+                        }
+                    }
                 }
             }
         };
@@ -127,7 +162,7 @@ JOII.InterfaceBuilder = function() {
 
     // Register the interface, making it available in the PrototypeBuilder
     // to use as a type in property definitions.
-    if (typeof(JOII.InterfaceRegistry[name]) !== 'undefined') {
+    if (typeof (JOII.InterfaceRegistry[name]) !== 'undefined') {
         throw 'Another interface with the name "' + name + '" already exists.';
     }
     if (JOII.Compat.indexOf(JOII.InternalTypeNames, name) !== -1) {
@@ -143,11 +178,11 @@ JOII.InterfaceBuilder = function() {
     }
 
     // Does the class implement an enumerator?
-    if (typeof(parameters['enum']) === 'string') {
+    if (typeof (parameters['enum']) === 'string') {
         var e = JOII.EnumBuilder(parameters['enum'], constants);
         if (parameters.expose_enum === true) {
             var g = typeof window === 'object' ? window : global;
-            if (typeof(g[parameters['enum']]) !== 'undefined') {
+            if (typeof (g[parameters['enum']]) !== 'undefined') {
                 throw 'Cannot expose Enum "' + parameters['enum'] + '" becase it already exists in the global scope.';
             }
             g[parameters['enum']] = e;

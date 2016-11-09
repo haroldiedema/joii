@@ -29,43 +29,60 @@
  * TestSuite Definition
  */
 var testsuite = {
-    code  : "./dist/joii.js",
-    tests : [
-         // PrototypeBuilder
-             "./test/PrototypeBuilder/DeepCopyTest.js",
-             "./test/PrototypeBuilder/InheritanceTest.js",
-             "./test/PrototypeBuilder/PropertyMetaTest.js",
-             "./test/PrototypeBuilder/TraitTest.js",
-         // ClassBuilder
-             "./test/ClassBuilder/InstantiationTest.js",
-             "./test/ClassBuilder/InheritanceTest.js",
-             "./test/ClassBuilder/AbstractImplementationTest.js",
-             "./test/ClassBuilder/VisibilityTest.js",
-             "./test/ClassBuilder/GetterTest.js",
-             "./test/ClassBuilder/SetterValidationTest.js",
-             "./test/ClassBuilder/NullableTypeTest.js",
-             "./test/ClassBuilder/TypeValidationTest.js",
-             "./test/ClassBuilder/InstanceOfTest.js",
-             "./test/ClassBuilder/CallTest.js",
-             "./test/ClassBuilder/ConstantTest.js",
-             "./test/ClassBuilder/SerializeTest.js",
-         // InterfaceBuilder,
-             "./test/InterfaceBuilder/InterfaceBuilderTest.js",
-             "./test/InterfaceBuilder/InterfaceValidationTest.js",
-         // EnumBuilder
-             "./test/EnumBuilder/EnumBuilderTest.js",
-         // Reflection
-             "./test/Reflection/ReflectionTest.js",
-         // GitHub Reported Issues
-             "./test/IssueReports/IssueReport4.js",
-             "./test/IssueReports/IssueReport9.js",
-             "./test/IssueReports/IssueReport10.js",
-             "./test/IssueReports/IssueReport11.js",
-             "./test/IssueReports/IssueReport15.js",
-             "./test/IssueReports/IssueReport16.js",
-             "./test/IssueReports/IssueReport19.js",
-             "./test/IssueReports/IssueReport21.js",
-             "./test/IssueReports/IssueReport25.js"
+    code:
+        // For browser testing, you can either test the compiled version, or the source version, by toggling which is commented out
+        // In Node.js, only the compiled version works, so be sure to switch to that before testing there
+        /** /
+        "./dist/joii.js",
+        /**/
+        [
+            'src/Compatibility.js',
+            'src/PrototypeBuilder.js',
+            'src/ClassBuilder.js',
+            'src/InterfaceBuilder.js',
+            'src/EnumBuilder.js',
+            'src/Reflection.js',
+            'src/Config.js',
+            'src/joii.js'
+        ],
+    /**/
+    tests: [
+        // PrototypeBuilder
+        "./test/PrototypeBuilder/DeepCopyTest.js",
+        "./test/PrototypeBuilder/InheritanceTest.js",
+        "./test/PrototypeBuilder/PropertyMetaTest.js",
+        "./test/PrototypeBuilder/TraitTest.js",
+        // ClassBuilder
+        "./test/ClassBuilder/InstantiationTest.js",
+        "./test/ClassBuilder/InheritanceTest.js",
+        "./test/ClassBuilder/AbstractImplementationTest.js",
+        "./test/ClassBuilder/VisibilityTest.js",
+        "./test/ClassBuilder/GetterTest.js",
+        "./test/ClassBuilder/SetterValidationTest.js",
+        "./test/ClassBuilder/NullableTypeTest.js",
+        "./test/ClassBuilder/TypeValidationTest.js",
+        "./test/ClassBuilder/InstanceOfTest.js",
+        "./test/ClassBuilder/CallTest.js",
+        "./test/ClassBuilder/ConstantTest.js",
+        "./test/ClassBuilder/SerializeTest.js",
+        "./test/ClassBuilder/FunctionOverloadingTests.js",
+        // InterfaceBuilder,
+        "./test/InterfaceBuilder/InterfaceBuilderTest.js",
+        "./test/InterfaceBuilder/InterfaceValidationTest.js",
+        // EnumBuilder
+        "./test/EnumBuilder/EnumBuilderTest.js",
+        // Reflection
+        "./test/Reflection/ReflectionTest.js",
+        // GitHub Reported Issues
+        "./test/IssueReports/IssueReport4.js",
+        "./test/IssueReports/IssueReport9.js",
+        "./test/IssueReports/IssueReport10.js",
+        "./test/IssueReports/IssueReport11.js",
+        "./test/IssueReports/IssueReport15.js",
+        "./test/IssueReports/IssueReport16.js",
+        "./test/IssueReports/IssueReport19.js",
+        "./test/IssueReports/IssueReport21.js",
+        "./test/IssueReports/IssueReport25.js"
     ]
 };
 
@@ -78,17 +95,47 @@ if (typeof(window) === 'undefined') {
     qunit.run(testsuite);
 } else {
     // We're running a browser.
+    // ensure that all scripts load in the right order, so that the tests have the same ordinal each time
+    var loaded_scripts = 0;
+    var total_scripts = testsuite.tests.length;
+
+    var all_scripts_to_load = [];
+
+    var array_index = 0;
+
+    if (typeof(testsuite.code) === 'object') {
+        total_scripts += testsuite.code.length;
+        all_scripts_to_load = testsuite.code.slice(0);
+    }
+    else {
+        total_scripts++;
+        all_scripts_to_load.push(testsuite.code);
+    }
+
+    Array.prototype.push.apply(all_scripts_to_load, testsuite.tests);
+
+
+    var loadNextScript = function(file) {
+        if (array_index < all_scripts_to_load.length) {
+            addScript(all_scripts_to_load[array_index]);
+            array_index++;
+        }
+    };
+
     var addScript = function(file) {
         var s = document.createElement('script');
         s.setAttribute('type', 'text/javascript');
         s.setAttribute('src', file);
+        s.onload = function() {
+            loaded_scripts++;
+            loadNextScript();
+        };
         document.getElementsByTagName('head')[0].appendChild(s);
     };
-    addScript(testsuite.code);
-    for (var i in testsuite.tests) {
-        addScript(testsuite.tests[i]);
-    }
+
     function require() {
         return window;
     }
+
+    loadNextScript();
 }

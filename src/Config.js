@@ -2,6 +2,8 @@
  * (c) 2016 <harold@iedema.me>                             __ / / __ \/  _/  _/
  * Licensed under MIT.                                    / // / /_/ // /_/ /
  * ------------------------------------------------------ \___/\____/___/__*/
+
+JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 JOII.Config = {
     constructors : ['__construct', 'construct', '->', '=>'],
     callables    : ['__call', '<>'],
@@ -22,6 +24,21 @@ JOII.Config = {
     },
 
     /**
+     * Removes a constructor method name. The first occurance of a function
+     * named like one of these is executed. The rest is ignored to prevent
+     * ambiguous behavior.
+     *
+     * @param {string} name
+     */
+    removeConstructor: function(name) {
+        if (JOII.Config.constructors.indexOf(name) === -1) {
+            return;
+        }
+
+        JOII.Config.constructors.splice(JOII.Config.constructors.indexOf(name), 1);
+    },
+
+    /**
      * Adds a callable method name, like __call. Only one of these is
      * executed if more than one exist to prevent ambiguous behaviour.
      *
@@ -33,5 +50,19 @@ JOII.Config = {
         }
 
         JOII.Config.callables.push(name);
+    },
+
+    /**
+     * Removes a callable method name, like __call. Only one of these is
+     * executed if more than one exist to prevent ambiguous behaviour.
+     *
+     * @param {string} name
+     */
+    removeCallable: function(name) {
+        if (JOII.Config.callables.indexOf(name) === -1) {
+            return;
+        }
+
+        JOII.Config.callables.splice(JOII.Config.callables.indexOf(name), 1);
     }
 };

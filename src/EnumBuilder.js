@@ -3,6 +3,7 @@
  * Licensed under MIT.                                    / // / /_/ // /_/ /
  * ------------------------------------------------------ \___/\____/___/__*/
 
+JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 JOII.EnumRegistry = {};
 
 /**
@@ -50,28 +51,28 @@ JOII.EnumBuilder = JOII.ClassBuilder({ 'final' : true }, {
      * @return JOII.EnumBuilder
      */
     __call: function(name, obj) {
-        if (typeof(name) !== 'string') {
-            throw 'Argument #1 of Enum must be a string, ' + typeof(name) + ' given.';
+        if (typeof (name) !== 'string') {
+            throw 'Argument #1 of Enum must be a string, ' + typeof (name) + ' given.';
         }
-        if (typeof(obj) === 'function' &&
-            typeof(obj.prototype.__joii__) !== 'undefined') {
+        if (typeof (obj) === 'function' &&
+            typeof (obj.prototype.__joii__) !== 'undefined') {
             obj = obj.prototype.__joii__.constants;
         }
 
-        if (typeof(obj) !== 'object') {
-            throw 'Argument #2 of Enum must be an object or definition, ' + typeof(obj) + ' given.';
+        if (typeof (obj) !== 'object') {
+            throw 'Argument #2 of Enum must be an object or definition, ' + typeof (obj) + ' given.';
         }
 
-        if (typeof(JOII.EnumRegistry[name.toLowerCase()]) !== 'undefined') {
+        if (typeof (JOII.EnumRegistry[name.toLowerCase()]) !== 'undefined') {
             throw 'Enumerator "' + name + '" already exists.';
         }
 
         var enumerator = new JOII.EnumBuilder(name, obj);
         for (var i in obj) {
-            if (typeof(obj[i]) === 'function') {
+            if (typeof (obj[i]) === 'function') {
                 throw 'An enumerator cannot contain functions. "' + i + '" is a function.';
             }
-            if (typeof(obj[i]) === 'object') {
+            if (typeof (obj[i]) === 'object') {
                 throw 'An enumerator cannot contain objects. "' + i + '" is an object.';
             }
             JOII.CreateProperty(enumerator, i, obj[i], false);
