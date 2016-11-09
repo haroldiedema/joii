@@ -46,7 +46,7 @@ var testsuite = {
 /**
  * Platform-independent bootstrap.
  */
-if (typeof (window) !== 'object' || window === undefined) {
+if (typeof (window) === 'undefined') {
     // Are we running on CLI / NodeJS ?
     var qunit = require("qunit");
     qunit.run(testsuite);
