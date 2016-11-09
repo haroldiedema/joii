@@ -86,8 +86,7 @@ JOII.InterfaceBuilder = function() {
                     if (args_interface.length !== args_class.length) {
                         throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
                     }
-                }
-                else {
+                } else {
                     for (var idx = 0; idx < args_interface.length; idx++) {
                         var interface_parameters_meta = args_interface[idx];
 
