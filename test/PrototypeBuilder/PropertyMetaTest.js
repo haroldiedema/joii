@@ -109,5 +109,5 @@ test('PrototypeBuilder:PropertyMetaTest', function(assert) {
     assert.throws(function() {
         var a = JOII.PrototypeBuilder('Test', {}, { 'final protected function test' : function() {} });
         JOII.PrototypeBuilder('Test', { 'extends': a }, { 'protected function test' : function() {} });
-    }, function(err) { return err === 'Final member "test" cannot be overwritten.'; }, 'Validate: Overriding final property.');
+    }, function(err) { return err === 'Final member "test()" cannot be overwritten.'; }, 'Validate: Overriding final property.');
 });

@@ -174,19 +174,25 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface) {
                         throw 'Member "' + i + '" must be ' + property_meta.visibility + ' as defined in the parent ' + (is_interface ? 'interface' : 'class') + '.';
                     }
 
-                    // Check final properties.
-                    if (property_meta.is_final === true) {
-                        throw 'Final member "' + i + '" cannot be overwritten.';
-                    }
+                    if (typeof (property) === 'function' || property_meta.parameters.length > 0 || 'overloads' in proto_meta || 'overloads' in property_meta) {
+                        // if it's a function, don't check the following.
+                        // is_final is checked when adding the function later
+                        // read_only and nullable don't apply to functions
+                    } else {
+                        // Check final properties.
+                        if (property_meta.is_final === true) {
+                            throw 'Final member "' + i + '" cannot be overwritten.';
+                        }
 
-                    // Is the property read-only?
-                    if (property_meta.is_read_only !== proto_meta.is_read_only) {
-                        throw 'Member "' + i + '" must be read-only as defined in the parent ' + (is_interface ? 'interface' : 'class') + '.';
-                    }
+                        // Is the property read-only?
+                        if (property_meta.is_read_only !== proto_meta.is_read_only) {
+                            throw 'Member "' + i + '" must be read-only as defined in the parent ' + (is_interface ? 'interface' : 'class') + '.';
+                        }
 
-                    // Is the property nullable?
-                    if (property_meta.is_nullable !== proto_meta.is_nullable) {
-                        throw 'Member "' + i + '" must be nullable as defined in the parent ' + (is_interface ? 'interface' : 'class') + '.';
+                        // Is the property nullable?
+                        if (property_meta.is_nullable !== proto_meta.is_nullable) {
+                            throw 'Member "' + i + '" must be nullable as defined in the parent ' + (is_interface ? 'interface' : 'class') + '.';
+                        }
                     }
 
                 }
@@ -238,11 +244,13 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface) {
                 if ('overloads' in property_meta && typeof (property_meta.overloads) === 'object' && property_meta.overloads.length > 1) {
 
                     var tmp_meta = JOII.Compat.extend(true, {}, property_meta);
+                    delete tmp_meta.overloads;
 
                     // parent has multiple overloads specified. Loop through them, and apply each.
                     for (var idx = 0; idx < property_meta.overloads.length; idx++) {
                         tmp_meta.parameters = property_meta.overloads[idx].parameters;
                         tmp_meta.is_abstract = property_meta.overloads[idx].is_abstract;
+                        tmp_meta.is_final = property_meta.overloads[idx].is_final;
                         JOII.addFunctionToPrototype(prototype, tmp_meta, generated_fn, true);
                     }
                 } else {
@@ -632,6 +640,10 @@ JOII.CreateProperty = function(obj, name, val, writable) {
  */
 JOII.addFunctionToPrototype = function(prototype, meta, fn, ignore_duplicate) {
 
+    if (meta.is_abstract && meta.is_final) {
+        throw 'Member "' + meta.name + '(' + meta.parameters.join(', ') + ')" cannot be both abstract and final simultaniously.';
+    }
+
     if (typeof (ignore_duplicate) === 'undefined') {
         ignore_duplicate = false;
     }
@@ -651,6 +663,7 @@ JOII.addFunctionToPrototype = function(prototype, meta, fn, ignore_duplicate) {
     }
 
     proto_meta.is_abstract = false;
+    proto_meta.is_final = false;
 
     for (var i = 0; i < meta.parameters.length - 1; i++) {
         if (meta.parameters[i] == '...') {
@@ -658,13 +671,17 @@ JOII.addFunctionToPrototype = function(prototype, meta, fn, ignore_duplicate) {
         }
     }
 
+    var not_all_overloads_final = !meta.is_final;
+    var first_loop = true;
+
     for (var idx = 0; idx < proto_meta.overloads.length; idx++) {
         var function_parameters_meta = proto_meta.overloads[idx];
-
+        
         var found_abstract_this_loop = false;
         if (function_parameters_meta.is_abstract) {
             found_abstract_this_loop = true;
         }
+        not_all_overloads_final = not_all_overloads_final || (!function_parameters_meta.is_final);
 
         if (function_parameters_meta.parameters.length === meta.parameters.length) {
             // this signature has the same number of types as the new signature
@@ -681,9 +698,11 @@ JOII.addFunctionToPrototype = function(prototype, meta, fn, ignore_duplicate) {
                     proto_meta.overloads.splice(idx, 1); // remove the abstract version, since we're about to add a non-abstract
                     idx--; // adjust the idx for the changed array
                     found_abstract_this_loop = false; // we're removing this, so don't count it for abstract check
+                } else if (meta.is_final) {
+                    throw 'Final member "' + meta.name + '(' + meta.parameters.join(', ') + ')" cannot be overwritten.';
                 } else {
                     if (!ignore_duplicate) {
-                        throw 'Member ' + meta.name + '(' + meta.parameters.join(', ') + ') is defined twice.';
+                        throw 'Member "' + meta.name + '(' + meta.parameters.join(', ') + ')" is defined twice.';
                     } else {
                         return false;
                     }
@@ -698,8 +717,9 @@ JOII.addFunctionToPrototype = function(prototype, meta, fn, ignore_duplicate) {
 
     var function_meta = {
         fn: fn,
-        parameters: meta.parameters,
-        is_abstract: meta.is_abstract
+        parameters  : meta.parameters,
+        is_abstract : meta.is_abstract,
+        is_final    : meta.is_final
     };
 
     prototype.__joii__.metadata[meta.name].overloads.push(function_meta);
@@ -707,6 +727,9 @@ JOII.addFunctionToPrototype = function(prototype, meta, fn, ignore_duplicate) {
     if (function_meta.is_abstract) {
         prototype.__joii__.metadata[meta.name].is_abstract = true;
     }
+
+    prototype.__joii__.metadata[meta.name].is_final = !not_all_overloads_final;
+
     // create function shim to validate the parameters, and allow overloading
     //if (typeof (prototype[meta.name]) !== 'function') { // this test was preventing it from overriding toString
     prototype[meta.name] = JOII.createFunctionShim(meta.name, prototype.__joii__.metadata[meta.name].overloads);

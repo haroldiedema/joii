@@ -16,7 +16,9 @@ test('ClassBuilder:FunctionOverloadingTests', function(assert) {
 
         // An abstract property must also have a functional one in the same class.
         assert.throws(function() {
-            var a = JOII.ClassBuilder({}, { 'abstract public function test(string)': function() { } }); new a();
+            var a = JOII.ClassBuilder({}, {
+                'abstract public function test(string)': function() { }
+            }); new a();
         }, function(err) { return err === 'Missing abstract member implementation of test(string)'; }, 'Validate: Missing implementation of abstract properties.');
 
         // An abstract property must be implemented by a child class.
@@ -24,6 +26,49 @@ test('ClassBuilder:FunctionOverloadingTests', function(assert) {
             var a = JOII.ClassBuilder({}, { 'abstract public function test(string)': function() { } });
             var b = JOII.ClassBuilder({ 'extends': a }, {}); new b();
         }, function(err) { return err === 'Missing abstract member implementation of test(string)'; }, 'Validate: Missing implementation of abstract properties.');
+
+        // A final property cannot be implemented by a child class.
+        assert.throws(function() {
+            var a = JOII.ClassBuilder({}, {
+                'final public function test(string)': function() { },
+                'public function test(string, num)': function() { }
+            });
+            var b = JOII.ClassBuilder({ 'extends': a }, { 'public function test(string)': function() { } }); new b();
+        }, function(err) { return err === 'Final member "test(string)" cannot be overwritten.'; }, 'Validate: Missing implementation of abstract properties.');
+
+        // A final property cannot be implemented by a child class.
+        assert.throws(function() {
+            var a = JOII.ClassBuilder({}, {
+                'final public function test(string)': function() { },
+                'final public function test(string, num)': function() { }
+            });
+            var b = JOII.ClassBuilder({ 'extends': a }, { 'final public function test(string)': function() { } }); new b();
+        }, function(err) { return err === 'Final member "test(string)" cannot be overwritten.'; }, 'Validate: Missing implementation of abstract properties.');
+
+        // This shouldn't throw an error
+        var a = JOII.ClassBuilder({}, {
+            'public function test(string)': function() { },
+            'final public function test(string, num)': function() { }
+        });
+        var b = JOII.ClassBuilder({ 'extends': a }, { 'final public function test(string)': function() { } });
+        new b();
+
+        // This shouldn't throw an error
+        var a = JOII.ClassBuilder({}, {
+            'abstract public function test(string)': function() { },
+            'public function test(string, num)': function() { }
+        });
+        var b = JOII.ClassBuilder({ 'extends': a }, { 'final public function test(string)': function() { } });
+        new b();
+
+        // This shouldn't throw an error
+        var a = JOII.ClassBuilder({}, {
+            'abstract public function test(string)': function() { },
+            'final public function test(string, num)': function() { }
+        });
+        var b = JOII.ClassBuilder({ 'extends': a }, { 'public function test(string)': function() { } });
+        new b();
+
 
         // An abstract property must be implemented by a child class.
         assert.throws(function() {
@@ -295,7 +340,7 @@ test('ClassBuilder:FunctionOverloadingTests', function(assert) {
                 'construct(number)': function(num) { }
             });
             new c5();
-        }, function(err) { return err === 'Member construct(number) is defined twice.'; }, 'Validate: Duplicate function overload.');
+        }, function(err) { return err === 'Member "construct(number)" is defined twice.'; }, 'Validate: Duplicate function overload.');
 
         assert.throws(function() {
             var c6 = JOII.ClassBuilder({
