@@ -755,7 +755,7 @@ JOII.createFunctionShim = function(name, overloads) {
         }
 
         var closest_variadic = null;
-        var closest_variadic_parameter_count = 0;
+        var closest_variadic_parameter_count = -1;
 
         for (var overload_index = 0; overload_index < overloads.length; overload_index++) {
             var func = overloads[overload_index];

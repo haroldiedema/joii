@@ -412,6 +412,184 @@ test('ClassBuilder:FunctionOverloadingTests', function(assert) {
         }, function(err) { return err === 'Member variadic: Variadic parameter (...) must be the last in the function parameter list.'; }, 'Validate: Variadic last function parameter.');
 
 
+
+
+
+
+
+        var ValueClass = Class('ValueClass', {
+            id: 6,
+            value: "",
+            'construct()': function() { },
+            'construct(number, string)': function(id, val) {
+                this.id = id;
+                this.value = val;
+            },
+            'construct(ValueClass)': function(vc) {
+                this.id = vc.id;
+                this.value = vc.value;
+            },
+        });
+
+        var LookupClass = Class('LookupClass', {
+            'private object table': [],
+
+            // lookup a value object by id
+            'get(number)': function(num) {
+                for (var i in this.table) {
+                    var val = this.table[i];
+                    if (val.getId() == num) {
+                        return val;
+                    }
+                }
+            },
+
+            // overload the get function to lookup a value object by it's value
+            'get(string)': function(str) {
+                for (var i in this.table) {
+                    var val = this.table[i];
+                    if (val.getValue() == str) {
+                        return val;
+                    }
+                }
+            },
+
+            // add a new value, by providing a ValueClass object
+            'add(ValueClass)': function(vc) {
+                this.table.push(vc);
+            },
+
+            // add a new value, by providing an numeric id and string value
+            'add(number, string)': function(id, val) {
+                var vc = new ValueClass();
+                vc.setId(id);
+                vc.setValue(val);
+
+                // call the add function above with our new ValueClass object
+                this.add(vc);
+            },
+
+            // add a new value, by providing an anonymous object containing the id and value
+            'add(object)': function(obj) {
+                if ('id' in obj && 'value' in obj) {
+                    var vc = new ValueClass();
+                    vc.setId(obj.id);
+                    vc.setValue(obj.value);
+
+                    // call the add function above with our new ValueClass object
+                    this.add(vc);
+                }
+            },
+
+            // add several new values at the same time
+            'add(...)': function(args) {
+                for (var i in args) {
+                    var val = args[i];
+                    this.add(val);
+                }
+            }
+        });
+
+
+
+
+
+        var table = new LookupClass();
+
+        var value1 = new ValueClass(1, 'bob');
+
+        // add an instance of ValueClass
+        table.add(value1);
+
+        // add with a number and string
+        table.add(2, 'joe');
+
+        // add an anonymous object
+        table.add({
+            id: 3,
+            value: 'sam'
+        });
+
+        // create a few different objects
+        var value2 = new ValueClass(4, 'george');
+        var value3 = new ValueClass(7, 'bill');
+
+        var obj1 = {
+            id: 5,
+            value: 'jenny'
+        };
+
+        var obj2 = {
+            id: 6,
+            value: 'laura'
+        };
+
+
+        // add several things at once
+        table.add(value2, obj1, obj2, value3);
+
+
+        assert.strictEqual(table.get(5).getValue(), "jenny", 'Verify: table.get(5).getValue() == "jenny"');
+        assert.strictEqual(table.get(2).getValue(), "joe", 'Verify: table.get(2).getValue() == "joe"');
+        assert.strictEqual(table.get("sam").getId(), 3, 'Verify: table.get("sam").getId() == 3');
+        assert.strictEqual(table.get("laura").getId(), 6, 'Verify: table.get("laura").getId() == 6');
+        assert.strictEqual(table.get(4).getValue(), "george", 'Verify: table.get(4).getValue() == "george"');
+        
+
+
+
+
+        var IMyInterface = Interface('IMyInterface', {
+            // Interface body ...
+        });
+
+        var RandomClass = Class('RandomClass', { implements: IMyInterface }, {});
+
+        var MyClass2 = Class('MyClass2', {
+
+            // anything which implements IMyInterface will be passed here
+            'test(IMyInterface)': function(val) {
+                return 1;
+            },
+
+            // RandomClass implements IMyInterface, so the above method will always match it.
+            // This method will NEVER be called
+            'test(RandomClass)': function(val) {
+                return 2;
+            }
+        });
+
+        var mc = new MyClass2();
+        var rc = new RandomClass();
+
+        assert.strictEqual(mc.test(rc), 1, 'Verify: Overloads order of operations with parent matching');
+
+        var MyClass3 = Class('MyClass3', {
+
+            // ALL JOII classes ultimately inherit from object,
+            // so this will override ALL other one parameter methods if placed above them
+            // unless they're other native types (such as string)
+            'test(object)': function(val) {
+                return 3;
+            },
+
+            // RandomClass is an object, so the above method will always match it.
+            // This method will NEVER be called
+            'test(RandomClass)': function(val) {
+                return 4;
+            },
+
+            // This method WILL be called, because it has an extra parameter to match against
+            'test(RandomClass, string)': function(val, str) {
+                return 5;
+            }
+        });
+
+        var mc = new MyClass3();
+
+        assert.strictEqual(mc.test(rc), 3, 'Verify: Overloads order of operations with parent matching');
+        assert.strictEqual(mc.test(rc, "test"), 5, 'Verify: Overloads order of operations with parent matching');
+
     }
     catch (e) {
         QUnit.pushFailure(e);
