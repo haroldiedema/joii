@@ -1,3 +1,8 @@
+/* Javascript Object Inheritance Implementation                ______  ________
+ * (c) 2016 <harold@iedema.me>                             __ / / __ \/  _/  _/
+ * Licensed under MIT.                                    / // / /_/ // /_/ /
+ * ------------------------------------------------------ \___/\____/___/__*/
+
 /**
  * TestSuite Definition
  */
@@ -77,8 +82,7 @@ if (typeof (window) === 'undefined') {
     if (typeof (testsuite.code) === 'object') {
         total_scripts += testsuite.code.length;
         all_scripts_to_load = testsuite.code.slice(0);
-    }
-    else {
+    } else {
         total_scripts++;
         all_scripts_to_load.push(testsuite.code);
     }
