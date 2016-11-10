@@ -60,13 +60,13 @@ if (typeof (window) === 'undefined') {
 
     // change to src version
     testsuite.code = [
+        'src/Config.js',
         'src/Compatibility.js',
         'src/PrototypeBuilder.js',
         'src/ClassBuilder.js',
         'src/InterfaceBuilder.js',
         'src/EnumBuilder.js',
         'src/Reflection.js',
-        'src/Config.js',
         'src/joii.js'
     ];
 
@@ -110,7 +110,7 @@ if (typeof (window) === 'undefined') {
 
     var require = function() {
         return window;
-    }
+    };
 
     loadNextScript();
 }
