@@ -5,7 +5,7 @@
 
 JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 
-JOII.InternalPropertyNames = ['__joii__', 'super', 'instanceOf', 'deserialize', 'serialize'];
+JOII.InternalPropertyNames = ['__joii__', 'super', 'instanceOf', 'deserialize', 'serialize', 'getStatic', '__api__'];
 JOII.InternalTypeNames     = [
     'undefined', 'object', 'boolean',
     'number'   , 'string', 'symbol',
@@ -26,8 +26,9 @@ JOII.InternalTypeNames     = [
  * @param  {Boolean} is_interface
  * @return {Object}
  */
-JOII.PrototypeBuilder = function(name, parameters, body, is_interface) {
+JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static_generated) {
 
+    is_static_generated = (is_static_generated === true);
 
     // Create a clean prototype of the class body.
     var prototype = {},
@@ -41,7 +42,8 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface) {
         constants       : {},
         implementations : [name],
         is_abstract     : parameters.abstract === true,
-        is_final        : parameters.final === true
+        is_final        : parameters.final === true,
+        is_static       : parameters['static'] === true || is_static_generated
     });
 
     // Apply traits / mix-ins
@@ -61,6 +63,17 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface) {
     for (var i in deep_copy) {
         if (deep_copy.hasOwnProperty(i) === false) continue;
         var meta = JOII.ParseClassProperty(i);
+
+        
+        // make sure this prototype only has members that match it's static state
+        if (prototype.__joii__['is_static'] !== true && meta.is_static) continue;
+        if (prototype.__joii__['is_static'] && !meta.is_static) {
+            if (is_static_generated) {
+                continue;
+            } else {
+                throw 'Member ' + meta.name + 'is non-static. A static class cannot contain non-static members.';
+            }
+        }
 
         if (typeof (deep_copy[i]) === 'function' || meta.parameters.length > 0 || (meta.name in prototype.__joii__.metadata && 'overloads' in prototype.__joii__.metadata[meta.name])) {
             if (typeof (deep_copy[i]) !== 'function') {
@@ -154,6 +167,16 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface) {
             var property      = prototype.__joii__.parent[i];
             var property_meta = prototype.__joii__.parent.__joii__.metadata[i];
             var proto_meta    = prototype.__joii__.metadata[i];
+            
+            // make sure this prototype only has members that match it's static state
+            if (prototype.__joii__['is_static'] !== true && property_meta.is_static) continue;
+            if (prototype.__joii__['is_static'] && !property_meta.is_static) {
+                if (is_static_generated) {
+                    continue;
+                } else {
+                    throw 'Member ' + property_meta.name + 'is non-static. A static class cannot contain non-static members.';
+                }
+            }
 
             if (typeof (proto_meta) === 'undefined') {
                 proto_meta = prototype.__joii__.metadata[i] = JOII.Compat.extend(true, {}, property_meta);
@@ -269,6 +292,18 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface) {
     for (var i in deep_copy) {
         if (deep_copy.hasOwnProperty(i) === false) continue;
         var meta = JOII.ParseClassProperty(i);
+
+        // make sure this prototype only has members that match it's static state
+        if (prototype.__joii__['is_static'] !== true && meta.is_static) continue;
+        if (prototype.__joii__['is_static'] && !meta.is_static) {
+            if (is_static_generated) {
+                continue;
+            } else {
+                throw 'Member ' + meta.name + 'is non-static. A static class cannot contain non-static members.';
+            }
+        }
+        
+
         // Generate getters and setters if we're not dealing with anything
         // that is a function or declared private.
         if (typeof (prototype[meta.name]) !== 'function' &&
@@ -404,13 +439,20 @@ JOII.ParseClassProperty = function(str) {
             'is_nullable'   : false,     // Allow "null" or "undefined" in properties.
             'is_read_only'  : false,     // Don't generate a setter for the property.
             'is_constant'   : false,     // Is the property publicly accessible?
+            'is_static'     : false,     // Is the property static?
             'is_enum'       : false,     // Is the property an enumerator?
             'is_generated'  : false,     // Is the property generated?
-            'is_joii_object': false,    // Does this represent a joii class/interface ?
-            'serializable'  : false,      // Is the property serializable?
+            'is_joii_object': false,     // Does this represent a joii class/interface ?
+            'serializable'  : false,     // Is the property serializable?
             'parameters'    : function_parameters
         }, i;
 
+    
+    for (var c in JOII.Config.callables) {
+        if (JOII.Config.callables[c] == name) {
+            metadata.is_static = true;
+        }
+    }
 
     // Remove the name from the list.
     data.pop();
@@ -474,6 +516,9 @@ JOII.ParseClassProperty = function(str) {
                 break;
             case 'nullable':
                 metadata.is_nullable = true;
+                break;
+            case 'static':
+                metadata.is_static = true;
                 break;
             case 'read':
             case 'immutable':
