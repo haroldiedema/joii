@@ -310,7 +310,7 @@ JOII.Compat.ParseArguments = function(args) {
     // Validate the results.
     if (typeof (result.name) !== 'string' ||
         typeof (result.parameters) !== 'object' ||
-        typeof (result.body) !== 'object') {
+        (typeof (result.body) !== 'object' && typeof (result.body) !== 'function')) {
         throw 'Invalid parameter types given. Expected: ([[[string], object], <object>]).';
     }
 
@@ -442,7 +442,7 @@ JOII.Config = {
 
 JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 
-JOII.InternalPropertyNames = ['__joii__', 'super', 'instanceOf', 'deserialize', 'serialize', 'getStatic'];
+JOII.InternalPropertyNames = ['__joii__', 'super', 'instanceOf', 'deserialize', 'serialize', 'getStatic', '__api__'];
 JOII.InternalTypeNames     = [
     'undefined', 'object', 'boolean',
     'number'   , 'string', 'symbol',
@@ -604,6 +604,16 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
             var property      = prototype.__joii__.parent[i];
             var property_meta = prototype.__joii__.parent.__joii__.metadata[i];
             var proto_meta    = prototype.__joii__.metadata[i];
+            
+            // make sure this prototype only has members that match it's static state
+            if (prototype.__joii__['is_static'] !== true && property_meta.is_static) continue;
+            if (prototype.__joii__['is_static'] && !property_meta.is_static) {
+                if (is_static_generated) {
+                    continue;
+                } else {
+                    throw 'Member ' + property_meta.name + 'is non-static. A static class cannot contain non-static members.';
+                }
+            }
 
             if (typeof (proto_meta) === 'undefined') {
                 proto_meta = prototype.__joii__.metadata[i] = JOII.Compat.extend(true, {}, property_meta);
@@ -1731,18 +1741,19 @@ JOII.CamelcaseName = function(input) {
                 func_in.prototype   = this;
                 var scope_in_obj    = new func_in();
 
-                // Create an inner and outer scope. The inner scope refers to the
-                // 'this' variable, where the outer scope contains references to
-                // all objects and functions accessible from the outside.
-                
+                // Create an inner static scope, for private/protected members                
                 var scope_in = generateInnerScope(this, [], scope_in_obj);
             
-                //static_scope_out = generateOuterScope(this, static_scope_in);
-            
-                bindPublicMethods(scope_in, definition);
+                // Create the static field, and copy it into the object we created before.
+                // Need to copy it this way, so that the object reference is still the same, 
+                // since we may have passed it into the optional user function which generates the body
+                static_scope_in = JOII.Compat.extend(true, static_scope_in, scope_in);
+                
+                // bind any public static members to the outside class
+                bindPublicMethods(static_scope_in, definition);
                 
                 // need to link the inner and outer scopes before calling constructors
-                linkAPI(scope_in, definition);
+                linkAPI(static_scope_in, definition);
                 
                 // static constructors can't have parameters
                 callConstructors(static_scope_in, []);
@@ -1800,11 +1811,8 @@ JOII.CamelcaseName = function(input) {
             JOII.addFunctionToPrototype(definition.prototype, deserialize_meta, generated_fn, true);
 
 
-            
-            // Create the static field, and copy it into the object we created before.
-            // Need to copy it this way, so that the object reference is still the same, 
-            // since we may have passed it into the optional user function which generates the body
-            static_scope_in = JOII.Compat.extend(true, static_scope_in, new staticDefinition());
+            // the constructor creates a singleton, so we don't actually need the created object here.
+            new staticDefinition();
             
 
             
