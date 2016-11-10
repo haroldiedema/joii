@@ -1,35 +1,13 @@
-/*
- Javascript Object                               ______  ________________
- Inheritance Implementation                  __ / / __ \/  _/  _/\_____  \
-                                            / // / /_/ // /_/ /    _(__  <
- Copyright 2014, Harold Iedema.             \___/\____/___/___/   /       \
- --------------------------------------------------------------- /______  / ---
- Permission is hereby granted, free of charge, to any person obtaining  \/
- a copy of this software and associated documentation files (the
- "Software"), to deal in the Software without restriction, including
- without limitation the rights to use, copy, modify, merge, publish,
- distribute, sublicense, and/or sell copies of the Software, and to
- permit persons to whom the Software is furnished to do so, subject to
- the following conditions:
-
- The above copyright notice and this permission notice shall be
- included in all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- ------------------------------------------------------------------------------
-*/
+/* Javascript Object Inheritance Implementation                ______  ________
+ * (c) 2016 <harold@iedema.me>                             __ / / __ \/  _/  _/
+ * Licensed under MIT.                                    / // / /_/ // /_/ /
+ * ------------------------------------------------------ \___/\____/___/__*/
 
 /**
  * TestSuite Definition
  */
 var testsuite = {
-    code: './dist/joii.js',
+    code: "./dist/joii.js",
     tests: [
         // PrototypeBuilder
         "./test/PrototypeBuilder/DeepCopyTest.js",
@@ -73,24 +51,66 @@ var testsuite = {
 /**
  * Platform-independent bootstrap.
  */
-if (typeof(window) === 'undefined') {
+if (typeof (window) === 'undefined') {
     // Are we running on CLI / NodeJS ?
     var qunit = require("qunit");
     qunit.run(testsuite);
 } else {
     // We're running a browser.
+
+    // change to src version
+    testsuite.code = [
+        'src/Config.js',
+        'src/Compatibility.js',
+        'src/PrototypeBuilder.js',
+        'src/ClassBuilder.js',
+        'src/InterfaceBuilder.js',
+        'src/EnumBuilder.js',
+        'src/Reflection.js',
+        'src/joii.js'
+    ];
+
+
+    // ensure that all scripts load in the right order, so that the tests have the same ordinal each time
+    var loaded_scripts = 0;
+    var total_scripts = testsuite.tests.length;
+
+    var all_scripts_to_load = [];
+
+    var array_index = 0;
+
+    if (typeof (testsuite.code) === 'object') {
+        total_scripts += testsuite.code.length;
+        all_scripts_to_load = testsuite.code.slice(0);
+    } else {
+        total_scripts++;
+        all_scripts_to_load.push(testsuite.code);
+    }
+
+    Array.prototype.push.apply(all_scripts_to_load, testsuite.tests);
+
+
+    var loadNextScript = function(file) {
+        if (array_index < all_scripts_to_load.length) {
+            addScript(all_scripts_to_load[array_index]);
+            array_index++;
+        }
+    };
+
     var addScript = function(file) {
         var s = document.createElement('script');
         s.setAttribute('type', 'text/javascript');
         s.setAttribute('src', file);
+        s.onload = function() {
+            loaded_scripts++;
+            loadNextScript();
+        };
         document.getElementsByTagName('head')[0].appendChild(s);
     };
-    addScript(testsuite.code);
-    for (var i in testsuite.tests) {
-        addScript(testsuite.tests[i]);
-    }
 
-    // Add a 'shim' for require, as test cases use it to import JOII.
-    // When running in a browser however, JOII is exposed to the window object.
-    function require() { return window; }
+    var require = function() {
+        return window;
+    };
+
+    loadNextScript();
 }
