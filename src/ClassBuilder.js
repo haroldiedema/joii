@@ -161,7 +161,7 @@
             var scope_out = base_object || {};
             
             if (typeof scope !== 'undefined' && typeof (scope.__joii__) === 'object') {
-
+                
                 JOII.CreateProperty(scope_out, '__joii__', (scope.__joii__));
             
                 // Can we be instantiated?
@@ -207,6 +207,10 @@
 
         if (typeof (body) == 'function') {
             body = body(static_scope_in);
+        }
+        
+        if (typeof (body) != 'object') {
+            throw 'Invalid parameter types given. Expected: ([[[string], object], <object|function>]).';
         }
 
         
@@ -416,22 +420,23 @@
                 static_scope_in = JOII.Compat.extend(true, static_scope_in, scope_in);
                 
                 // bind any public static members to the outside class
-                bindPublicMethods(static_scope_in, definition);
+                //bindPublicMethods(static_scope_in, definition);
+
+                definition = generateOuterScope(static_scope_in, static_scope_in, definition);
                 
                 // need to link the inner and outer scopes before calling constructors
                 linkAPI(static_scope_in, definition);
                 
                 // static constructors can't have parameters
                 callConstructors(static_scope_in, []);
-
-                return scope_in;
+                
+                return static_scope_in;
             }
             
             // Apply to prototype to the instantiator to allow extending the
             // class definition upon other definitions without instantiation.
             staticDefinition.prototype = JOII.PrototypeBuilder(name, parameters, body, false, true);
             
-
             /**
              * Deserializes a class (called as a static method - instantiates a new object and populates it)
              *
@@ -443,7 +448,6 @@
             // uses an inheritance style add, so it won't overwrite custom functions with the same signature
             var deserialize_meta = JOII.ParseClassProperty('public static function deserialize(string)');
             JOII.addFunctionToPrototype(staticDefinition.prototype, deserialize_meta, generated_fn, true);
-            JOII.addFunctionToPrototype(definition.prototype, deserialize_meta, generated_fn, true);
 
             
             /**
@@ -461,26 +465,27 @@
             // uses an inheritance style add, so it won't overwrite custom functions with the same signature
             deserialize_meta = JOII.ParseClassProperty('public static function deserialize(object)');
             JOII.addFunctionToPrototype(staticDefinition.prototype, deserialize_meta, generated_fn, true);
-            JOII.addFunctionToPrototype(definition.prototype, deserialize_meta, generated_fn, true);
 
 
             /**
-             * Deserializes a class (called on an object instance to populate it)
+             * Gets the current static scope
              *
              * @param {String}
              */
+            /*
             var generated_fn = function() {
                 return static_scope_in;
             };
             // uses an inheritance style add, so it won't overwrite custom functions with the same signature
             var deserialize_meta = JOII.ParseClassProperty('private function getStatic()');
             JOII.addFunctionToPrototype(definition.prototype, deserialize_meta, generated_fn, true);
+            */
 
-
-            // the constructor creates a singleton, so we don't actually need the created object here.
-            new staticDefinition();
+            // create an object for the static members, and store a reference to it
+            inner_static_objects[name] = new staticDefinition();
             
-
+            
+            definition.__joii__.prototype = staticDefinition.prototype;
             
 
         }

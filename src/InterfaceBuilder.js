@@ -95,13 +95,13 @@ JOII.InterfaceBuilder = function() {
                         for (var x = 0; x < args_class.length; x++) {
                             var class_parameters_meta = args_class[x];
 
-                            if (interface_parameters_meta.parameters.length === class_parameters_meta.parameters.length) {
+                            if (interface_parameters_meta.length === class_parameters_meta.length) {
                                 // this signature has the same number of types as the new signature
                                 // check to see if the types are the same (duplicate signature)
                                 different = false;
 
-                                for (var y = 0; y < interface_parameters_meta.parameters.length; y++) {
-                                    if (interface_parameters_meta.parameters[y] != class_parameters_meta.parameters[y]) {
+                                for (var y = 0; y < interface_parameters_meta.length; y++) {
+                                    if (interface_parameters_meta[y].type != class_parameters_meta[y].type) {
                                         different = true;
                                     }
                                 }

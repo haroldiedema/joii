@@ -286,7 +286,7 @@ JOII.Compat.ParseArguments = function(args) {
     if (typeof (result.name) !== 'string' ||
         typeof (result.parameters) !== 'object' ||
         (typeof (result.body) !== 'object' && typeof (result.body) !== 'function')) {
-        throw 'Invalid parameter types given. Expected: ([[[string], object], <object>]).';
+        throw 'Invalid parameter types given. Expected: ([[[string], object], <object|function>]).';
     }
 
     return result;
