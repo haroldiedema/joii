@@ -853,15 +853,6 @@ JOII.addFunctionToPrototype = function(prototype, meta, fn, ignore_duplicate) {
     
     var has_parameterless = proto_meta.has_parameterless;
     
-    // create a type list of the arguments for error handling purposes
-    var parameter_types = [];
-    for (var i = 0; i < meta.parameters.length; i++) {
-        parameter_types.push(meta.parameters[i]);
-    }
-
-    console.log( 'Adding: ' + prototype.__joii__.name + '.' + meta.name + '(' + parameter_types.join(', ') + ').');
-
-
 
     proto_meta.is_abstract = false;
     proto_meta.is_final = false;
