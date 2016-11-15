@@ -225,14 +225,54 @@ test('ClassBuilder:StaticTest', function(assert) {
     
     
     var StaticTestClass = JOII.ClassBuilder("StaticTestClass", {'static': true}, function (StaticTestClass) { return { 
-        'public static string name' : 'bob'
+        'public static string person' : 'bob'
     }});
     
     assert.throws(function() {
         var newTest = new StaticTestClass();
     }, function(err) { return err === "A static class cannot be instantiated."; }, 'Validate: Static classes cannot be instantiated.');
     
-    assert.strictEqual(StaticTestClass.getName(), 'bob', "StaticTestClass.getName() == 'bob'");
-    StaticTestClass.setName('joe')
-    assert.strictEqual(StaticTestClass.getName(), 'joe', "StaticTestClass.getName() == 'joe'");
+    assert.strictEqual(StaticTestClass.getPerson(), 'bob', "StaticTestClass.getPerson() == 'bob'");
+    StaticTestClass.setPerson('joe')
+    assert.strictEqual(StaticTestClass.getPerson(), 'joe', "StaticTestClass.getPerson() == 'joe'");
+
+    
+    var TestClass4 = JOII.ClassBuilder("TestClass4", {}, function (TestClass4) { return { 
+        'public     static      TestClass4  instance'   : null,
+        'protected              number      num'        : 1,
+        'public     static      function    construct'  : function() {
+            TestClass4.instance = new TestClass4();
+        },
+        'public     static      function    test()'       : function() {
+            return false;
+        },
+        'public                 function    test()'       : function() {
+            return true;
+        },
+        '__call(string)'       : function(str) {
+            return "Success: " + str;
+        },
+        '__call(number)'       : function(num) {
+            return num * 2;
+        },
+        'public     static      function    test(number)'       : function(num) {
+            return TestClass4(num);
+        },
+        'public     static      function    test(string)'       : function(str) {
+            return TestClass4(str);
+        }
+    }});
+    
+    assert.strictEqual(TestClass4.getInstance().test(), true, "TestClass4.getInstance().test() == true");
+    
+    assert.throws(function() {
+        TestClass4.getInstance().getNum();
+    }, function(err) { return err.message === "TestClass4.getInstance(...).getNum is not a function"; }, 'Validate: In class self instantiate returned outer scope.');
+    
+    assert.strictEqual(TestClass4.getInstance().test(), true, "TestClass4.getInstance().test() == true");
+    
+    assert.strictEqual(TestClass4.test("testing"), "Success: testing", "Testing in-class _call");
+    assert.strictEqual(TestClass4.test(4), 8, "Testing in-class _call overload");
+    
+    
 });

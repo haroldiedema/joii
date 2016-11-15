@@ -62,7 +62,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
     // property and move them in the prototype.
     for (var i in deep_copy) {
         if (deep_copy.hasOwnProperty(i) === false) continue;
-        var meta = JOII.ParseClassProperty(i);
+        var meta = JOII.ParseClassProperty(i, name);
 
         
         // make sure this prototype only has members that match it's static state
@@ -357,7 +357,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
     // the getter/setter methods yet. (Fixes issue #10)
     for (var i in deep_copy) {
         if (deep_copy.hasOwnProperty(i) === false) continue;
-        var meta = JOII.ParseClassProperty(i);
+        var meta = JOII.ParseClassProperty(i, name);
         
         if (typeof (deep_copy[i]) === 'function' || meta.parameters.length > 0 || 'overloads' in meta) {
             continue;
@@ -496,7 +496,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
  * @param  {String} str
  * @return {Object}
  */
-JOII.ParseClassProperty = function(str) {
+JOII.ParseClassProperty = function(str, currently_defining) {
     // Parse the given string and set some defaults.
     var function_parameters = (/\(.*\)/).exec(str.toString());
     var has_parameters = false;
@@ -546,12 +546,15 @@ JOII.ParseClassProperty = function(str) {
         return metadata;
     }
 
+    var raw_data = [];
+
     // Make sure all property flags are lowercase. We don't use Array.map
     // for this because Internet Explorer 8 (and below) doesn't know it.
     for (i in data) {
         if (typeof (JOII.InterfaceRegistry[data[i]]) === 'undefined' &&
             typeof (JOII.ClassRegistry[data[i]]) === 'undefined') {
-            data[i] = data[i].toString().toLowerCase();
+            raw_data[i] = data[i].toString();
+            data[i] = raw_data[i].toLowerCase();
         }
     }
 
@@ -650,6 +653,13 @@ JOII.ParseClassProperty = function(str) {
                     break;
                 }
 
+                // Check for self reference (the class we're defining)
+                if (currently_defining == raw_data[i]) {
+                    metadata.is_joii_object = true;
+                    metadata.type = data[i];
+                    break;
+                }
+
                 throw 'Syntax error: unexpected "' + data[i] + '" in property declaration of "' + name + '".';
         }
     }
@@ -686,7 +696,7 @@ JOII.CreatePropertyGetterSetter = function(deep_copy, meta, name) {
         } else {
             getter_fn = new Function('return this["' + meta.name + '"];');
         }
-        getter_meta = JOII.ParseClassProperty(meta.visibility + ' function ' + getter + '()');
+        getter_meta = JOII.ParseClassProperty(meta.visibility + ' function ' + getter + '()', name);
         getter_meta.visibility = meta.visibility;
         getter_meta.is_abstract = meta.is_abstract;
         getter_meta.is_final = meta.is_final;
@@ -776,7 +786,7 @@ JOII.CreatePropertyGetterSetter = function(deep_copy, meta, name) {
             setter_fn = new Function('v', (meta.type !== null ? validator : '') + 'this["' + meta.name + '"] = v[0]; return this.__api__;');
         }
         // we want to take in ANY type, so we can provide better feedback with our setter function
-        setter_meta = JOII.ParseClassProperty(meta.visibility + ' function ' + setter + '(...)');
+        setter_meta = JOII.ParseClassProperty(meta.visibility + ' function ' + setter + '(...)', name);
         setter_meta.visibility = meta.visibility;
         setter_meta.is_abstract = meta.is_abstract;
         setter_meta.is_final = meta.is_final;

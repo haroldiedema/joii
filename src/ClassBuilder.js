@@ -27,10 +27,19 @@
             name                        = args.name,
             parameters                  = args.parameters,
             body                        = args.body,
-            is_static_generated         = args.is_static_generated === true,
-            static_scope_in             = {};
+            is_static_generated         = args.is_static_generated === true;
+        
+        function static_scope_in() {
+            // If 'this.__joii__' is not available, that would indicate that
+            // we've been executed like a function rather than being instantiated.
+            if (typeof (this) === 'undefined' || typeof (this.__joii__) === 'undefined') {
+                // If the method __call exists, execute it and return its result.
 
+                return definition.apply(undefined, arguments);
+            }
 
+            return new definition();
+        }
         /**
          * Defines the class definition. This is the function that is executed
          * when the class is instantiated or executed. The function will relay
@@ -411,12 +420,16 @@
         
         // if it's not a static class, generate it's static backing field
         if (!is_static_generated && typeof (parameters['enum']) !== 'string') {
+            
+            var __in_joii_static_class_constructor = false;
 
             function staticDefinition() {
-                
+
                 var func_in         = function() { };
                 func_in.prototype   = this;
                 var scope_in_obj    = new func_in();
+
+                static_scope_in.prototype = definition;
 
                 // Create an inner static scope, for private/protected members                
                 var scope_in = generateInnerScope(this, [], scope_in_obj, true);
@@ -440,6 +453,8 @@
                 return static_scope_in;
             }
             
+            __in_joii_static_class_constructor = true;
+
             // Apply to prototype to the instantiator to allow extending the
             // class definition upon other definitions without instantiation.
             staticDefinition.prototype = JOII.PrototypeBuilder(name, parameters, body, false, true);
