@@ -10,9 +10,11 @@ var JOII = require('../../dist/joii').JOII;
 test('ClassBuilder:StaticTest', function(assert) {
     
     var TestClass1 = JOII.ClassBuilder("TestClass1", {}, function (TestClass1) { return { 
-        'public static  number      static_num'      : 1,
-        'public         number      instance_num'      : 1,
-        'public static  function    test'   : function() {
+        'private    static      number      static_private_num'   : 1,
+        'protected  static      number      static_protected_num' : 1,
+        'public     static      number      static_num'           : 1,
+        'public                 number      instance_num'         : 1,
+        'public     static      function    test'   : function() {
             TestClass1.static_num = 2;
             this.instance_num = 3; // doesn't actually exist in the static scope
             return true;
@@ -29,7 +31,11 @@ test('ClassBuilder:StaticTest', function(assert) {
         'public         function    test3'   : function() {
             TestClass1.static_num = 7;
             return true;
+        },
+        'public static  function    testGet()'   : function() {
+            return TestClass1.getStaticProtectedNum();
         }
+
     }});
 
     var a1 = new TestClass1();
@@ -52,11 +58,18 @@ test('ClassBuilder:StaticTest', function(assert) {
     assert.strictEqual(a1.test3(), true, "a1.test2() == true");
     assert.strictEqual(TestClass1.getStaticNum(), 7, "TestClass1.getStaticNum() == 7");
     
+    assert.strictEqual(TestClass1.testGet(), 1, "TestClass1.testGet() == 1");
     
     
 
     var TestClass2 = JOII.ClassBuilder("TestClass2", {'extends': TestClass1}, function (TestClass2) { return { 
-        'public static  string      static_str'      : 'test'
+        'public static immutable  string      static_str'      : 'test',
+        'public static  function    test(string)'   : function(str) {
+            TestClass2.static_str = str;
+        },
+        'public static  function    test(number)'   : function(num) {
+            TestClass2.setStaticProtectedNum(num);
+        }
     }});
 
     
@@ -84,16 +97,53 @@ test('ClassBuilder:StaticTest', function(assert) {
     assert.strictEqual(TestClass2.getStaticNum(), 7, "TestClass2.getStaticNum() == 7");
     assert.strictEqual(TestClass1.getStaticNum(), 7, "TestClass1.getStaticNum() == 7");
     
+    TestClass2.setStaticNum(8);
+    assert.strictEqual(TestClass2.getStaticNum(), 8, "TestClass2.getStaticNum() == 8");
+    assert.strictEqual(TestClass1.getStaticNum(), 8, "TestClass1.getStaticNum() == 8");
+    
+    assert.strictEqual(TestClass2.testGet(), 1, "TestClass2.testGet() == 1");
+
+    TestClass2.test(2);
+    assert.strictEqual(TestClass1.testGet(), 2, "TestClass1.testGet() == 2");
+    assert.strictEqual(TestClass2.testGet(), 2, "TestClass2.testGet() == 2");
+    
+
+    assert.throws(function() {
+        TestClass2.setStaticProtectedNum(2);
+    }, function(err) { return err.message === 'TestClass2.setStaticProtectedNum is not a function'; }, 'Validate: Static protected visibility.');
+
+
+    assert.throws(function() {
+        TestClass2.setStaticStr('new test');
+    }, function(err) { return err.message === 'TestClass2.setStaticStr is not a function'; }, 'Validate: Static immutable.');
+
+    assert.strictEqual(TestClass2.getStaticStr(), 'test', "TestClass2.getStaticStr() == 'test'");
+    
+    assert.throws(function() {
+        TestClass1.getStaticStr();
+    }, function(err) { return err.message === 'TestClass1.getStaticStr is not a function'; }, 'Validate: TestClass1.getStaticStr doesn\'t exist');
+
 
     var TestClass3 = JOII.ClassBuilder("TestClass3", {'extends': TestClass2}, function (TestClass3) { return { 
-
+            
     }});
     
+
+    // overloaded static method on an inherited class, changing immutable static member
+    TestClass3.test('new test');
     
+    assert.throws(function() {
+        TestClass3.setStaticStr('newer test');
+    }, function(err) { return err.message === 'TestClass3.setStaticStr is not a function'; }, 'Validate: Static immutable.');
+
+    assert.strictEqual(TestClass3.getStaticStr(), 'new test', "TestClass3.getStaticStr() == 'new test'");
+    assert.strictEqual(TestClass2.getStaticStr(), 'new test', "TestClass2.getStaticStr() == 'new test'");
+    
+
     var a3 = new TestClass3();
     
     // try setting static members from within a static function (inherited). Should be affecting the member in TestClass1.
-    assert.strictEqual(TestClass3.getStaticNum(), 7, "TestClass3.getStaticNum() == 7");
+    assert.strictEqual(TestClass3.getStaticNum(), 8, "TestClass3.getStaticNum() == 8");
     assert.strictEqual(TestClass3.test(), true, "Static function TestClass3.test() called successfully");
     assert.strictEqual(TestClass3.getStaticNum(), 2, "TestClass3.getStaticNum() == 2");
     assert.strictEqual(TestClass1.getStaticNum(), 2, "TestClass1.getStaticNum() == 2");
@@ -114,4 +164,75 @@ test('ClassBuilder:StaticTest', function(assert) {
     assert.strictEqual(TestClass3.getStaticNum(), 7, "TestClass3.getStaticNum() == 7");
     assert.strictEqual(TestClass1.getStaticNum(), 7, "TestClass1.getStaticNum() == 7");
     
+
+
+        
+    var TestStaticInterface = JOII.InterfaceBuilder('TestStaticInterface', {
+        'public nullable string name' : null,
+        'protected static number age' : null,
+        'public static function myTest(string)' : function(a) {}
+    });
+
+    
+    
+    assert.throws(function() {
+        var InterfaceTestClass = JOII.ClassBuilder("InterfaceTestClass", {'implements': TestStaticInterface}, function (InterfaceTestClass) { return { 
+            'public static nullable string name' : null,
+            'protected static number age' : null,
+            'public static function myTest(string)' : function(a) {}
+        }});
+    }, function(err) { return err === 'Class must implement public nullable string "name" as defined in the interface TestStaticInterface.'; }, 'Validate: Implementation must match non-static descriptor.');
+
+    
+    assert.throws(function() {
+        var InterfaceTestClass = JOII.ClassBuilder("InterfaceTestClass", {'implements': TestStaticInterface}, function (InterfaceTestClass) { return { 
+            'public nullable string name' : null,
+            'protected number age' : null,
+            'public static function myTest(string)' : function(a) {}
+        }});
+    }, function(err) { return err === 'Class must implement protected static number "age" as defined in the interface TestStaticInterface.'; }, 'Validate: Property implementation must match static descriptor.');
+    
+    assert.throws(function() {
+        var InterfaceTestClass = JOII.ClassBuilder("InterfaceTestClass", {'implements': TestStaticInterface}, function (InterfaceTestClass) { return { 
+            'public nullable string name' : null,
+            'protected static number age' : null,
+            'public function myTest(string)' : function(a) {}
+        }});
+    }, function(err) { return err === 'Class must implement public static function "myTest" as defined in the interface TestStaticInterface.'; }, 'Validate: Method implementation must match static descriptor.');
+    
+    assert.throws(function() {
+        var InterfaceTestClass = JOII.ClassBuilder("InterfaceTestClass", {'implements': TestStaticInterface}, function (InterfaceTestClass) { return { 
+            'public nullable string name' : null,
+            'protected static number age' : null,
+            'public static function myTest(number)' : function(a) {}
+        }});
+    }, function(err) { return err === 'Method myTest does not match the parameter types as defined in the interface TestStaticInterface.'; }, 'Validate: Method implementation must match static descriptor and parameter types.');
+    
+    // shouldn't throw anything
+    var InterfaceTestClass = JOII.ClassBuilder("InterfaceTestClass", {'implements': TestStaticInterface}, function (InterfaceTestClass) { return { 
+        'public nullable string name' : null,
+        'protected static number age' : null,
+        'public static function myTest(string)' : function(a) {}
+    }});
+
+
+    
+    assert.throws(function() {
+        var StaticTestClass = JOII.ClassBuilder("StaticTestClass", {'static': true}, function (StaticTestClass) { return { 
+            'public string name' : null
+        }});
+    }, function(err) { return err === "Member name is non-static. A static class cannot contain non-static members."; }, 'Validate: Static class must contain only static members.');
+    
+    
+    var StaticTestClass = JOII.ClassBuilder("StaticTestClass", {'static': true}, function (StaticTestClass) { return { 
+        'public static string name' : 'bob'
+    }});
+    
+    assert.throws(function() {
+        var newTest = new StaticTestClass();
+    }, function(err) { return err === "A static class cannot be instantiated."; }, 'Validate: Static classes cannot be instantiated.');
+    
+    assert.strictEqual(StaticTestClass.getName(), 'bob', "StaticTestClass.getName() == 'bob'");
+    StaticTestClass.setName('joe')
+    assert.strictEqual(StaticTestClass.getName(), 'joe', "StaticTestClass.getName() == 'joe'");
 });

@@ -510,12 +510,12 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
 
         
         // make sure this prototype only has members that match it's static state
-        if (prototype.__joii__['is_static'] !== true && meta.is_static) continue;
+        if (prototype.__joii__['is_static'] !== true && meta.is_static && !is_interface) continue;
         if (prototype.__joii__['is_static'] && !meta.is_static) {
             if (is_static_generated) {
                 continue;
             } else {
-                throw 'Member ' + meta.name + 'is non-static. A static class cannot contain non-static members.';
+                throw 'Member ' + meta.name + ' is non-static. A static class cannot contain non-static members.';
             }
         }
 
@@ -561,6 +561,10 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
         if (is_interface) {
             throw 'An interface cannot be declared abstract.';
         }
+    }
+
+    if (prototype.__joii__.is_static && is_interface) {
+        throw 'An interface cannot be declared static.';
     }
 
     // Apply the parent prototype.
@@ -625,7 +629,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
             var proto_meta    = prototype.__joii__.metadata[i];
             
             // make sure this prototype only has members that match it's static state
-            if (prototype.__joii__['is_static'] !== true && property_meta.is_static) continue;
+            if (prototype.__joii__['is_static'] !== true && property_meta.is_static && !is_interface) continue;
             if (prototype.__joii__['is_static'] && !property_meta.is_static) {
                 if (is_static_generated) {
                     continue;
@@ -804,7 +808,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
         }
 
         // make sure this prototype only has members that match it's static state
-        if (prototype.__joii__['is_static'] !== true && meta.is_static) continue;
+        if (prototype.__joii__['is_static'] !== true && meta.is_static && !is_interface) continue;
         if (prototype.__joii__['is_static'] && !meta.is_static) {
             if (is_static_generated) {
                 continue;
@@ -1557,11 +1561,12 @@ JOII.CamelcaseName = function(input) {
             var func_in         = function() { };
             func_in.prototype   = this;
             var scope_in_obj    = new func_in();
+            
 
             // Create an inner and outer scope. The inner scope refers to the
             // 'this' variable, where the outer scope contains references to
             // all objects and functions accessible from the outside.
-            var scope_in = generateInnerScope(this, arguments, scope_in_obj);
+            var scope_in = generateInnerScope(this, arguments, scope_in_obj, false);
             
             // for __call implementations
             if (typeof (this) === 'undefined' || typeof (this.__joii__) === 'undefined' || typeof (scope_in) !== 'object' || typeof (scope_in.__joii__) === 'undefined') {
@@ -1616,8 +1621,10 @@ JOII.CamelcaseName = function(input) {
             }
         }
 
-        function generateInnerScope(scope, args, base_object) {
+        function generateInnerScope(scope, args, base_object, is_static_generated) {
             var scope_in = base_object || {};
+
+            is_static_generated = is_static_generated || false;
 
             // Create a deep copy of the inner scope because we need to
             // dereference object-type properties. If we don't do this, object-
@@ -1632,6 +1639,9 @@ JOII.CamelcaseName = function(input) {
                 // Can we be instantiated?
                 if (scope_in.__joii__.is_abstract === true) {
                     throw 'An abstract class cannot be instantiated.';
+                }
+                if (!is_static_generated && scope_in.__joii__.is_static === true) {
+                    throw 'A static class cannot be instantiated.';
                 }
             }
 
@@ -1767,40 +1777,48 @@ JOII.CamelcaseName = function(input) {
 
         // Recursive function for retrieving a list of interfaces from the
         // current class and the rest of the inheritance tree.
-        definition.prototype.__joii__.getInterfaces = JOII.Compat.Bind(function() {
-            var interfaces = [],
-                getRealInterface = JOII.Compat.Bind(function(i) {
-                    if (typeof (i) === 'function') {
-                        return i;
-                    } else if (typeof (i) === 'string') {
-                        if (typeof (JOII.InterfaceRegistry[i]) === 'undefined') {
-                            throw 'Interface "' + i + '" does not exist.';
-                        }
-                        return JOII.InterfaceRegistry[i];
-                    }
-                }, this);
+        bindGetInterfaces(definition.prototype.__joii__);
 
-            // Fetch interfaces from the parent list - if they exist.
-            if (typeof (this.parent) !== 'undefined' && typeof (this.parent.__joii__) !== 'undefined') {
-                interfaces = this.parent.__joii__.getInterfaces();
-            }
 
-            if (typeof (this.interfaces) !== 'undefined') {
-                if (typeof (this.interfaces) === 'object') {
-                    for (var i in this.interfaces) {
-                        if (!this.interfaces.hasOwnProperty(i)) {
-                            continue;
+        function bindGetInterfaces(joii)
+        {
+            
+            // Recursive function for retrieving a list of interfaces from the
+            // current class and the rest of the inheritance tree.
+            joii.getInterfaces = JOII.Compat.Bind(function() {
+                var interfaces = [],
+                    getRealInterface = JOII.Compat.Bind(function(i) {
+                        if (typeof (i) === 'function') {
+                            return i;
+                        } else if (typeof (i) === 'string') {
+                            if (typeof (JOII.InterfaceRegistry[i]) === 'undefined') {
+                                throw 'Interface "' + i + '" does not exist.';
+                            }
+                            return JOII.InterfaceRegistry[i];
                         }
-                        interfaces.push(getRealInterface(this.interfaces[i]));
-                    }
-                } else {
-                    interfaces.push(getRealInterface(this.interfaces));
+                    }, this);
+
+                // Fetch interfaces from the parent list - if they exist.
+                if (typeof (this.parent) !== 'undefined' && typeof (this.parent.__joii__) !== 'undefined') {
+                    interfaces = this.parent.__joii__.getInterfaces();
                 }
-            }
 
-            return interfaces;
-        }, definition.prototype.__joii__);
+                if (typeof (this.interfaces) !== 'undefined') {
+                    if (typeof (this.interfaces) === 'object') {
+                        for (var i in this.interfaces) {
+                            if (!this.interfaces.hasOwnProperty(i)) {
+                                continue;
+                            }
+                            interfaces.push(getRealInterface(this.interfaces[i]));
+                        }
+                    } else {
+                        interfaces.push(getRealInterface(this.interfaces));
+                    }
+                }
 
+                return interfaces;
+            }, joii);
+        }
 
         // If any interfaces are implemented in this class, validate them
         // immediately rather than doing so during instantiation. If the
@@ -1902,13 +1920,6 @@ JOII.CamelcaseName = function(input) {
 
             };
 
-        
-            // Register the class by the given name to make it usable as a type
-            // inside property declarations.
-            if (typeof (JOII.ClassRegistry[name]) !== 'undefined') {
-                throw 'Another class named "' + name + '" already exists.';
-            }
-            JOII.ClassRegistry[name] = definition;
         }
 
 
@@ -1924,7 +1935,7 @@ JOII.CamelcaseName = function(input) {
                 var scope_in_obj    = new func_in();
 
                 // Create an inner static scope, for private/protected members                
-                var scope_in = generateInnerScope(this, [], scope_in_obj);
+                var scope_in = generateInnerScope(this, [], scope_in_obj, true);
             
                 // Create the static field, and copy it into the object we created before.
                 // Need to copy it this way, so that the object reference is still the same, 
@@ -1949,6 +1960,23 @@ JOII.CamelcaseName = function(input) {
             // class definition upon other definitions without instantiation.
             staticDefinition.prototype = JOII.PrototypeBuilder(name, parameters, body, false, true);
             
+            // Store defined interfaces in the metadata.
+            staticDefinition.prototype.__joii__.interfaces = parameters['implements'];
+
+            bindGetInterfaces(staticDefinition.prototype.__joii__);
+            
+            // If any interfaces are implemented in this class, validate them
+            // immediately rather than doing so during instantiation. If the
+            // class is declared abstract, the validation is skipped.
+            if (parameters.abstract !== true) {
+                var interfaces = staticDefinition.prototype.__joii__.getInterfaces();
+                for (var ii in interfaces) {
+                    if (interfaces.hasOwnProperty(ii) && typeof (interfaces[ii]) === 'function') {
+                        interfaces[ii](staticDefinition);
+                    }
+                }
+            }
+
             /**
              * Deserializes a class (called as a static method - instantiates a new object and populates it)
              *
@@ -2003,7 +2031,14 @@ JOII.CamelcaseName = function(input) {
         }
 
 
-
+        
+        
+        // Register the class by the given name to make it usable as a type
+        // inside property declarations.
+        if (typeof (JOII.ClassRegistry[name]) !== 'undefined') {
+            throw 'Another class named "' + name + '" already exists.';
+        }
+        JOII.ClassRegistry[name] = definition;
 
 
 
@@ -2068,6 +2103,10 @@ JOII.InterfaceBuilder = function() {
             for (i in properties) {
                 if (properties.hasOwnProperty(i) === false) continue;
                 p1 = properties[i];
+                
+                if (p1.isStatic() && !reflector.isStatic()) continue;
+                if (!p1.isStatic() && reflector.isStatic()) continue;
+
 
                 if (!reflector.hasProperty(p1.getName())) {
                     throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
@@ -2082,6 +2121,10 @@ JOII.InterfaceBuilder = function() {
             for (i in methods) {
                 if (methods.hasOwnProperty(i) === false) continue;
                 p1 = methods[i];
+
+                if (p1.isStatic() && !reflector.isStatic()) continue;
+                if (!p1.isStatic() && reflector.isStatic()) continue;
+
                 if (!reflector.hasMethod(p1.getName())) {
                     throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
                 }
@@ -2124,7 +2167,7 @@ JOII.InterfaceBuilder = function() {
                             }
                         }
                         if (different) {
-                            throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
+                            throw 'Method ' + p1.getName() + ' does not match the parameter types as defined in the interface ' + this.name + '.';
                         }
                     }
                 }
@@ -2378,6 +2421,15 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
     'public isAbstract': function() {
         return this.meta.is_abstract === true;
     },
+    
+    /**
+     * Returns true if the property is static.
+     *
+     * @return bool
+     */
+    'public isStatic': function() {
+        return this.meta.is_static;
+    },
 
     /**
      * Returns true if a property by the given name exists.
@@ -2575,6 +2627,15 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
     },
 
     /**
+     * Returns true if the property is static.
+     *
+     * @return bool
+     */
+    'public isStatic': function() {
+        return this.meta.is_static;
+    },
+
+    /**
      * Returns true if the property is nullable.
      *
      * @return bool
@@ -2671,6 +2732,8 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
         if (this.meta.is_final) { name_parts.push('final'); }
 
         name_parts.push(this.meta.visibility);
+        
+        if (this.meta.is_static) { name_parts.push('static'); }
 
         if (this.meta.is_nullable) { name_parts.push('nullable'); }
         if (this.meta.is_read_only) { name_parts.push('read'); }

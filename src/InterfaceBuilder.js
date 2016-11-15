@@ -55,6 +55,10 @@ JOII.InterfaceBuilder = function() {
             for (i in properties) {
                 if (properties.hasOwnProperty(i) === false) continue;
                 p1 = properties[i];
+                
+                if (p1.isStatic() && !reflector.isStatic()) continue;
+                if (!p1.isStatic() && reflector.isStatic()) continue;
+
 
                 if (!reflector.hasProperty(p1.getName())) {
                     throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
@@ -69,6 +73,10 @@ JOII.InterfaceBuilder = function() {
             for (i in methods) {
                 if (methods.hasOwnProperty(i) === false) continue;
                 p1 = methods[i];
+
+                if (p1.isStatic() && !reflector.isStatic()) continue;
+                if (!p1.isStatic() && reflector.isStatic()) continue;
+
                 if (!reflector.hasMethod(p1.getName())) {
                     throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
                 }
@@ -111,7 +119,7 @@ JOII.InterfaceBuilder = function() {
                             }
                         }
                         if (different) {
-                            throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
+                            throw 'Method ' + p1.getName() + ' does not match the parameter types as defined in the interface ' + this.name + '.';
                         }
                     }
                 }

@@ -66,12 +66,12 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
 
         
         // make sure this prototype only has members that match it's static state
-        if (prototype.__joii__['is_static'] !== true && meta.is_static) continue;
+        if (prototype.__joii__['is_static'] !== true && meta.is_static && !is_interface) continue;
         if (prototype.__joii__['is_static'] && !meta.is_static) {
             if (is_static_generated) {
                 continue;
             } else {
-                throw 'Member ' + meta.name + 'is non-static. A static class cannot contain non-static members.';
+                throw 'Member ' + meta.name + ' is non-static. A static class cannot contain non-static members.';
             }
         }
 
@@ -117,6 +117,10 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
         if (is_interface) {
             throw 'An interface cannot be declared abstract.';
         }
+    }
+
+    if (prototype.__joii__.is_static && is_interface) {
+        throw 'An interface cannot be declared static.';
     }
 
     // Apply the parent prototype.
@@ -181,7 +185,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
             var proto_meta    = prototype.__joii__.metadata[i];
             
             // make sure this prototype only has members that match it's static state
-            if (prototype.__joii__['is_static'] !== true && property_meta.is_static) continue;
+            if (prototype.__joii__['is_static'] !== true && property_meta.is_static && !is_interface) continue;
             if (prototype.__joii__['is_static'] && !property_meta.is_static) {
                 if (is_static_generated) {
                     continue;
@@ -360,7 +364,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
         }
 
         // make sure this prototype only has members that match it's static state
-        if (prototype.__joii__['is_static'] !== true && meta.is_static) continue;
+        if (prototype.__joii__['is_static'] !== true && meta.is_static && !is_interface) continue;
         if (prototype.__joii__['is_static'] && !meta.is_static) {
             if (is_static_generated) {
                 continue;
