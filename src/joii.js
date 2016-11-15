@@ -27,8 +27,8 @@
      * Source code combined/packaged using ISC to prevent scope bleeding.
      * @link https://npmjs.com/package/isc/
      *
-     * @include("./Compatibility.js")
      * @include("./Config.js")
+     * @include("./Compatibility.js")
      * @include("./PrototypeBuilder.js")
      * @include("./ClassBuilder.js")
      * @include("./InterfaceBuilder.js")

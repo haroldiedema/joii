@@ -5,7 +5,7 @@
 
 // Need this to be in scope for internal functions, but don't want to expose it outside
 // this will be inside the closure after compile, while still being available in global scope for src testing
-inner_static_objects = {};
+var inner_static_objects = {};
 
 
 
