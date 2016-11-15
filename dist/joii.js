@@ -506,7 +506,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
     // property and move them in the prototype.
     for (var i in deep_copy) {
         if (deep_copy.hasOwnProperty(i) === false) continue;
-        var meta = JOII.ParseClassProperty(i);
+        var meta = JOII.ParseClassProperty(i, name);
 
         
         // make sure this prototype only has members that match it's static state
@@ -801,7 +801,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
     // the getter/setter methods yet. (Fixes issue #10)
     for (var i in deep_copy) {
         if (deep_copy.hasOwnProperty(i) === false) continue;
-        var meta = JOII.ParseClassProperty(i);
+        var meta = JOII.ParseClassProperty(i, name);
         
         if (typeof (deep_copy[i]) === 'function' || meta.parameters.length > 0 || 'overloads' in meta) {
             continue;
@@ -940,7 +940,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
  * @param  {String} str
  * @return {Object}
  */
-JOII.ParseClassProperty = function(str) {
+JOII.ParseClassProperty = function(str, currently_defining) {
     // Parse the given string and set some defaults.
     var function_parameters = (/\(.*\)/).exec(str.toString());
     var has_parameters = false;
@@ -990,12 +990,15 @@ JOII.ParseClassProperty = function(str) {
         return metadata;
     }
 
+    var raw_data = [];
+
     // Make sure all property flags are lowercase. We don't use Array.map
     // for this because Internet Explorer 8 (and below) doesn't know it.
     for (i in data) {
         if (typeof (JOII.InterfaceRegistry[data[i]]) === 'undefined' &&
             typeof (JOII.ClassRegistry[data[i]]) === 'undefined') {
-            data[i] = data[i].toString().toLowerCase();
+            raw_data[i] = data[i].toString();
+            data[i] = raw_data[i].toLowerCase();
         }
     }
 
@@ -1094,6 +1097,13 @@ JOII.ParseClassProperty = function(str) {
                     break;
                 }
 
+                // Check for self reference (the class we're defining)
+                if (currently_defining == raw_data[i]) {
+                    metadata.is_joii_object = true;
+                    metadata.type = data[i];
+                    break;
+                }
+
                 throw 'Syntax error: unexpected "' + data[i] + '" in property declaration of "' + name + '".';
         }
     }
@@ -1130,7 +1140,7 @@ JOII.CreatePropertyGetterSetter = function(deep_copy, meta, name) {
         } else {
             getter_fn = new Function('return this["' + meta.name + '"];');
         }
-        getter_meta = JOII.ParseClassProperty(meta.visibility + ' function ' + getter + '()');
+        getter_meta = JOII.ParseClassProperty(meta.visibility + ' function ' + getter + '()', name);
         getter_meta.visibility = meta.visibility;
         getter_meta.is_abstract = meta.is_abstract;
         getter_meta.is_final = meta.is_final;
@@ -1220,7 +1230,7 @@ JOII.CreatePropertyGetterSetter = function(deep_copy, meta, name) {
             setter_fn = new Function('v', (meta.type !== null ? validator : '') + 'this["' + meta.name + '"] = v[0]; return this.__api__;');
         }
         // we want to take in ANY type, so we can provide better feedback with our setter function
-        setter_meta = JOII.ParseClassProperty(meta.visibility + ' function ' + setter + '(...)');
+        setter_meta = JOII.ParseClassProperty(meta.visibility + ' function ' + setter + '(...)', name);
         setter_meta.visibility = meta.visibility;
         setter_meta.is_abstract = meta.is_abstract;
         setter_meta.is_final = meta.is_final;
@@ -1543,10 +1553,19 @@ JOII.CamelcaseName = function(input) {
             name                        = args.name,
             parameters                  = args.parameters,
             body                        = args.body,
-            is_static_generated         = args.is_static_generated === true,
-            static_scope_in             = {};
+            is_static_generated         = args.is_static_generated === true;
+        
+        function static_scope_in() {
+            // If 'this.__joii__' is not available, that would indicate that
+            // we've been executed like a function rather than being instantiated.
+            if (typeof (this) === 'undefined' || typeof (this.__joii__) === 'undefined') {
+                // If the method __call exists, execute it and return its result.
 
+                return definition.apply(undefined, arguments);
+            }
 
+            return new definition();
+        }
         /**
          * Defines the class definition. This is the function that is executed
          * when the class is instantiated or executed. The function will relay
@@ -1927,12 +1946,16 @@ JOII.CamelcaseName = function(input) {
         
         // if it's not a static class, generate it's static backing field
         if (!is_static_generated && typeof (parameters['enum']) !== 'string') {
+            
+            var __in_joii_static_class_constructor = false;
 
             function staticDefinition() {
-                
+
                 var func_in         = function() { };
                 func_in.prototype   = this;
                 var scope_in_obj    = new func_in();
+
+                static_scope_in.prototype = definition;
 
                 // Create an inner static scope, for private/protected members                
                 var scope_in = generateInnerScope(this, [], scope_in_obj, true);
@@ -1956,6 +1979,8 @@ JOII.CamelcaseName = function(input) {
                 return static_scope_in;
             }
             
+            __in_joii_static_class_constructor = true;
+
             // Apply to prototype to the instantiator to allow extending the
             // class definition upon other definitions without instantiation.
             staticDefinition.prototype = JOII.PrototypeBuilder(name, parameters, body, false, true);
