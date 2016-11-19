@@ -8,7 +8,7 @@
 
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define('JOII', [], factory);
+        define([], factory);
     } else if (typeof exports === 'object') {
         // Node/CommonJS
         factory(exports);
@@ -21,6 +21,7 @@
 {
     // allows use as both raw source in the browser and compiled dist
     // easier to test/debug when using the raw source
+    root = typeof (root) !== 'undefined' ? root : {};
     var JOII = typeof (root.JOII) !== 'undefined' ? root.JOII : {};
 
     /**
@@ -52,4 +53,6 @@
             g[i] = root[i];
         }
     };
+
+    return root;
 }));

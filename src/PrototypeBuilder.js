@@ -122,6 +122,59 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
     if (prototype.__joii__.is_static && is_interface) {
         throw 'An interface cannot be declared static.';
     }
+    
+    // Create getters and setters for properties. We do this _after_ the
+    // copying of the parent object because that prototype doesn't contain
+    // the getter/setter methods yet. (Fixes issue #10)
+    // NOTE: The comment implies that this will apply getters/setters for inherited properties
+    // however, it's only looping over "deep_copy", which only contains information from this class
+    // it doesn't contain parent properties...
+    // Moved back above the parent implementations, so that the getter/setters for this class
+    // take priority over inherited (applies to static overloaded accessor methods)
+    for (var i in deep_copy) {
+        if (deep_copy.hasOwnProperty(i) === false) continue;
+        var meta = JOII.ParseClassProperty(i, name);
+        
+        if (typeof (deep_copy[i]) === 'function' || meta.parameters.length > 0 || 'overloads' in meta) {
+            continue;
+        }
+
+        // make sure this prototype only has members that match it's static state
+        if (prototype.__joii__['is_static'] !== true && meta.is_static && !is_interface) continue;
+        if (prototype.__joii__['is_static'] && !meta.is_static) {
+            if (is_static_generated) {
+                continue;
+            } else {
+                throw 'Member ' + meta.name + 'is non-static. A static class cannot contain non-static members.';
+            }
+        }
+        
+        // Generate getters and setters if we're not dealing with anything
+        // that is a function or declared private.
+        if (meta.visibility !== 'private') {
+
+            var gs = JOII.CreatePropertyGetterSetter(deep_copy, meta, name);
+            gs.getter.meta.class_name = name;
+            
+            if (typeof (prototype.__joii__.metadata[gs.getter.name]) == 'undefined' || !prototype.__joii__.metadata[gs.getter.name].has_parameterless) {
+                JOII.addFunctionToPrototype(prototype, gs.getter.meta, gs.getter.fn, true);
+            }
+
+            //prototype[gs.getter.name] = gs.getter.fn;
+            //prototype.__joii__.metadata[gs.getter.name] = gs.getter.meta;
+
+            if (typeof (gs.setter.meta) !== 'undefined') {
+                gs.setter.meta.class_name = name;
+                if (typeof (prototype.__joii__.metadata[gs.getter.name]) == 'undefined' || !prototype.__joii__.metadata[gs.getter.name].has_parameterless) {
+                    JOII.addFunctionToPrototype(prototype, gs.setter.meta, gs.setter.fn, true);
+                }
+
+                //prototype[gs.setter.name] = gs.setter.fn;
+                //prototype.__joii__.metadata[gs.setter.name] = gs.setter.meta;
+            }
+        }
+    }
+
 
     // Apply the parent prototype.
     if (typeof (parameters['extends']) !== 'undefined') {
@@ -256,10 +309,8 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
                     // if it's static, we need to reference the original functions, since static members stay with the class they're defined in
                     if (property_meta.is_static) {
         
-                        // Create getters and setters for properties defined in a parent class,
-                        // but only if they aren't declared in the child. (Fixes issue #10)
                         var gs = JOII.CreatePropertyGetterSetter(prototype, property_meta, name);
-                    
+                        
                         gs.getter.fn = Function('\
                             var args = ["' + gs.getter.name + '"];\
                             for (var i in arguments) { args.push(arguments[i]); }\
@@ -348,53 +399,6 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
                 } else {
                     prototype[i] = generated_fn;
                 }
-            }
-        }
-    }
-
-    // Create getters and setters for properties. We do this _after_ the
-    // copying of the parent object because that prototype doesn't contain
-    // the getter/setter methods yet. (Fixes issue #10)
-    for (var i in deep_copy) {
-        if (deep_copy.hasOwnProperty(i) === false) continue;
-        var meta = JOII.ParseClassProperty(i, name);
-        
-        if (typeof (deep_copy[i]) === 'function' || meta.parameters.length > 0 || 'overloads' in meta) {
-            continue;
-        }
-
-        // make sure this prototype only has members that match it's static state
-        if (prototype.__joii__['is_static'] !== true && meta.is_static && !is_interface) continue;
-        if (prototype.__joii__['is_static'] && !meta.is_static) {
-            if (is_static_generated) {
-                continue;
-            } else {
-                throw 'Member ' + meta.name + 'is non-static. A static class cannot contain non-static members.';
-            }
-        }
-        
-        // Generate getters and setters if we're not dealing with anything
-        // that is a function or declared private.
-        if (meta.visibility !== 'private') {
-
-            var gs = JOII.CreatePropertyGetterSetter(deep_copy, meta, name);
-            gs.getter.meta.class_name = name;
-            
-            if (typeof (prototype.__joii__.metadata[gs.getter.name]) == 'undefined' || !prototype.__joii__.metadata[gs.getter.name].has_parameterless) {
-                JOII.addFunctionToPrototype(prototype, gs.getter.meta, gs.getter.fn, true);
-            }
-
-            //prototype[gs.getter.name] = gs.getter.fn;
-            //prototype.__joii__.metadata[gs.getter.name] = gs.getter.meta;
-
-            if (typeof (gs.setter.meta) !== 'undefined') {
-                gs.setter.meta.class_name = name;
-                if (typeof (prototype.__joii__.metadata[gs.getter.name]) == 'undefined' || !prototype.__joii__.metadata[gs.getter.name].has_parameterless) {
-                    JOII.addFunctionToPrototype(prototype, gs.setter.meta, gs.setter.fn, true);
-                }
-
-                //prototype[gs.setter.name] = gs.setter.fn;
-                //prototype.__joii__.metadata[gs.setter.name] = gs.setter.meta;
             }
         }
     }
