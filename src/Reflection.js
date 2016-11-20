@@ -88,6 +88,15 @@ JOII.Reflection.Class = JOII.ClassBuilder({}, {
     'public isAbstract': function() {
         return this.meta.is_abstract === true;
     },
+    
+    /**
+     * Returns true if the property is static.
+     *
+     * @return bool
+     */
+    'public isStatic': function() {
+        return this.meta.is_static;
+    },
 
     /**
      * Returns true if a property by the given name exists.
@@ -285,6 +294,15 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
     },
 
     /**
+     * Returns true if the property is static.
+     *
+     * @return bool
+     */
+    'public isStatic': function() {
+        return this.meta.is_static;
+    },
+
+    /**
      * Returns true if the property is nullable.
      *
      * @return bool
@@ -381,6 +399,8 @@ JOII.Reflection.Property = JOII.ClassBuilder({}, {
         if (this.meta.is_final) { name_parts.push('final'); }
 
         name_parts.push(this.meta.visibility);
+        
+        if (this.meta.is_static) { name_parts.push('static'); }
 
         if (this.meta.is_nullable) { name_parts.push('nullable'); }
         if (this.meta.is_read_only) { name_parts.push('read'); }

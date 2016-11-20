@@ -3,10 +3,17 @@
  * Licensed under MIT.                                    / // / /_/ // /_/ /
  * ------------------------------------------------------ \___/\____/___/__*/
 
+// Need this to be in scope for internal functions, but don't want to expose it outside
+// this will be inside the closure after compile, while still being available in global scope for src testing
+var inner_static_objects = {};
+
+
+
 JOII = typeof (JOII) !== 'undefined' ? JOII : {};
 JOII.Config = {
     constructors : ['__construct', 'construct', '->', '=>'],
     callables    : ['__call', '<>'],
+
 
     /**
      * Adds a constructor method name. The first occurance of a function

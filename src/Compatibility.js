@@ -274,14 +274,19 @@ JOII.Compat.ParseArguments = function(args) {
         case 3:
             result.name       = args[0];
             result.parameters = args[1];
-            result.body       = args[2];
+            result.body = args[2];
+        case 4:
+            result.name = args[0];
+            result.parameters = args[1];
+            result.body = args[2];
+            result.is_static_generated = args[3];
     }
 
     // Validate the results.
     if (typeof (result.name) !== 'string' ||
         typeof (result.parameters) !== 'object' ||
-        typeof (result.body) !== 'object') {
-        throw 'Invalid parameter types given. Expected: ([[[string], object], <object>]).';
+        (typeof (result.body) !== 'object' && typeof (result.body) !== 'function')) {
+        throw 'Invalid parameter types given. Expected: ([[[string], object], <object|function>]).';
     }
 
     return result;

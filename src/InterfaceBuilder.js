@@ -55,6 +55,10 @@ JOII.InterfaceBuilder = function() {
             for (i in properties) {
                 if (properties.hasOwnProperty(i) === false) continue;
                 p1 = properties[i];
+                
+                if (p1.isStatic() && !reflector.isStatic()) continue;
+                if (!p1.isStatic() && reflector.isStatic()) continue;
+
 
                 if (!reflector.hasProperty(p1.getName())) {
                     throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
@@ -69,6 +73,10 @@ JOII.InterfaceBuilder = function() {
             for (i in methods) {
                 if (methods.hasOwnProperty(i) === false) continue;
                 p1 = methods[i];
+
+                if (p1.isStatic() && !reflector.isStatic()) continue;
+                if (!p1.isStatic() && reflector.isStatic()) continue;
+
                 if (!reflector.hasMethod(p1.getName())) {
                     throw 'Class must implement ' + (p1.toString().split(':')[0]) + ' as defined in the interface ' + this.name + '.';
                 }
@@ -95,13 +103,13 @@ JOII.InterfaceBuilder = function() {
                         for (var x = 0; x < args_class.length; x++) {
                             var class_parameters_meta = args_class[x];
 
-                            if (interface_parameters_meta.parameters.length === class_parameters_meta.parameters.length) {
+                            if (interface_parameters_meta.length === class_parameters_meta.length) {
                                 // this signature has the same number of types as the new signature
                                 // check to see if the types are the same (duplicate signature)
                                 different = false;
 
-                                for (var y = 0; y < interface_parameters_meta.parameters.length; y++) {
-                                    if (interface_parameters_meta.parameters[y] != class_parameters_meta.parameters[y]) {
+                                for (var y = 0; y < interface_parameters_meta.length; y++) {
+                                    if (interface_parameters_meta[y].type != class_parameters_meta[y].type) {
                                         different = true;
                                     }
                                 }
@@ -111,7 +119,7 @@ JOII.InterfaceBuilder = function() {
                             }
                         }
                         if (different) {
-                            throw 'Method ' + p1.getName() + ' does not match the parameter count as defined in the interface ' + this.name + '.';
+                            throw 'Method ' + p1.getName() + ' does not match the parameter types as defined in the interface ' + this.name + '.';
                         }
                     }
                 }

@@ -8,7 +8,7 @@
 
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define('JOII', [], factory);
+        define([], factory);
     } else if (typeof exports === 'object') {
         // Node/CommonJS
         factory(exports);
@@ -21,14 +21,15 @@
 {
     // allows use as both raw source in the browser and compiled dist
     // easier to test/debug when using the raw source
+    root = typeof (root) !== 'undefined' ? root : {};
     var JOII = typeof (root.JOII) !== 'undefined' ? root.JOII : {};
 
     /**
      * Source code combined/packaged using ISC to prevent scope bleeding.
      * @link https://npmjs.com/package/isc/
      *
-     * @include("./Compatibility.js")
      * @include("./Config.js")
+     * @include("./Compatibility.js")
      * @include("./PrototypeBuilder.js")
      * @include("./ClassBuilder.js")
      * @include("./InterfaceBuilder.js")
@@ -52,4 +53,6 @@
             g[i] = root[i];
         }
     };
+
+    return root;
 }));
