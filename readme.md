@@ -39,6 +39,11 @@ browser on the market. Therefore, JOII is supported by Internet Explorer
  * (since 3.2.0) [Serialization support](https://joii.harold.info/class/serialization)
  * (since 4.1.0) [Function overloading](https://joii.harold.info/meta/overloads)
 
+## IRC
+
+JOII can be found on the freenode IRC server on channel #joii.
+
+
 ## License
 
 Like most other popular JavaScript libraries, JOII is released under the [MIT license](https://en.wikipedia.org/wiki/MIT_License).
