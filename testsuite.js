@@ -45,7 +45,8 @@ var testsuite = {
         "./test/IssueReports/IssueReport16.js",
         "./test/IssueReports/IssueReport19.js",
         "./test/IssueReports/IssueReport21.js",
-        "./test/IssueReports/IssueReport25.js"
+        "./test/IssueReports/IssueReport25.js",
+        "./test/IssueReports/IssueReport29.js"
     ]
 };
 
@@ -68,7 +69,8 @@ if (typeof (window) === 'undefined') {
         'src/InterfaceBuilder.js',
         'src/EnumBuilder.js',
         'src/Reflection.js',
-        'src/joii.js'
+        'src/joii.js',
+        "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js" // need requireJS for one of the issue reports
     ];
 
 

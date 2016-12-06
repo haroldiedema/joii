@@ -5,11 +5,11 @@
   "author": "Harold Iedema",
   "license": "MIT",
   "main": "dist/joii.js",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
+    "isc": "0.0.4",
     "qunit": "^0.9.1",
-    "isc": "0.0.4"
+    "requirejs": "^2.3.2"
   },
   "scripts": {
     "test": "node build && node testsuite",
