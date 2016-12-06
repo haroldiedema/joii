@@ -711,32 +711,58 @@ JOII.CreatePropertyGetterSetter = function(deep_copy, meta, name) {
     // Create a setter
     if (typeof (deep_copy[setter]) === 'undefined' && meta.is_read_only === false) {
         var nullable = meta.is_nullable, validator;
+        
+        if (meta.type !== null) {
+            // InstanceOf validator (in case of interfaces & classes)
+            if (typeof (JOII.InterfaceRegistry[meta.type]) !== 'undefined' ||
+                typeof (JOII.ClassRegistry[meta.type]) !== 'undefined') {
+                
+                setter_fn = function (name, prop_name, prop_type, nullable, setter) {
+                    return function (v) {
+                        if (prop_type !== null) {
+                            if (JOII.Compat.findJOIIName(v[0]) === prop_type) {} else {
+                            if (v[0] !== null && typeof (v[0].instanceOf) !== 'function' || (typeof (v[0]) === 'object' && v[0] !== null && typeof (v[0].instanceOf) === 'function' && !v[0].instanceOf(prop_type)) || v[0] === null) {
+                                if (nullable === false || (nullable === true && v[0] !== null && typeof (v[0]) !== "undefined")) {
+                                    throw setter + ' expects an instance of ' + prop_type + ', ' + (v[0] === null ? "null" : typeof (v[0])) + " given.";
+                                }
+                            }};
+                        }
+                        this[prop_name] = v[0];
+                        return this.__api__;
+                    };
+                }(name, meta.name, meta.type, nullable, setter);
 
-        // InstanceOf validator (in case of interfaces & classes)
-        if (typeof (JOII.InterfaceRegistry[meta.type]) !== 'undefined' ||
-            typeof (JOII.ClassRegistry[meta.type]) !== 'undefined') {
-            validator = '\
-                        if (JOII.Compat.findJOIIName(v[0]) === \'' + meta.type + '\') {} else {\n\
-                        if (v[0] !== null && typeof (v[0].instanceOf) !== \'function\' || (typeof (v[0]) === \'object\' && v[0] !== null && typeof (v[0].instanceOf) === \'function\' && !v[0].instanceOf(\'' + meta.type + '\')) || v[0] === null) {\n\
-                            if ('+ nullable + ' === false || (' + nullable + ' === true && v[0] !== null && typeof (v[0]) !== "undefined")) {\n\
-                                throw "'+ setter + ' expects an instance of ' + meta.type + ', " + (v[0] === null ? "null" : typeof (v[0])) + " given.";\n\
-                            }\n\
-                        }};';
+            } else {
+            
+                // Native type validator
+                setter_fn = function (name, prop_name, prop_type, nullable, setter) {
+                    return function (v) {
+                        if (prop_type !== null) {
+                            if (typeof (JOII.EnumRegistry[prop_type]) !== 'undefined') {
+                                var _e = JOII.EnumRegistry[prop_type];
+                                if (!_e.contains(v[0])) {
+                                    throw setter + ": '" + v[0] + "' is not a member of enum " + _e.getName() + ".";
+                                }
+                            } else {
+                                if (typeof (v[0]) !== prop_type) {
+                                    if (nullable === false || (nullable === true && v[0] !== null && typeof (v[0]) !== "undefined")) {
+                                        throw setter + " expects " + prop_type + ", " + typeof (v[0]) + " given.";
+                                    }
+                                };
+                            }
+                        }
+                        this[prop_name] = v[0];
+                        return this.__api__;
+                    };
+                }(name, meta.name, meta.type, nullable, setter);
+            }
         } else {
-            // Native type validator
-            validator = '\
-                        if (typeof (JOII.EnumRegistry[\'' + meta.type + '\']) !== \'undefined\') {\
-                            var _e = JOII.EnumRegistry[\'' + meta.type + '\'];\
-                            if (!_e.contains(v[0])) {\
-                                throw "'+ setter + ': \'" + v[0] + "\' is not a member of enum " + _e.getName() + ".";\
-                            }\
-                        } else {\
-                            if (typeof (v[0]) !== \'' + meta.type + '\') {\
-                                if ('+ nullable + ' === false || (' + nullable + ' === true && v[0] !== null && typeof (v[0]) !== "undefined")) {\
-                                    throw "'+ setter + ' expects ' + meta.type + ', " + typeof (v[0]) + " given.";\
-                                }\
-                            };\
-                        }';
+            setter_fn = function (prop_name) {
+                return function (v) {
+                    this[prop_name] = v[0];
+                    return this.__api__;
+                };
+            }(meta.name);
         }
 
         // if it's static, make sure we're referring to it explicitly
@@ -786,8 +812,6 @@ JOII.CreatePropertyGetterSetter = function(deep_copy, meta, name) {
                 
             }
 
-        } else {
-            setter_fn = new Function('v', (meta.type !== null ? validator : '') + 'this["' + meta.name + '"] = v[0]; return this.__api__;');
         }
         // we want to take in ANY type, so we can provide better feedback with our setter function
         setter_meta = JOII.ParseClassProperty(meta.visibility + ' function ' + setter + '(...)', name);
