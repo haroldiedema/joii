@@ -14,6 +14,7 @@ var testsuite = {
         "./test/PrototypeBuilder/InheritanceTest.js",
         "./test/PrototypeBuilder/PropertyMetaTest.js",
         "./test/PrototypeBuilder/TraitTest.js",
+        "./test/PrototypeBuilder/MetaTraitTest.js",
         // ClassBuilder
         "./test/ClassBuilder/StaticTest.js",
         "./test/ClassBuilder/InstantiationTest.js",
@@ -49,6 +50,7 @@ var testsuite = {
         "./test/IssueReports/IssueReport29.js"
     ]
 };
+
 
 /**
  * Platform-independent bootstrap.

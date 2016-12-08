@@ -13,7 +13,7 @@ JOII.Compat = {};
  * @param  {Object|Function} e
  * @return {String|Boolean}
  */
-JOII.Compat.findJOIIName = function(e) {
+JOII.Compat.findJOIIName = function(e, selfReferenced) {
     var i, r;
 
     if (typeof (e) === 'string' ||
@@ -24,21 +24,26 @@ JOII.Compat.findJOIIName = function(e) {
         return false;
     }
 
-    if (typeof (e.__joii__) !== 'undefined') {
+    if (typeof (e.__joii__) !== 'undefined' && e.__joii__ !== null) {
         return e.__joii__.name;
     }
     if (typeof (e.prototype) !== 'undefined' && typeof (e.prototype.__joii__) !== 'undefined') {
         return e.prototype.__joii__.name;
     }
+    
+    // prevent infinite loops. Shouldn't need to go more than one deep.
+    if (selfReferenced) {
+        return false;
+    }
 
     // Chrome / FF // IE 11+
-    if (typeof (e.__proto__) !== 'undefined') {
-        r = JOII.Compat.findJOIIName(e.__proto__);
+    if (typeof (e.__proto__) !== 'undefined' && e.__proto__ !== null) {
+        r = JOII.Compat.findJOIIName(e.__proto__, true);
         if (typeof (r) === 'string') {
             return r;
         }
     }
-
+    
     if (typeof (e) === 'function') {
         e = e.prototype;
     }
@@ -46,7 +51,7 @@ JOII.Compat.findJOIIName = function(e) {
     for (i in e) {
         if (e.hasOwnProperty(i) === false) continue;
         if (typeof (e[i]) === 'function' || typeof (e[i]) === 'object') {
-            r = JOII.Compat.findJOIIName(e[i]);
+            r = JOII.Compat.findJOIIName(e[i], true);
             if (typeof (r) === 'string') {
                 return r;
             }
@@ -130,6 +135,103 @@ JOII.Compat.extend = function() {
     }
     return target;
 };
+
+
+/**
+ * Recursively walks through a normal object, and flattens any JOII objects it finds, to prepare them for serialization
+ *
+ * @param  {Object} current_obj
+ * @param  {Object} obj_base
+ * @return {Boolean}
+ */
+JOII.Compat.flattenObject = function(current_obj) {
+    var obj = null;
+                    
+    if (JOII.Compat.isArray(current_obj)) {
+        obj = [];
+    } else {
+        obj = {};
+    }
+
+    for (var key in current_obj) {
+        if (current_obj.hasOwnProperty(key) === false) continue;
+
+        var currentValue = current_obj[key];
+
+        if (typeof (currentValue) === 'object' && currentValue !== null && 'serialize' in currentValue && typeof (currentValue.serialize) === 'function') {
+            try {
+                obj[key] = currentValue.serialize(true);
+
+                if (typeof(obj[key]) === 'string') {
+                    // wasn't our serialize method. Try to deserialize back to an object to continue.
+                    obj[key] = JSON.parse(obj[key]);
+                }
+            } catch (e) {
+                // something went wrong with calling the object's serialize method. Fall back to normal crawling.
+                obj[key] = JOII.Compat.flattenObject(currentValue);
+            }
+        } else if (typeof (currentValue) === 'object' && currentValue != null) {
+            obj[key] = JOII.Compat.flattenObject(currentValue);
+        } else {
+            obj[key] = currentValue;
+        }
+    }
+
+    return obj;
+};
+
+/**
+ * Recursively walks through a normal object, and deserializes any JOII objects it finds,
+ * optionally restoring to a current object while maintaining object references
+ *
+ * @param  {Object} current_obj
+ * @param  {Object} obj_base
+ * @return {Boolean}
+ */
+JOII.Compat.inflateObject = function(current_obj, obj_base) {
+    var obj = obj_base || null;
+    
+    if (typeof (obj) !== 'object' || obj == null) {         
+        if (JOII.Compat.isArray(current_obj)) {
+            obj = [];
+        } else {
+            obj = {};
+        }
+    }
+
+    for (var key in current_obj) {
+        if (current_obj.hasOwnProperty(key) === false) continue;
+
+        var currentValue = current_obj[key];
+        
+        if (typeof (currentValue) === 'object' && currentValue !== null && '__joii_type' in currentValue && typeof (currentValue.__joii_type) === 'string') {
+            var name = currentValue.__joii_type;
+            // Check for Interface-types
+            if (typeof (JOII.InterfaceRegistry[name]) !== 'undefined') {
+                throw 'Cannot instantiate an interface.';
+            }
+            // Check for Class-types
+            else if (typeof (JOII.ClassRegistry[name]) !== 'undefined') {
+                var oldValue = obj[key];
+                if (typeof (oldValue) === 'object' && oldValue !== null && '__joii__' in oldValue && typeof (oldValue.__joii__) === 'object' && oldValue.__joii__ !== null && oldValue.__joii__.name === name) {
+                    // try to deserialize in place if the object already exists. This avoids breaking object references.
+                    oldValue.deserialize(currentValue);
+                } else {
+                    obj[key] = JOII.ClassRegistry[name].deserialize(currentValue);
+                }
+            } else {
+                throw 'Class ' + name + ' not currently in scope!';
+            }
+        } else if (typeof (currentValue) === 'object' && currentValue != null) {
+            obj[key] = JOII.Compat.inflateObject(currentValue, obj[key]);
+        } else {
+            obj[key] = currentValue;
+        }
+    }
+
+    return obj;
+};
+
 
 /**
  * Returns true if the given object is an array.

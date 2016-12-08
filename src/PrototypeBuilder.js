@@ -32,7 +32,8 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
 
     // Create a clean prototype of the class body.
     var prototype = {},
-        deep_copy = JOII.Compat.extend(true, {}, body);
+        deep_copy = JOII.Compat.extend(true, {}, body),
+        meta_attribute_mixins = {};
 
     // Create the internal JOII-object.
     JOII.CreateProperty(prototype, '__joii__', {
@@ -57,12 +58,23 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
     if (prototype.__joii__.is_abstract && prototype.__joii__.is_final) {
         throw 'A class cannot be both abstract and final simultaniously.';
     }
+    
+
+    if ('__meta' in deep_copy && typeof(deep_copy['__meta']) === 'object')
+    {
+        // copy the meta mixin information
+        meta_attribute_mixins = JOII.Compat.extend(true, {}, deep_copy['__meta']);
+            
+        // remove the __meta trait so it's not treated as a property
+        delete deep_copy['__meta'];
+    }
+
 
     // Iterate over properties from the deep_copy, get the metadata of the
     // property and move them in the prototype.
     for (var i in deep_copy) {
         if (deep_copy.hasOwnProperty(i) === false) continue;
-        var meta = JOII.ParseClassProperty(i, name);
+        var meta = JOII.ParseClassProperty(i, name, meta_attribute_mixins);
 
         
         // make sure this prototype only has members that match it's static state
@@ -131,11 +143,12 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
     // it doesn't contain parent properties...
     // Moved back above the parent implementations, so that the getter/setters for this class
     // take priority over inherited (applies to static overloaded accessor methods)
-    for (var i in deep_copy) {
-        if (deep_copy.hasOwnProperty(i) === false) continue;
-        var meta = JOII.ParseClassProperty(i, name);
+    for (var i in prototype.__joii__.metadata) {
+        if (prototype.__joii__.metadata.hasOwnProperty(i) === false) continue;
+        var meta = prototype.__joii__.metadata[i]; //JOII.ParseClassProperty(i, name, meta_attribute_mixins);
         
-        if (typeof (deep_copy[i]) === 'function' || meta.parameters.length > 0 || 'overloads' in meta) {
+        
+        if (typeof (prototype[i]) === 'function' || meta.parameters.length > 0 || 'overloads' in meta) {
             continue;
         }
 
@@ -160,17 +173,33 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
                 JOII.addFunctionToPrototype(prototype, gs.getter.meta, gs.getter.fn, true);
             }
 
-            //prototype[gs.getter.name] = gs.getter.fn;
-            //prototype.__joii__.metadata[gs.getter.name] = gs.getter.meta;
-
             if (typeof (gs.setter.meta) !== 'undefined') {
                 gs.setter.meta.class_name = name;
                 if (typeof (prototype.__joii__.metadata[gs.getter.name]) == 'undefined' || !prototype.__joii__.metadata[gs.getter.name].has_parameterless) {
                     JOII.addFunctionToPrototype(prototype, gs.setter.meta, gs.setter.fn, true);
                 }
+            }
+        }
+    }
 
-                //prototype[gs.setter.name] = gs.setter.fn;
-                //prototype.__joii__.metadata[gs.setter.name] = gs.setter.meta;
+    
+    // apply meta traits
+    for (var meta_index in prototype.__joii__.metadata) {
+        if (prototype.__joii__.metadata.hasOwnProperty(meta_index) === false) continue;
+        var meta = prototype.__joii__.metadata[meta_index];
+
+        if (typeof(meta.overloads) === 'object') {
+            for (var overload_index in meta.overloads) {
+                var overload = meta.overloads[overload_index];
+                // call the custom meta functions for this property
+                for (var i = 0; i < overload['meta_traits'].length; i++) {
+                    meta_attribute_mixins[overload['meta_traits'][i]](prototype, overload);
+                }
+            }
+        } else {
+            // call the custom meta functions for this property
+            for (var i = 0; i < meta['meta_traits'].length; i++) {
+                meta_attribute_mixins[meta['meta_traits'][i]](prototype, meta);
             }
         }
     }
@@ -403,7 +432,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
         }
     }
 
-
+    
 
     if (is_interface !== true) {
         /**
@@ -500,7 +529,12 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
  * @param  {String} str
  * @return {Object}
  */
-JOII.ParseClassProperty = function(str, currently_defining) {
+JOII.ParseClassProperty = function(str, currently_defining, meta_attribute_mixins) {
+    if (typeof (meta_attribute_mixins) !== 'object')
+    {
+        meta_attribute_mixins = {};
+    }
+
     // Parse the given string and set some defaults.
     var function_parameters = (/\(.*\)/).exec(str.toString());
     var has_parameters = false;
@@ -532,7 +566,8 @@ JOII.ParseClassProperty = function(str, currently_defining) {
             'is_joii_object': false,     // Does this represent a joii class/interface ?
             'serializable'  : false,     // Is the property serializable?
             'has_parameters': has_parameters,
-            'parameters'    : function_parameters
+            'parameters'    : function_parameters,
+            'meta_traits'   : []
         }, i;
 
     
@@ -560,6 +595,14 @@ JOII.ParseClassProperty = function(str, currently_defining) {
             raw_data[i] = data[i].toString();
             data[i] = raw_data[i].toLowerCase();
         }
+    }
+
+    var meta_attribute_mixins_normalized = {};
+
+    // Make sure all property flags are lowercase. We don't use Array.map
+    // for this because Internet Explorer 8 (and below) doesn't know it.
+    for (i in meta_attribute_mixins) {
+        meta_attribute_mixins_normalized[i.toLowerCase()] = i;
     }
 
     // Shorthand for validating other flags within the same declaration.
@@ -631,6 +674,14 @@ JOII.ParseClassProperty = function(str, currently_defining) {
                 metadata.is_constant = true;
                 break;
             default:
+
+                if (data[i] in meta_attribute_mixins_normalized && typeof(meta_attribute_mixins[meta_attribute_mixins_normalized[data[i]]]) === 'function') {
+                    // save the custom meta data for later
+                    metadata['meta_traits'].push(meta_attribute_mixins_normalized[data[i]]);
+                    break;
+                }
+
+
                 if (JOII.Compat.indexOf(types, data[i]) !== -1) {
                     if (metadata.type !== null) {
                         throw 'Property "' + name + '" has multiple type defintions.';
@@ -671,11 +722,8 @@ JOII.ParseClassProperty = function(str, currently_defining) {
     return metadata;
 };
 
-JOII.CreatePropertyGetterSetter = function(deep_copy, meta, name) {
-    "use strict";
-    // If the meta type is boolean, prefix the getter with 'is'
-    // rather than 'get'.
-    var getter, getter_meta, getter_fn;
+JOII.GenerateGetterName = function(meta) {
+    var getter = "";
     if (meta.type === 'boolean') {
         if (JOII.CamelcaseName(meta.name).substr(0, 2) === 'Is') {
             getter = JOII.CamelcaseName(meta.name);
@@ -686,7 +734,20 @@ JOII.CreatePropertyGetterSetter = function(deep_copy, meta, name) {
     } else {
         getter = 'get' + JOII.CamelcaseName(meta.name);
     }
-    var setter = 'set' + JOII.CamelcaseName(meta.name), setter_meta, setter_fn;
+    return getter;
+};
+
+JOII.GenerateSetterName = function(meta) {
+    return 'set' + JOII.CamelcaseName(meta.name);
+};
+
+JOII.CreatePropertyGetterSetter = function(deep_copy, meta, name) {
+    "use strict";
+    // If the meta type is boolean, prefix the getter with 'is'
+    // rather than 'get'.
+    var getter, getter_meta, getter_fn, setter, setter_meta, setter_fn;
+    getter = JOII.GenerateGetterName(meta);
+    setter = JOII.GenerateSetterName(meta);
 
     // Create a getter
     if (typeof (deep_copy[getter]) === 'undefined') {
@@ -955,12 +1016,24 @@ JOII.addFunctionToPrototype = function(prototype, meta, fn, ignore_duplicate) {
     }
     
     var function_meta = {
-        fn: fn,
-        parameters      : meta.parameters,
+        'name'          : meta.name,
+        'type'          : meta.type,
+        'visibility'    : meta.visibility,
+        'is_nullable'   : meta.is_nullable,
+        'is_read_only'  : meta.is_read_only,
+        'is_constant'   : meta.is_constant,
+        'is_static'     : meta.is_static,
+        'is_enum'       : meta.is_enum,
+        'is_generated'  : meta.is_generated,
+        'is_joii_object': meta.is_joii_object,
+        'serializable'  : meta.serializable,
         is_abstract     : meta.is_abstract,
         is_final        : meta.is_final,
         is_inherited    : meta.is_inherited,
-        has_parameters  : meta.has_parameters
+        has_parameters  : meta.has_parameters,
+        parameters      : meta.parameters,
+        fn              : fn,
+        meta_traits     : meta.meta_traits
     };
 
     if (!meta.has_parameters) {
@@ -1090,8 +1163,12 @@ JOII.createFunctionShim = function(name, overloads) {
             }
             parameter_types.push(JOIIName === null ? typeof (arguments[i]) : JOIIName);
         }
-
-        throw 'Couldn\'t find a function handler to match: ' + name + '(' + parameter_types.join(', ') + ').';
+        
+        if (arguments.length == 1 && typeof arguments[0] == 'object' && '__joii_deserialize_object' in arguments[0]) {
+            // don't throw an error when deserializing with our special deserialize object if there's no matching constructor
+        } else {
+            throw 'Couldn\'t find a function handler to match: ' + name + '(' + parameter_types.join(', ') + ').';
+        }
     };
 };
 
