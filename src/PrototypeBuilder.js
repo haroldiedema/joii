@@ -60,13 +60,15 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
     }
     
 
-    if ('__meta' in deep_copy && typeof(deep_copy['__meta']) === 'object')
-    {
+    if ('__meta' in deep_copy && typeof(deep_copy['__meta']) === 'object') {
         // copy the meta mixin information
-        meta_attribute_mixins = JOII.Compat.extend(true, {}, deep_copy['__meta']);
+        meta_attribute_mixins = prototype.__joii__.meta_attribute_mixins = JOII.Compat.extend(true, {}, deep_copy['__meta']);
             
         // remove the __meta trait so it's not treated as a property
         delete deep_copy['__meta'];
+
+    } else {
+        meta_attribute_mixins = prototype.__joii__.meta_attribute_mixins = {};
     }
 
 
@@ -182,27 +184,18 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
         }
     }
 
-    
+
     // apply meta traits
+    JOII.callMetaMixin('beforeDefine', prototype);
+
     for (var meta_index in prototype.__joii__.metadata) {
         if (prototype.__joii__.metadata.hasOwnProperty(meta_index) === false) continue;
         var meta = prototype.__joii__.metadata[meta_index];
-
-        if (typeof(meta.overloads) === 'object') {
-            for (var overload_index in meta.overloads) {
-                var overload = meta.overloads[overload_index];
-                // call the custom meta functions for this property
-                for (var i = 0; i < overload['meta_traits'].length; i++) {
-                    meta_attribute_mixins[overload['meta_traits'][i]](prototype, overload);
-                }
-            }
-        } else {
-            // call the custom meta functions for this property
-            for (var i = 0; i < meta['meta_traits'].length; i++) {
-                meta_attribute_mixins[meta['meta_traits'][i]](prototype, meta);
-            }
-        }
+        
+        JOII.callMetaMixin('onDefine', prototype, meta);
     }
+    
+    JOII.callMetaMixin('afterDefine', prototype);
 
 
     // Apply the parent prototype.
@@ -675,7 +668,7 @@ JOII.ParseClassProperty = function(str, currently_defining, meta_attribute_mixin
                 break;
             default:
 
-                if (data[i] in meta_attribute_mixins_normalized && typeof(meta_attribute_mixins[meta_attribute_mixins_normalized[data[i]]]) === 'function') {
+                if (data[i] in meta_attribute_mixins_normalized && typeof(meta_attribute_mixins[meta_attribute_mixins_normalized[data[i]]]) === 'object') {
                     // save the custom meta data for later
                     metadata['meta_traits'].push(meta_attribute_mixins_normalized[data[i]]);
                     break;
@@ -721,6 +714,66 @@ JOII.ParseClassProperty = function(str, currently_defining, meta_attribute_mixin
 
     return metadata;
 };
+
+
+
+JOII.callMetaMixin = function(eventToCall, prototype, scope_out, meta) {
+    
+    if (typeof (meta) === 'undefined' && typeof (scope_out) !== 'undefined') {
+        if ('__joii__' in scope_out) {
+                 
+        } else {
+            meta = scope_out;
+            delete scope_out;
+        }
+    }
+    
+    var meta_attribute_mixins = prototype.__joii__.meta_attribute_mixins;
+    
+    if (typeof (meta) === 'undefined') {
+        for (var i in meta_attribute_mixins) {
+            if (typeof (meta_attribute_mixins[i]) === 'object' && typeof (meta_attribute_mixins[i][eventToCall]) === 'function') {
+               
+                if (typeof (scope_out) === 'undefined') {
+                    meta_attribute_mixins[i][eventToCall](prototype, meta);
+                } else {
+                    meta_attribute_mixins[i][eventToCall](prototype, scope_out, meta);
+                }
+            }
+        }
+    } else {
+        if (typeof (meta.overloads) === 'object') {
+            for (var overload_index in meta.overloads) {
+                var overload = meta.overloads[overload_index];
+                // call the custom meta functions for this property
+                for (var i = 0; i < overload['meta_traits'].length; i++) {
+                    if (typeof (meta_attribute_mixins[overload['meta_traits'][i]]) === 'object' && typeof (meta_attribute_mixins[overload['meta_traits'][i]][eventToCall]) === 'function') {
+                    
+                        if (typeof (scope_out) === 'undefined') {
+                            meta_attribute_mixins[overload['meta_traits'][i]][eventToCall](prototype, overload);
+                        } else {
+                            meta_attribute_mixins[overload['meta_traits'][i]][eventToCall](prototype, scope_out, overload);
+                        }
+                    }
+                }
+            }
+        } else {
+            // call the custom meta functions for this property
+            for (var i = 0; i < meta['meta_traits'].length; i++) {
+                if (typeof (meta_attribute_mixins[meta['meta_traits'][i]]) === 'object' && typeof (meta_attribute_mixins[meta['meta_traits'][i]][eventToCall]) === 'function') {
+               
+                    if (typeof (scope_out) === 'undefined') {
+                        meta_attribute_mixins[meta['meta_traits'][i]][eventToCall](prototype, meta);
+                    } else {
+                        meta_attribute_mixins[meta['meta_traits'][i]][eventToCall](prototype, scope_out, meta);
+                    }
+                }
+            }
+        }
+    }
+}
+
+    
 
 JOII.GenerateGetterName = function(meta) {
     var getter = "";

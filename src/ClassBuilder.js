@@ -65,11 +65,28 @@
             if (typeof (this) === 'undefined' || typeof (this.__joii__) === 'undefined' || typeof (scope_in) !== 'object' || typeof (scope_in.__joii__) === 'undefined') {
                 return scope_in;
             }
+
+            
+
             
             var scope_out = generateOuterScope(this, scope_in);
             
             // need to link the inner and outer scopes before calling constructors
             linkAPI(scope_in, scope_out);
+            
+
+            // apply meta traits
+            JOII.callMetaMixin('beforeNew', scope_in, scope_out);
+
+            for (var meta_index in scope_in.__joii__.metadata) {
+                if (scope_in.__joii__.metadata.hasOwnProperty(meta_index) === false) continue;
+                var meta = scope_in.__joii__.metadata[meta_index];
+        
+                JOII.callMetaMixin('onNew', scope_in, scope_out, meta);
+            }
+    
+            JOII.callMetaMixin('afterNew', scope_in, scope_out);
+
 
             callConstructors(scope_in, arguments);
 
