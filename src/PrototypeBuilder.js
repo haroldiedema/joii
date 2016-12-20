@@ -523,6 +523,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
  * @return {Object}
  */
 JOII.ParseClassProperty = function(str, currently_defining, meta_attribute_mixins) {
+    "use strict";
     if (typeof (meta_attribute_mixins) !== 'object')
     {
         meta_attribute_mixins = {};
@@ -718,13 +719,14 @@ JOII.ParseClassProperty = function(str, currently_defining, meta_attribute_mixin
 
 
 JOII.callMetaMixin = function(eventToCall, prototype, scope_out, meta) {
+    "use strict";
     
     if (typeof (meta) === 'undefined' && typeof (scope_out) !== 'undefined') {
         if ('__joii__' in scope_out) {
                  
         } else {
             meta = scope_out;
-            delete scope_out;
+            scope_out = undefined;
         }
     }
     
@@ -771,11 +773,12 @@ JOII.callMetaMixin = function(eventToCall, prototype, scope_out, meta) {
             }
         }
     }
-}
+};
 
     
 
 JOII.GenerateGetterName = function(meta) {
+    "use strict";
     var getter = "";
     if (meta.type === 'boolean') {
         if (JOII.CamelcaseName(meta.name).substr(0, 2) === 'Is') {
@@ -791,6 +794,7 @@ JOII.GenerateGetterName = function(meta) {
 };
 
 JOII.GenerateSetterName = function(meta) {
+    "use strict";
     return 'set' + JOII.CamelcaseName(meta.name);
 };
 

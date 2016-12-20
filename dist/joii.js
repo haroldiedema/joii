@@ -607,13 +607,15 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
     }
     
 
-    if ('__meta' in deep_copy && typeof(deep_copy['__meta']) === 'object')
-    {
+    if ('__meta' in deep_copy && typeof(deep_copy['__meta']) === 'object') {
         // copy the meta mixin information
-        meta_attribute_mixins = JOII.Compat.extend(true, {}, deep_copy['__meta']);
+        meta_attribute_mixins = prototype.__joii__.meta_attribute_mixins = JOII.Compat.extend(true, {}, deep_copy['__meta']);
             
         // remove the __meta trait so it's not treated as a property
         delete deep_copy['__meta'];
+
+    } else {
+        meta_attribute_mixins = prototype.__joii__.meta_attribute_mixins = {};
     }
 
 
@@ -729,27 +731,18 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
         }
     }
 
-    
+
     // apply meta traits
+    JOII.callMetaMixin('beforeDefine', prototype);
+
     for (var meta_index in prototype.__joii__.metadata) {
         if (prototype.__joii__.metadata.hasOwnProperty(meta_index) === false) continue;
         var meta = prototype.__joii__.metadata[meta_index];
-
-        if (typeof(meta.overloads) === 'object') {
-            for (var overload_index in meta.overloads) {
-                var overload = meta.overloads[overload_index];
-                // call the custom meta functions for this property
-                for (var i = 0; i < overload['meta_traits'].length; i++) {
-                    meta_attribute_mixins[overload['meta_traits'][i]](prototype, overload);
-                }
-            }
-        } else {
-            // call the custom meta functions for this property
-            for (var i = 0; i < meta['meta_traits'].length; i++) {
-                meta_attribute_mixins[meta['meta_traits'][i]](prototype, meta);
-            }
-        }
+        
+        JOII.callMetaMixin('onDefine', prototype, meta);
     }
+    
+    JOII.callMetaMixin('afterDefine', prototype);
 
 
     // Apply the parent prototype.
@@ -1077,6 +1070,7 @@ JOII.PrototypeBuilder = function(name, parameters, body, is_interface, is_static
  * @return {Object}
  */
 JOII.ParseClassProperty = function(str, currently_defining, meta_attribute_mixins) {
+    "use strict";
     if (typeof (meta_attribute_mixins) !== 'object')
     {
         meta_attribute_mixins = {};
@@ -1222,7 +1216,7 @@ JOII.ParseClassProperty = function(str, currently_defining, meta_attribute_mixin
                 break;
             default:
 
-                if (data[i] in meta_attribute_mixins_normalized && typeof(meta_attribute_mixins[meta_attribute_mixins_normalized[data[i]]]) === 'function') {
+                if (data[i] in meta_attribute_mixins_normalized && typeof(meta_attribute_mixins[meta_attribute_mixins_normalized[data[i]]]) === 'object') {
                     // save the custom meta data for later
                     metadata['meta_traits'].push(meta_attribute_mixins_normalized[data[i]]);
                     break;
@@ -1269,7 +1263,69 @@ JOII.ParseClassProperty = function(str, currently_defining, meta_attribute_mixin
     return metadata;
 };
 
+
+
+JOII.callMetaMixin = function(eventToCall, prototype, scope_out, meta) {
+    "use strict";
+    
+    if (typeof (meta) === 'undefined' && typeof (scope_out) !== 'undefined') {
+        if ('__joii__' in scope_out) {
+                 
+        } else {
+            meta = scope_out;
+            scope_out = undefined;
+        }
+    }
+    
+    var meta_attribute_mixins = prototype.__joii__.meta_attribute_mixins;
+    
+    if (typeof (meta) === 'undefined') {
+        for (var i in meta_attribute_mixins) {
+            if (typeof (meta_attribute_mixins[i]) === 'object' && typeof (meta_attribute_mixins[i][eventToCall]) === 'function') {
+               
+                if (typeof (scope_out) === 'undefined') {
+                    meta_attribute_mixins[i][eventToCall](prototype, meta);
+                } else {
+                    meta_attribute_mixins[i][eventToCall](prototype, scope_out, meta);
+                }
+            }
+        }
+    } else {
+        if (typeof (meta.overloads) === 'object') {
+            for (var overload_index in meta.overloads) {
+                var overload = meta.overloads[overload_index];
+                // call the custom meta functions for this property
+                for (var i = 0; i < overload['meta_traits'].length; i++) {
+                    if (typeof (meta_attribute_mixins[overload['meta_traits'][i]]) === 'object' && typeof (meta_attribute_mixins[overload['meta_traits'][i]][eventToCall]) === 'function') {
+                    
+                        if (typeof (scope_out) === 'undefined') {
+                            meta_attribute_mixins[overload['meta_traits'][i]][eventToCall](prototype, overload);
+                        } else {
+                            meta_attribute_mixins[overload['meta_traits'][i]][eventToCall](prototype, scope_out, overload);
+                        }
+                    }
+                }
+            }
+        } else {
+            // call the custom meta functions for this property
+            for (var i = 0; i < meta['meta_traits'].length; i++) {
+                if (typeof (meta_attribute_mixins[meta['meta_traits'][i]]) === 'object' && typeof (meta_attribute_mixins[meta['meta_traits'][i]][eventToCall]) === 'function') {
+               
+                    if (typeof (scope_out) === 'undefined') {
+                        meta_attribute_mixins[meta['meta_traits'][i]][eventToCall](prototype, meta);
+                    } else {
+                        meta_attribute_mixins[meta['meta_traits'][i]][eventToCall](prototype, scope_out, meta);
+                    }
+                }
+            }
+        }
+    }
+};
+
+    
+
 JOII.GenerateGetterName = function(meta) {
+    "use strict";
     var getter = "";
     if (meta.type === 'boolean') {
         if (JOII.CamelcaseName(meta.name).substr(0, 2) === 'Is') {
@@ -1285,6 +1341,7 @@ JOII.GenerateGetterName = function(meta) {
 };
 
 JOII.GenerateSetterName = function(meta) {
+    "use strict";
     return 'set' + JOII.CamelcaseName(meta.name);
 };
 
@@ -1799,11 +1856,28 @@ JOII.CamelcaseName = function(input) {
             if (typeof (this) === 'undefined' || typeof (this.__joii__) === 'undefined' || typeof (scope_in) !== 'object' || typeof (scope_in.__joii__) === 'undefined') {
                 return scope_in;
             }
+
+            
+
             
             var scope_out = generateOuterScope(this, scope_in);
             
             // need to link the inner and outer scopes before calling constructors
             linkAPI(scope_in, scope_out);
+            
+
+            // apply meta traits
+            JOII.callMetaMixin('beforeNew', scope_in, scope_out);
+
+            for (var meta_index in scope_in.__joii__.metadata) {
+                if (scope_in.__joii__.metadata.hasOwnProperty(meta_index) === false) continue;
+                var meta = scope_in.__joii__.metadata[meta_index];
+        
+                JOII.callMetaMixin('onNew', scope_in, scope_out, meta);
+            }
+    
+            JOII.callMetaMixin('afterNew', scope_in, scope_out);
+
 
             callConstructors(scope_in, arguments);
 
