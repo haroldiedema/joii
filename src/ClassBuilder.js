@@ -65,11 +65,28 @@
             if (typeof (this) === 'undefined' || typeof (this.__joii__) === 'undefined' || typeof (scope_in) !== 'object' || typeof (scope_in.__joii__) === 'undefined') {
                 return scope_in;
             }
+
+            
+
             
             var scope_out = generateOuterScope(this, scope_in);
             
             // need to link the inner and outer scopes before calling constructors
             linkAPI(scope_in, scope_out);
+            
+
+            // apply meta traits
+            JOII.callMetaMixin('beforeNew', scope_in, scope_out);
+
+            for (var meta_index in scope_in.__joii__.metadata) {
+                if (scope_in.__joii__.metadata.hasOwnProperty(meta_index) === false) continue;
+                var meta = scope_in.__joii__.metadata[meta_index];
+        
+                JOII.callMetaMixin('onNew', scope_in, scope_out, meta);
+            }
+    
+            JOII.callMetaMixin('afterNew', scope_in, scope_out);
+
 
             callConstructors(scope_in, arguments);
 
@@ -330,32 +347,58 @@
 
             // check to make sure serialize doesn't exist yet, or if it does - it's capable of being overloaded without breaking BC
             if ((!('serialize' in definition.prototype.__joii__.metadata)) || (('overloads' in definition.prototype.__joii__.metadata['serialize']) && (definition.prototype.__joii__.metadata['serialize']['overloads'][0].parameters.length > 0 || definition.prototype.__joii__.metadata['serialize']['overloads'].length > 1))) {
-
+                
                 /**
                  * Serializes all serializable properties of an object. Public members are serializable by default.
                  *
                  * @return {String}
                  */
-                var generated_fn = function(json) {
+                var generated_fn = function() {
+                    return JSON.stringify(this.serialize(true));
+                };
+                // uses an inheritance style add, so it won't overwrite custom functions with the same signature
+                var serialize_meta = JOII.ParseClassProperty('public function serialize()');
+                JOII.addFunctionToPrototype(definition.prototype, serialize_meta, generated_fn, true);
+
+                
+                /**
+                 * Serializes all serializable properties of an object. Public members are serializable by default.
+                 *
+                 * @return {Object}
+                 */
+                var generated_fn = function(bool_return_object) {
                     var obj = { __joii_type: this.__joii__.name };
 
                     for (var key in this.__joii__.metadata) {
                         var val = this.__joii__.metadata[key];
 
                         if (val.serializable) {
-                            if (val.is_joii_object && !val.is_enum && typeof this[val.name] == 'object' && this[val.name] != null) {
-                                obj[val.name] = JSON.parse(this[val.name].serialize());
+                            
+                            var getter_name = JOII.GenerateGetterName(val);
+                            var currentValue = null;
+                            if (typeof (this[getter_name]) === 'function') {
+                                // use getter if it exists. This allows custom getters to translate the data properly if needed.
+                                currentValue = this[getter_name]();
+                            } else {
+                                currentValue = this[val.name];
                             }
-                            else {
-                                obj[val.name] = this[val.name];
+
+                            if (!val.is_enum && typeof (currentValue) === 'object' && currentValue !== null) {
+                                if ('serialize' in currentValue) {
+                                    obj[val.name] = currentValue.serialize(true);
+                                } else {
+                                    obj[val.name] = JOII.Compat.flattenObject(currentValue);
+                                }
+                            } else {
+                                obj[val.name] = currentValue;
                             }
                         }
                     }
 
-                    return JSON.stringify(obj);
+                    return obj;
                 };
                 // uses an inheritance style add, so it won't overwrite custom functions with the same signature
-                var serialize_meta = JOII.ParseClassProperty('public function serialize()');
+                var serialize_meta = JOII.ParseClassProperty('public function serialize(boolean)');
                 JOII.addFunctionToPrototype(definition.prototype, serialize_meta, generated_fn, true);
             }
 
@@ -374,7 +417,7 @@
                 // uses an inheritance style add, so it won't overwrite custom functions with the same signature
                 var deserialize_meta = JOII.ParseClassProperty('public function deserialize(string)');
                 JOII.addFunctionToPrototype(definition.prototype, deserialize_meta, generated_fn, true);
-
+                
                 /**
                  * Deserializes a class (called on an object instance to populate it)
                  *
@@ -385,8 +428,12 @@
                         var val = this.__joii__.metadata[key];
 
                         if (val.serializable) {
-                            if (val.name in obj && typeof obj[val.name] != 'function') {
-                                if (typeof obj[val.name] == 'object' && obj[val.name] != null && '__joii_type' in (obj[val.name])) {
+                            if (val.name in obj && typeof (obj[val.name]) != 'function') {
+                                var setter_name = JOII.GenerateSetterName(val);
+                                var getter_name = JOII.GenerateGetterName(val);
+
+
+                                if (typeof (obj[val.name]) === 'object' && obj[val.name] !== null && '__joii_type' in (obj[val.name])) {
                                     var name = obj[val.name].__joii_type;
                                     // Check for Interface-types
                                     if (typeof (JOII.InterfaceRegistry[name]) !== 'undefined') {
@@ -394,14 +441,56 @@
                                     }
                                     // Check for Class-types
                                     else if (typeof (JOII.ClassRegistry[name]) !== 'undefined') {
-                                        this[val.name] = JOII.ClassRegistry[name].deserialize(obj[val.name]);
-                                    }
-                                    else {
+                                        
+                                        var currentValue = null;
+                                        if (typeof (this[getter_name]) === 'function') {
+                                            // use getter if it exists. This allows custom getters to translate the data properly if needed.
+                                            currentValue = this[getter_name]();
+                                        } else {
+                                            currentValue = this[val.name];
+                                        }
+
+                                        if (typeof (currentValue) === 'object' && currentValue !== null && currentValue.__joii__.name === name) {
+                                            // try to deserialize in place if the object already exists. This avoids breaking object references.
+                                            currentValue.deserialize(obj[val.name]);
+                                        } else {
+                                            if (typeof (this[setter_name]) === 'function') {
+                                                // use setter if it exists. This allows custom setters to translate the data properly.
+                                                this[setter_name](JOII.ClassRegistry[name].deserialize(obj[val.name]));
+                                            } else {
+                                                // need to set directly
+                                                this[val.name] = JOII.ClassRegistry[name].deserialize(obj[val.name]);
+                                            }
+                                        }
+                                    } else {
                                         throw 'Class ' + name + ' not currently in scope!';
                                     }
-                                }
-                                else {
-                                    this[val.name] = obj[val.name];
+                                } else if (typeof (obj[val.name]) === 'object' && obj[val.name] !== null) {
+
+                                    var currentValue = null;
+                                    if (typeof (this[getter_name]) === 'function') {
+                                        // use getter if it exists. This allows custom getters to translate the data properly if needed.
+                                        currentValue = this[getter_name]();
+                                    } else {
+                                        currentValue = this[val.name];
+                                    }
+
+                                    // normal object. Crawl through it to find JOII objects.
+                                    var new_val = JOII.Compat.inflateObject(obj[val.name], currentValue);
+
+                                    if (typeof (this[setter_name]) === 'function') {
+                                        // use setter if it exists. This allows custom setters to translate the data properly.
+                                        this[setter_name](new_val);
+                                    } else {
+                                        this[val.name] = new_val;
+                                    }
+                                } else {
+                                    if (typeof (this[setter_name]) === 'function') {
+                                        // use setter if it exists. This allows custom setters to translate the data properly.
+                                        this[setter_name](obj[val.name]);
+                                    } else {
+                                        this[val.name] = obj[val.name];
+                                    }
                                 }
                             }
                         }

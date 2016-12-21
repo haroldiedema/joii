@@ -90,17 +90,22 @@ test('ClassBuilder:SerializeTest', function(assert) {
     var HolderClass = JOII.ClassBuilder({}, {
         'public BaseClass base': null,
         'public BaseClass c1': null,
-        'public BaseClass c2': null
+        'public BaseClass c2': null,
+        construct: function() {
+            var base1 = new BaseClass();
+            var c1 = new Child1();
+            var c2 = new Child2();
+            
+            this.setBase(base1);
+            this.setC1(c1);
+            this.setC2(c2);
+        }
     });
-
-    var base1 = new BaseClass();
-    var c1 = new Child1();
-    var c2 = new Child2();
-
+    
     var h1 = new HolderClass();
-    h1.setBase(base1);
-    h1.setC1(c1);
-    h1.setC2(c2);
+    var base1 = h1.getBase();
+    var c1 = h1.getC1();
+    var c2 = h1.getC2();
 
     var json = h1.serialize();
 
@@ -126,5 +131,40 @@ test('ClassBuilder:SerializeTest', function(assert) {
     h3.getC1().verifyChangedValues();
     h3.getC2().verifyChangedValues();
 
+    
+    var h4 = new HolderClass();
+    base1 = h4.getBase();
+    c1 = h4.getC1();
+    c2 = h4.getC2();
+    
+    h4.deserialize(json2);
+    
+    // verify the changed values, to make sure that the object references were kept intact
+    base1.verifyChangedValues();
+    c1.verifyChangedValues();
+    c2.verifyChangedValues();
+    
+
+    
+    var NewClass = JOII.ClassBuilder('NewClass', {}, {
+        'public object normal_object': null
+    });
+
+    var nc = new NewClass();
+
+    nc.setNormalObject([
+        {
+            name: 'Some Name',
+            value: c1
+        },
+        c2
+    ]);
+    
+    var json3 = nc.serialize();
+
+    var nc2 = NewClass.deserialize(json3);
+
+    nc2.getNormalObject()[0].value.verifyChangedValues();
+    nc2.getNormalObject()[1].verifyChangedValues();
 
 });
