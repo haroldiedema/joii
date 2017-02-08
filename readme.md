@@ -72,7 +72,7 @@ Somewhere, in your node project:
 ```javascript
 var JOII = require("joii");
 
-var MyClass = JOII.Class({ /* ... /* });
+var MyClass = JOII.Class({ /* ... */ });
 ```
 
 #### Node & Global Scope
